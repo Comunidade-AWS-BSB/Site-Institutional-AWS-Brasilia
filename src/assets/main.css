@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-family-sans: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-family-display: 'Raleway', sans-serif;
+
+  --color-background: #ffffff;
+  --color-foreground: #2f3138;
+  --color-primary: #5E1FB6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f2f2f3;
+  --color-secondary-foreground: #0e1b4d;
+  --color-muted: #f2f2f3;
+  --color-muted-foreground: rgba(47, 49, 56, 0.6);
+  --color-accent: #5E1FB6;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgba(47, 49, 56, 0.15);
+  --color-ring: #5E1FB6;
+  --color-success: #059652;
+  --color-success-foreground: #ffffff;
+
+  --radius: 0.5rem;
+}
+
+@theme dark {
+  --color-background: #000820;
+  --color-foreground: #ffffff;
+  --color-primary: #5E1FB6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #001553;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #001553;
+  --color-muted-foreground: rgba(255, 255, 255, 0.6);
+  --color-accent: #5E1FB6;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgba(255, 255, 255, 0.15);
+  --color-ring: #5E1FB6;
+  --color-success: #059652;
+  --color-success-foreground: #ffffff;
+}
+
+/* Base styles */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-family-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display);
+  color: var(--color-foreground);
+}
+
+/* Custom components */
+.pulsating-play-btn {
+  width: 6rem;
+  height: 6rem;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(var(--color-primary) 50%, rgba(94, 31, 182, 0.25) 52%);
+}
+
+.pulsating-play-btn::before {
+  content: "";
+  position: absolute;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  border: 4px solid rgba(94, 31, 182, 0.7);
+  opacity: 1;
+  top: -1rem;
+  left: -1rem;
+  animation: pulsate-play-btn 2s infinite;
+}
+
+.pulsating-play-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: 10;
+  transform: translateX(-40%) translateY(-50%);
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 15px solid white;
+  transition: all 400ms cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+.pulsating-play-btn:hover::after {
+  border-left-color: var(--color-primary);
+  transform: translateX(-40%) translateY(-50%) scale(20);
+}
+
+.hero-overlay {
+  background: linear-gradient(rgba(0, 8, 32, 0.7), rgba(0, 8, 32, 0.5));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
+@keyframes pulsate-play-btn {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.875rem;
+    line-height: 1.25;
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.625;
+  }
+}
