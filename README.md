@@ -1,45 +1,111 @@
-# site-institucional-aws-brasilia
+# Site-Institutional-AWS-Brasilia
 
-This template should help get you started developing with Vue 3 in Vite.
+Este é o site institucional da Comunidade AWS de Brasília, construído em colaboração com a comunidade local para centralizar informações sobre nossa área de atuação em cloud computing.
 
-## Recommended IDE Setup
+---
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Objetivo
 
-## Type Support for `.vue` Imports in TS
+* Criar um hub digital para **eventos**, **artigos técnicos** e **histórias de sucesso**.
+* Fortalecer o **engajamento** e a **visibilidade** da comunidade local.
+* Servir como ponto único de **referência** para nossos membros e visitantes.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+## Tecnologias & Infraestrutura
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+| Camada             | Ferramentas & Serviços                                         |
+| ------------------ | -------------------------------------------------------------- |
+| **Front-end**      | Vue 3 + TypeScript, Pinia, Vue Router                          |
+| **Estilos**        | TailwindCSS 4 + `@tailwindcss/vite`                            |
+| **UI Components**  | shadcn-vue CLI, aws-amplify/ui-vue                             |
+| **HTTP Client**    | Axios                                                          |
+| **Backend**        | AWS Amplify Gen 2 (Auth, Data, Storage)                        |
+| **Banco de Dados** | DynamoDB (via Amplify Data)                                    |
+| **Armazenamento**  | S3 (para assets de eventos, palestrantes e galeria de imagens) |
+| **Infraestrutura** | AWS CDK via Amplify (provisionamento automatizado)             |
+| **Automação**      | n8n + Evolution API (WhatsApp notifications)                   |
+| **Chatbot IA**     | Gemini API (futuro Bedrock/SageMaker)                          |
 
-## Project Setup
+---
 
-```sh
-npm install
+## Estrutura do Repositório
+
+```
+.
+├── amplify/                  # Backend (code-first): auth/ e data/
+│   ├── auth/
+│   └── data/
+├── docs/                     # Documentação (stack, regras, modelagem)
+├── public/                   # Arquivos estáticos servidos “as-is”
+│   └── img/
+│       ├── clients/
+│       ├── event-gallery/
+│       ├── speakers/
+│       └── venue-gallery/
+└── src/
+    ├── __tests__/            # (futuro) testes unitários
+    ├── assets/               # CSS de entrada e outros assets
+    ├── components/           # Componentes Vue
+    │   ├── sections/
+    │   ├── shared/
+    │   └── ui/button/
+    ├── lib/                  # Inicializações (amplify.ts, http.ts)
+    ├── router/               # Definição de rotas (apenas Vue Router básico)
+    ├── stores/               # Pinia stores
+    └── views/                # Views/Pages
 ```
 
-### Compile and Hot-Reload for Development
+---
 
-```sh
-npm run dev
-```
+## Como Iniciar
 
-### Type-Check, Compile and Minify for Production
+1. **Instalar dependências**
 
-```sh
-npm run build
-```
+   ```bash
+   npm install
+   ```
+2. **Configurar AWS CLI**
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+   ```bash
+   aws configure
+   ```
+3. **Sincronizar backend local**
 
-```sh
-npm run test:unit
-```
+   ```bash
+   npx ampx pull --sandbox
+   ```
+4. **Executar em modo de desenvolvimento**
 
-### Lint with [ESLint](https://eslint.org/)
+   ```bash
+   npm run dev
+   ```
+5. **Acessar**
+   Abra [http://localhost:5173](http://localhost:5173) no navegador.
 
-```sh
-npm run lint
-```
+---
+
+## Próximos Passos
+
+* Provisionar **Autenticação** (Amplify Gen 2 + Cognito)
+* Modelar e implementar **Eventos** & **Palestrantes**
+* Criar **Blog** e sistema de **Comentários**
+* Integrar **Chatbot IA** e **Notificações via WhatsApp**
+* Refinar **Infraestrutura** via AWS CDK
+
+> **Obs.**: Todas as atividades estão detalhadas em `docs/` e nas issues em `/issues`.
+
+---
+
+## Contribuição
+
+1. Abra uma **issue** em `/issues`.
+2. Faça um **fork** e crie uma **branch** `feature/xxx`.
+3. Implemente o código e, se possível, escreva testes.
+4. Envie um **pull request** referenciando a issue correspondente.
+
+---
+
+## Licença
+
+MIT © Grupo de Usuários AWS Brasília
