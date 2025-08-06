@@ -1,82 +1,78 @@
 <template>
-  <header
-    :class="[
-      'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-      isScrolled
-        ? 'bg-background/95 backdrop-blur-sm shadow-lg'
-        : 'bg-transparent'
-    ]"
-  >
-    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+  <header :class="[
+    'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+    isScrolled
+      ? 'bg-background/95 backdrop-blur-sm shadow-lg'
+      : 'bg-transparent'
+  ]">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-3">
       <!-- Logo -->
-      <router-link
-        to="/"
-        class="flex items-center space-x-2 transition-transform hover:scale-105"
-      >
-        <img
-          src="/img/logo.png"
-          alt="AWS User Group Brasília"
-          class="h-8 w-auto"
-        >
+      <router-link to="/" class="flex items-center space-x-2 transition-transform hover:scale-105">
+        <img src="/img/logo.png" alt="AWS User Group Brasília" class="h-8 w-auto">
       </router-link>
 
       <!-- Navegação Desktop -->
       <nav class="hidden lg:flex items-center space-x-8">
-        <router-link
-          v-for="link in navLinks"
-          :key="link.to"
-          :to="link.to"
-          class="text-sm font-medium text-foreground/80 hover:text-primary transition-colors duration-200 relative group"
-        >
+        <router-link v-for="link in navLinks" :key="link.to" :to="link.to"
+          class="text-sm font-medium text-foreground/80 hover:text-primary transition-colors duration-300 relative group">
           {{ link.text }}
-          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+          <span
+            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
         </router-link>
       </nav>
 
-      <!-- Botão CTA -->
-      <Button
-        variant="default"
-        size="sm"
-        class="hidden sm:flex"
-        @click="scrollToSection('buy-tickets')"
-      >
-        Comprar Ingressos
-      </Button>
+      <!-- Botões lado direito (desktop) -->
+      <div class="hidden sm:flex items-center gap-2">
+        <Button
+          variant="default"
+          size="sm"
+          class="flex"
+          @click="scrollToSection('buy-tickets')">
+          Comprar Ingressos
+        </Button>
+
+        <Button
+          variant="secondary"
+          size="sm"
+          class="group inline-flex items-center gap-1 overflow-hidden"
+          aria-label="Entrar ou cadastrar-se">
+          <LogIn
+            class="w-4 h-4 shrink-0
+                   transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]" />
+          <span
+            class="block w-0 opacity-0 -translate-x-1
+                   transition-[width,opacity,transform,margin]
+                   duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
+                   group-hover:w-[128px] group-hover:opacity-100 group-hover:translate-x-0 group-hover:ml-1
+                   whitespace-nowrap text-sm will-change-[width,opacity,transform]">
+            Entre/cadastre-se
+          </span>
+        </Button>
+      </div>
 
       <!-- Botão Menu Mobile -->
-      <Button
-        variant="ghost"
-        size="sm"
-        class="lg:hidden"
-        @click="toggleMobileMenu"
-      >
+      <Button variant="ghost" size="sm" class="lg:hidden" @click="toggleMobileMenu">
         <Menu v-if="!isMobileMenuOpen" class="h-5 w-5" />
         <X v-else class="h-5 w-5" />
       </Button>
     </div>
 
     <!-- Navegação Mobile -->
-    <div
-      v-if="isMobileMenuOpen"
-      class="lg:hidden bg-background/95 backdrop-blur-sm border-t border-border animate-fade-in-up"
-    >
+    <div v-if="isMobileMenuOpen"
+      class="lg:hidden bg-background/95 backdrop-blur-sm border-t border-border animate-fade-in-up">
       <nav class="container mx-auto px-4 py-4 space-y-4">
-        <router-link
-          v-for="link in navLinks"
-          :key="link.to"
-          :to="link.to"
+        <router-link v-for="link in navLinks" :key="link.to" :to="link.to"
           class="block text-sm font-medium text-foreground hover:text-primary transition-colors duration-200"
-          @click="closeMobileMenu"
-        >
+          @click="closeMobileMenu">
           {{ link.text }}
         </router-link>
-        <Button
-          variant="default"
-          size="sm"
-          class="w-full mt-4"
-          @click="scrollToSection('buy-tickets')"
-        >
+        <Button variant="default" size="sm" class="w-full mt-4" @click="scrollToSection('buy-tickets')">
           Comprar Ingressos
+        </Button>
+
+        <Button variant="secondary" size="sm" class="w-full mt-4 gap-2" aria-label="Entrar ou cadastrar-se">
+          <LogIn class="w-4 h-4" />
+          <span>Entre/cadastre-se</span>
         </Button>
       </nav>
     </div>
@@ -86,7 +82,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
-import { Menu, X } from 'lucide-vue-next'
+import { LogIn, Menu, X } from 'lucide-vue-next'
 
 interface NavLink {
   text: string

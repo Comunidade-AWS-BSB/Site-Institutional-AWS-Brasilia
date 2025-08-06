@@ -35,3 +35,7 @@ node_modules
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# general credentials
+*.com.json
+*.secret.csv

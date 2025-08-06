@@ -1,24 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import 'tailwindcss';
 
 @theme {
-  --font-family-sans: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-family-display: 'Raleway', sans-serif;
+  --font-family-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-family-display: 'Inter', sans-serif;
 
   --color-background: #ffffff;
   --color-foreground: #2f3138;
-  --color-primary: #5E1FB6;
+  --color-primary: #5e1fb6;
   --color-primary-foreground: #ffffff;
   --color-secondary: #f2f2f3;
   --color-secondary-foreground: #0e1b4d;
   --color-muted: #f2f2f3;
   --color-muted-foreground: rgba(47, 49, 56, 0.6);
-  --color-accent: #5E1FB6;
+  --color-accent: #5e1fb6;
   --color-accent-foreground: #ffffff;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --color-border: rgba(47, 49, 56, 0.15);
-  --color-ring: #5E1FB6;
+  --color-ring: #5e1fb6;
   --color-success: #059652;
   --color-success-foreground: #ffffff;
 
@@ -28,18 +28,18 @@
 @theme dark {
   --color-background: #000820;
   --color-foreground: #ffffff;
-  --color-primary: #5E1FB6;
+  --color-primary: #5e1fb6;
   --color-primary-foreground: #ffffff;
   --color-secondary: #001553;
   --color-secondary-foreground: #ffffff;
   --color-muted: #001553;
   --color-muted-foreground: rgba(255, 255, 255, 0.6);
-  --color-accent: #5E1FB6;
+  --color-accent: #5e1fb6;
   --color-accent-foreground: #ffffff;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --color-border: rgba(255, 255, 255, 0.15);
-  --color-ring: #5E1FB6;
+  --color-ring: #5e1fb6;
   --color-success: #059652;
   --color-success-foreground: #ffffff;
 }
@@ -55,7 +55,12 @@ body {
   font-family: var(--font-family-sans);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-family-display);
   color: var(--color-foreground);
 }
@@ -76,7 +81,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pulsating-play-btn::before {
-  content: "";
+  content: '';
   position: absolute;
   width: 8rem;
   height: 8rem;
@@ -89,7 +94,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pulsating-play-btn::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 50%;
   top: 50%;
