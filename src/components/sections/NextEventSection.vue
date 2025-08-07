@@ -1,5 +1,5 @@
 <template>
-    <section id="next-event" class="py-[var(--app-space-xl)] mt-2 bg-background">
+    <section id="next-event" class="py-[var(--app-space-xl)] bg-background">
         <div class="container mx-auto px-4 grid gap-[var(--app-space-xl)] lg:grid-cols-2 items-center">
             <div>
                 <h2 class="app-h2">Próximo evento</h2>

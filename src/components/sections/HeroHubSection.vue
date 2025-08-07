@@ -65,7 +65,7 @@ const plugins = computed(() => {
 </script>
 
 <template>
-  <section class="relative isolate" aria-label="Destaques da comunidade">
+  <section class="relative isolate max-h-[95vh] overflow-hidden" aria-label="Destaques da comunidade">
     <!-- Background Carousel -->
     <div class="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true" role="presentation">
       <Carousel :opts="{ align: 'start', loop: true }" :plugins="plugins" class="w-full">
