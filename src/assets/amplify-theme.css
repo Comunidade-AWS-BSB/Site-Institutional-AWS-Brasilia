@@ -1,0 +1,32 @@
+/* Branding do Amplify UI via CSS tokens (aplicado globalmente) */
+:root {
+  /* Cores principais */
+  --amplify-colors-brand-primary-10: #f3e9ff;
+  --amplify-colors-brand-primary-20: #e7d3ff;
+  --amplify-colors-brand-primary-40: #c6a6ff;
+  --amplify-colors-brand-primary-60: #a679ff;
+  --amplify-colors-brand-primary-80: #854cff;
+  --amplify-colors-brand-primary-90: #6f2aff;
+  --amplify-colors-brand-primary-100: #5e1fb6; /* match --color-primary */
+
+  /* Radius e tipografia */
+  --amplify-radii-small: 6px;
+  --amplify-radii-medium: 10px;
+  --amplify-radii-large: 14px;
+
+  --amplify-fonts-default-variable: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Botões */
+  --amplify-components-button-primary-background-color: var(--amplify-colors-brand-primary-100);
+  --amplify-components-button-primary-hover-background-color: #4e1a96;
+  --amplify-components-button-border-radius: var(--amplify-radii-medium);
+
+  /* Cards/Containers */
+  --amplify-components-fieldcontrol-border-radius: var(--amplify-radii-medium);
+  --amplify-components-card-border-radius: var(--amplify-radii-large);
+}
+
+/* Ajuste leve do container do Authenticator no modal */
+.amplify-authenticator {
+  --amplify-components-authenticator-modal-max-width: 480px;
+}

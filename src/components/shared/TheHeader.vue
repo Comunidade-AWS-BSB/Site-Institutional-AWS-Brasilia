@@ -31,11 +31,15 @@
           Comprar Ingressos
         </Button>
 
+        <!-- Quando NÃO logado: botao para abrir modal -->
         <Button
+          v-if="!isLoggedIn"
           variant="secondary"
           size="sm"
           class="group inline-flex items-center gap-1 overflow-hidden"
-          aria-label="Entrar ou cadastrar-se">
+          aria-label="Entrar ou cadastrar-se"
+          @click="openAuthModal"
+        >
           <LogIn
             class="w-4 h-4 shrink-0
                    transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]" />
@@ -48,6 +52,12 @@
             Entre/cadastre-se
           </span>
         </Button>
+
+        <!-- Quando logado: menu simples com Sair -->
+        <div v-else class="flex items-center gap-2">
+          <span class="text-sm text-foreground/80">Olá, {{ displayName || 'usuário' }}</span>
+          <Button variant="secondary" size="sm" @click="signOut">Sair</Button>
+        </div>
       </div>
 
       <!-- Botão Menu Mobile -->
@@ -70,9 +80,28 @@
           Comprar Ingressos
         </Button>
 
-        <Button variant="secondary" size="sm" class="w-full mt-4 gap-2" aria-label="Entrar ou cadastrar-se">
+        <!-- Mobile: alterna entre abrir modal e sair -->
+        <Button
+          v-if="!isLoggedIn"
+          variant="secondary"
+          size="sm"
+          class="w-full mt-4 gap-2"
+          aria-label="Entrar ou cadastrar-se"
+          @click="openAuthModal"
+        >
           <LogIn class="w-4 h-4" />
           <span>Entre/cadastre-se</span>
+        </Button>
+
+        <Button
+          v-else
+          variant="secondary"
+          size="sm"
+          class="w-full mt-4 gap-2"
+          aria-label="Sair"
+          @click="signOut"
+        >
+          <span>Sair</span>
         </Button>
       </nav>
     </div>
@@ -80,9 +109,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { LogIn, Menu, X } from 'lucide-vue-next'
+import { useUiStore } from '@/stores/ui.store'
+import { useAuthStore } from '@/stores/auth.store'
 
 interface NavLink {
   text: string
@@ -100,6 +131,19 @@ const navLinks: NavLink[] = [
 
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
+
+// Stores
+const ui = useUiStore()
+const auth = useAuthStore()
+
+const isLoggedIn = computed(() => auth.isLoggedIn)
+const displayName = computed(() => auth.displayName)
+
+// Métodos de UI/Auth
+const openAuthModal = () => ui.openAuthModal()
+const signOut = async () => {
+  await auth.doSignOut()
+}
 
 // Manipula o evento de rolagem para alterar o estado do cabeçalho
 const handleScroll = () => {
@@ -128,6 +172,8 @@ const scrollToSection = (sectionId: string) => {
 // Adiciona o listener de rolagem ao montar o componente
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
+  // bootstrap do auth para refletir sessão após refresh
+  auth.bootstrap()
 })
 
 // Remove o listener de rolagem ao desmontar o componente
