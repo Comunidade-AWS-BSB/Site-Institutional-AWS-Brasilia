@@ -1,6 +1,10 @@
  // router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
+
 import HomeView from '@/views/HomeView.vue'
+// Lazy imports (keeps initial bundle small)
+const EventTabView = () => import('@/views/EventTabView.vue')
+const StoreView = () => import('@/views/StoreView.vue')
 import SpeakerDetailView from '@/views/SpeakerDetailView.vue'
 
 export const router = createRouter({
@@ -16,6 +20,26 @@ export const router = createRouter({
       name: 'speaker-details',
       component: SpeakerDetailView,
       // meta: { protected: true }, // exemplo de rota protegida (desativado no MVP)
+    },
+    {
+      path: '/events/current',     // EventTab (novo)
+      name: 'events-current',
+      component: EventTabView,
+    },
+    {
+      path: '/store',              // Lojinha (novo)
+      name: 'store',
+      component: StoreView,
+    },
+    {
+      path: '/events/current',     // EventTab (novo)
+      name: 'events-current',
+      component: EventTabView,
+    },
+    {
+      path: '/store',              // Lojinha (novo)
+      name: 'store',
+      component: StoreView,
     },
   ],
   scrollBehavior(to, from, savedPosition) {

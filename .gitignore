@@ -39,3 +39,4 @@ amplifyconfiguration*
 # general credentials
 *.com.json
 *.secret.csv
+.env

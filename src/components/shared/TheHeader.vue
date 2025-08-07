@@ -13,24 +13,39 @@
 
       <!-- Navegação Desktop -->
       <nav class="hidden lg:flex items-center space-x-8">
-        <router-link v-for="link in navLinks" :key="link.to" :to="link.to"
-          class="text-sm font-medium text-foreground/80 hover:text-primary transition-colors duration-300 relative group">
+        <router-link
+          v-for="link in navLinks"
+          :key="link.to"
+          :to="link.to"
+          class="text-sm font-medium text-foreground/80 hover:text-primary transition-colors duration-300 relative group"
+          :aria-current="isActiveRoute(link.to) ? 'page' : undefined"
+        >
           {{ link.text }}
           <span
-            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"
+          ></span>
+        </router-link>
+
+        <!-- CTA destacado: Próximo evento -->
+        <router-link
+          to="/events/current"
+          class="text-sm font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200"
+          aria-current="page"
+          v-if="isOnEventsCurrent"
+        >
+          Próximo evento
+        </router-link>
+        <router-link
+          to="/events/current"
+          class="text-sm font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200"
+          v-else
+        >
+          Próximo evento
         </router-link>
       </nav>
 
-      <!-- Botões lado direito (desktop) -->
+      <!-- Ações lado direito (desktop) -->
       <div class="hidden sm:flex items-center gap-2">
-        <Button
-          variant="default"
-          size="sm"
-          class="flex"
-          @click="scrollToSection('buy-tickets')">
-          Comprar Ingressos
-        </Button>
-
         <!-- Quando NÃO logado: botao para abrir modal -->
         <Button
           v-if="!isLoggedIn"
@@ -71,14 +86,24 @@
     <div v-if="isMobileMenuOpen"
       class="lg:hidden bg-background/95 backdrop-blur-sm border-t border-border animate-fade-in-up">
       <nav class="container mx-auto px-4 py-4 space-y-4">
-        <router-link v-for="link in navLinks" :key="link.to" :to="link.to"
+        <router-link
+          v-for="link in navLinks"
+          :key="link.to"
+          :to="link.to"
           class="block text-sm font-medium text-foreground hover:text-primary transition-colors duration-200"
-          @click="closeMobileMenu">
+          @click="closeMobileMenu"
+        >
           {{ link.text }}
         </router-link>
-        <Button variant="default" size="sm" class="w-full mt-4" @click="scrollToSection('buy-tickets')">
-          Comprar Ingressos
-        </Button>
+
+        <!-- CTA mobile: Próximo evento -->
+        <router-link
+          to="/events/current"
+          class="block text-center text-sm font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200 mt-2"
+          @click="closeMobileMenu"
+        >
+          Próximo evento
+        </router-link>
 
         <!-- Mobile: alterna entre abrir modal e sair -->
         <Button
@@ -114,6 +139,7 @@ import { Button } from '@/components/ui/button'
 import { LogIn, Menu, X } from 'lucide-vue-next'
 import { useUiStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
+import router from '@/router'
 
 interface NavLink {
   text: string
@@ -121,10 +147,8 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
-  { text: 'Home', to: '#hero' },
+  { text: 'Home', to: '/' },
   { text: 'Palestrantes', to: '#speakers' },
-  { text: 'Eventos', to: '#schedule' },
-  { text: 'Local', to: '#venue' },
   { text: 'Galeria', to: '#gallery' },
   { text: 'Contato', to: '#contact' }
 ]
@@ -138,6 +162,16 @@ const auth = useAuthStore()
 
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const displayName = computed(() => auth.displayName)
+
+/** rota ativa para aria-current em links do header */
+const isActiveRoute = (to: string) => {
+  // Considera hash âncoras como não-routables; ativa apenas para rotas puras
+  if (to.startsWith('#')) return false
+  return router.currentRoute.value.path === to
+}
+
+/** se rota atual é /events/current */
+const isOnEventsCurrent = computed(() => router.currentRoute.value.path === '/events/current')
 
 // Métodos de UI/Auth
 const openAuthModal = () => ui.openAuthModal()
