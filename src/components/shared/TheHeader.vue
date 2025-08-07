@@ -1,51 +1,41 @@
 <template>
+  <!-- Header com blur/sombra para legibilidade sobre o carousel -->
   <header :class="[
-    'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+    'fixed top-0 left-0 right-0 z-50 transition-all duration-500 supports-[backdrop-filter]:backdrop-blur-md',
     isScrolled
-      ? 'bg-background/95 backdrop-blur-sm shadow-lg'
-      : 'bg-transparent'
+      ? 'bg-white/70 shadow-md dark:bg-black/50'
+      : 'bg-white/40 shadow-sm dark:bg-black/30'
   ]">
-    <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-3">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/10">
       <!-- Logo -->
       <router-link to="/" class="flex items-center space-x-2 transition-transform hover:scale-105">
         <img src="/img/logo.png" alt="AWS User Group Brasília" class="h-8 w-auto">
       </router-link>
 
       <!-- Navegação Desktop -->
-      <nav class="hidden lg:flex items-center space-x-8">
+      <nav class="hidden lg:flex items-center gap-6">
         <router-link
           v-for="link in navLinks"
           :key="link.to"
           :to="link.to"
-          class="text-sm font-medium text-foreground/80 hover:text-primary transition-colors duration-300 relative group"
+          class="inline-flex h-9 items-center px-1 text-sm font-medium leading-none text-foreground/80 hover:text-primary transition-colors duration-200 relative"
           :aria-current="isActiveRoute(link.to) ? 'page' : undefined"
         >
           {{ link.text }}
-          <span
-            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"
-          ></span>
+          <span class="pointer-events-none absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-[width] duration-200" />
         </router-link>
 
-        <!-- CTA destacado: Próximo evento -->
+        <!-- CTA destacado: Próximo evento (altura alinhada) -->
         <router-link
           to="/events/current"
-          class="text-sm font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200"
-          aria-current="page"
-          v-if="isOnEventsCurrent"
-        >
-          Próximo evento
-        </router-link>
-        <router-link
-          to="/events/current"
-          class="text-sm font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200"
-          v-else
+          class="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-colors duration-200"
         >
           Próximo evento
         </router-link>
       </nav>
 
       <!-- Ações lado direito (desktop) -->
-      <div class="hidden sm:flex items-center gap-2">
+      <div class="hidden sm:flex items-center gap-3">
         <!-- Quando NÃO logado: botao para abrir modal -->
         <Button
           v-if="!isLoggedIn"
@@ -76,7 +66,7 @@
       </div>
 
       <!-- Botão Menu Mobile -->
-      <Button variant="ghost" size="sm" class="lg:hidden" @click="toggleMobileMenu">
+      <Button variant="ghost" size="sm" class="lg:hidden" @click="toggleMobileMenu" aria-label="Abrir menu">
         <Menu v-if="!isMobileMenuOpen" class="h-5 w-5" />
         <X v-else class="h-5 w-5" />
       </Button>
@@ -84,7 +74,7 @@
 
     <!-- Navegação Mobile -->
     <div v-if="isMobileMenuOpen"
-      class="lg:hidden bg-background/95 backdrop-blur-sm border-t border-border animate-fade-in-up">
+      class="lg:hidden bg-white/80 supports-[backdrop-filter]:backdrop-blur-md border-t border-border animate-fade-in-up dark:bg-black/60">
       <nav class="container mx-auto px-4 py-4 space-y-4">
         <router-link
           v-for="link in navLinks"

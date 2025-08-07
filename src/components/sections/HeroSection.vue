@@ -1,6 +1,7 @@
 <template>
-  <section id="hero" class="relative overflow-hidden h-[50vh]">
-    <div class="container mx-auto px-4 py-[var(--app-space-xxxl)] mt-25 text-center">
+  <!-- Seção totalmente transparente para deixar o carousel de fundo visível -->
+  <section id="hero" class="relative overflow-visible bg-transparent">
+    <div class="container mx-auto px-4 py-[var(--app-space-xxxl)] text-center">
       <h1 class="app-display-l">AWS User Group Brasília</h1>
       <p class="app-h3 mt-[var(--app-space-m)]">Comunidade aberta para aprender e construir na nuvem</p>
       <p class="app-body-m mt-[var(--app-space-md)] text-foreground/80 max-w-2xl mx-auto">
