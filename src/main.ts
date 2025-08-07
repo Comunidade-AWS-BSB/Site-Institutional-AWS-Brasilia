@@ -10,6 +10,7 @@ import './lib/amplify'
 
 // Estilos globais
 import '@aws-amplify/ui-vue/styles.css'
+import '@/theme/tokens.css'
 import '@/assets/main.css'
 import '@/assets/amplify-theme.css'
 

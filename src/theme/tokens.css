@@ -1,0 +1,194 @@
+/* Design Tokens: app.* layer (CSS Variables)
+   Reference: Cloudscape tokens (conceptual). Implements light/dark themes.
+   Typography: Space Grotesk (base), Iki Mono (mono).
+*/
+
+/* Light theme (default) */
+:root {
+  /* Fonts */
+  --app-font-family-base: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --app-font-family-mono: 'Iki Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --app-font-weight-light: 300;
+  --app-font-weight-regular: 400;
+  --app-font-weight-semibold: 600;
+  --app-font-weight-bold: 700;
+
+  /* Typography scale (px) */
+  --app-font-size-display-l: 42px;
+  --app-line-height-display-l: 48px;
+
+  --app-font-size-heading-xl: 24px;
+  --app-line-height-heading-xl: 30px;
+
+  --app-font-size-heading-l: 20px;
+  --app-line-height-heading-l: 24px;
+
+  --app-font-size-heading-m: 18px;
+  --app-line-height-heading-m: 22px;
+
+  --app-font-size-heading-s: 16px;
+  --app-line-height-heading-s: 20px;
+  --app-letter-spacing-heading-s: 0.15px;
+
+  --app-font-size-heading-xs: 14px;
+  --app-line-height-heading-xs: 18px;
+  --app-letter-spacing-heading-xs: 0.2px;
+
+  --app-font-size-body-m: 14px;
+  --app-line-height-body-m: 20px;
+
+  --app-font-size-body-s: 12px;
+  --app-line-height-body-s: 16px;
+
+  --app-font-size-code-inline: 12px;
+  --app-line-height-code-inline: 16px;
+
+  --app-font-size-pre: 14px;
+  --app-line-height-pre: 20px;
+
+  /* Spacing (4px scale) */
+  --app-space-xxs: 2px;
+  --app-space-xs: 4px;
+  --app-space-s: 8px;
+  --app-space-m: 12px;
+  --app-space-md: 16px;
+  --app-space-l: 20px;
+  --app-space-xl: 24px;
+  --app-space-xxl: 32px;
+  --app-space-xxxl: 40px;
+
+  /* Grid and layout */
+  --app-grid-gutter: var(--app-space-l);
+  --app-container-padding: var(--app-space-md);
+
+  /* Radius */
+  --app-radius-m: 4px; /* inputs, chips, tags */
+  --app-radius-l: 8px; /* cards, modals, banners */
+
+  /* Motion */
+  --app-motion-duration-quick: 120ms;
+  --app-motion-duration-complex: 250ms;
+  --app-motion-duration-disabled: 0ms;
+  --app-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Color bridge (mapped from existing theme variables) */
+  --app-color-bg: var(--color-background, #ffffff);
+  --app-color-fg: var(--color-foreground, #2f3138);
+  --app-color-primary: var(--color-primary, #5e1fb6);
+  --app-color-primary-fg: var(--color-primary-foreground, #ffffff);
+  --app-color-border: var(--color-border, rgba(47, 49, 56, 0.15));
+  --app-color-ring: var(--color-ring, #5e1fb6);
+
+  /* Semantic placeholders (future mapping) */
+  --app-color-success: var(--color-success, #059652);
+  --app-color-success-fg: var(--color-success-foreground, #ffffff);
+  --app-color-muted: var(--color-muted, #f2f2f3);
+  --app-color-muted-fg: var(--color-muted-foreground, rgba(47, 49, 56, 0.6));
+}
+
+/* Dark theme: inherit from host dark theme if present.
+   Assumes a [data-theme="dark"] attribute or .dark class can toggle global palette.
+   We only ensure app.* reflect the host color variables.
+*/
+:root[data-theme="dark"], .dark {
+  --app-color-bg: var(--color-background, #000820);
+  --app-color-fg: var(--color-foreground, #ffffff);
+  --app-color-primary: var(--color-primary, #5e1fb6);
+  --app-color-primary-fg: var(--color-primary-foreground, #ffffff);
+  --app-color-border: var(--color-border, rgba(255, 255, 255, 0.15));
+  --app-color-ring: var(--color-ring, #5e1fb6);
+  --app-color-success: var(--color-success, #059652);
+  --app-color-success-fg: var(--color-success-foreground, #ffffff);
+  --app-color-muted: var(--color-muted, #001553);
+  --app-color-muted-fg: var(--color-muted-foreground, rgba(255, 255, 255, 0.6));
+}
+
+/* Utility classes (lightweight; optional usage)
+   These aid implementation and match the documented scales.
+*/
+.app-display-l {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-display-l);
+  line-height: var(--app-line-height-display-l);
+  font-weight: var(--app-font-weight-bold);
+}
+
+.app-h1 {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-heading-xl);
+  line-height: var(--app-line-height-heading-xl);
+  font-weight: var(--app-font-weight-bold);
+}
+
+.app-h2 {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-heading-l);
+  line-height: var(--app-line-height-heading-l);
+  font-weight: var(--app-font-weight-bold);
+}
+
+.app-h3 {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-heading-m);
+  line-height: var(--app-line-height-heading-m);
+  font-weight: var(--app-font-weight-bold);
+}
+
+.app-h4 {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-heading-s);
+  line-height: var(--app-line-height-heading-s);
+  font-weight: var(--app-font-weight-bold);
+  letter-spacing: var(--app-letter-spacing-heading-s);
+}
+
+.app-h5 {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-heading-xs);
+  line-height: var(--app-line-height-heading-xs);
+  font-weight: var(--app-font-weight-bold);
+  letter-spacing: var(--app-letter-spacing-heading-xs);
+}
+
+.app-body-m {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-body-m);
+  line-height: var(--app-line-height-body-m);
+  font-weight: var(--app-font-weight-regular);
+}
+
+.app-body-s {
+  font-family: var(--app-font-family-base);
+  font-size: var(--app-font-size-body-s);
+  line-height: var(--app-line-height-body-s);
+  font-weight: var(--app-font-weight-regular);
+}
+
+.app-code-inline {
+  font-family: var(--app-font-family-mono);
+  font-size: var(--app-font-size-code-inline);
+  line-height: var(--app-line-height-code-inline);
+  font-weight: var(--app-font-weight-regular);
+}
+
+.app-pre {
+  font-family: var(--app-font-family-mono);
+  font-size: var(--app-font-size-pre);
+  line-height: var(--app-line-height-pre);
+  font-weight: var(--app-font-weight-regular);
+}
+
+/* Focus visible outline standardization */
+:where(a, button, [role="button"], input, textarea, select, summary, .focusable):focus-visible {
+  outline: 2px solid var(--app-color-ring);
+  outline-offset: 2px;
+}
+
+/* Motion reduction */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: var(--app-motion-duration-disabled) !important;
+    transition-duration: var(--app-motion-duration-disabled) !important;
+  }
+}
