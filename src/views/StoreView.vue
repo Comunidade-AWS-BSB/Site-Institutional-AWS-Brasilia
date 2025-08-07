@@ -1,6 +1,6 @@
 <template>
   <main class="container mx-auto px-4 py-10">
-    <section class="mb-8">
+    <section class="mb-8 mt-10">
       <h1 class="app-h1">Lojinha</h1>
       <p class="app-body-m mt-2 text-foreground/80">
         Estrutura inicial da Lojinha. Migração do “Kit Camisa” virá em PRs seguintes.
