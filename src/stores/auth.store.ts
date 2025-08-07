@@ -25,7 +25,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!snapshot.value.userId)
   const displayName = computed(() => {
     const attrs = snapshot.value.attributes ?? {}
-    return attrs.preferred_username || attrs.name || snapshot.value.username || ''
+    return (
+      attrs.preferred_username ||
+      attrs.name ||
+      snapshot.value.username ||
+      attrs.email ||
+      ''
+    )
   })
 
   async function bootstrap() {

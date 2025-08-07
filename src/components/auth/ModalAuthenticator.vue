@@ -39,8 +39,13 @@
               variation="modal"
               :hide-sign-up="false"
               initial-state="signIn"
-              @authenticator:state:change="onStateChange"
+              :form-fields="formFields"
             >
+              <!-- Slot default apenas para render; efeitos colaterais removidos do render tree -->
+              <template #default="slotProps">
+                <slot v-bind="slotProps" />
+              </template>
+
               <template #header>
                 <h2 class="text-center text-xl font-semibold">Acessar sua conta</h2>
               </template>
@@ -96,14 +101,6 @@ function onKeydown(e: KeyboardEvent) {
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
-function onStateChange(ctx: { user?: Record<string, unknown> } | undefined) {
-  // O evento do Authenticator emite contexto com user quando autenticado.
-  if (ctx?.user) {
-    emit('authenticated')
-    onRequestClose()
-  }
-}
-
 /**
 * I18n oficial do Amplify UI:
 * 1) Carregamos traduções padrão (translations)
@@ -147,6 +144,7 @@ I18n.putVocabulariesForLanguage('pt', {
  'Enter your Confirm Password': 'Digite a confirmação da senha',
  'Verification Code': 'Código de verificação',
  'Enter your Verification Code': 'Digite o código recebido',
+ 'Enter your Phone number': 'Insira seu número de telefone',
 
  // Mensagens
  'Sign in to your account': 'Acesse sua conta',
@@ -167,6 +165,39 @@ I18n.putVocabulariesForLanguage('pt', {
 
 // Mantemos um computed vazio para compatibilidade da prop i18n se necessário no futuro.
 const i18n = computed(() => ({}))
+
+// Campos adicionais do formulário: coletar preferred_username no signUp
+const formFields = {
+  signUp: {
+    preferred_username: {
+      label: 'Nome de exibição',
+      placeholder: 'Seu nome público',
+      isRequired: true,
+      order: 4,
+    },
+  },
+} as const
+
+/**
+ * Fechamento robusto do modal:
+ * - Observa a sessão via Pinia store sem acoplar ao render do slot.
+ * - Quando usuário loga (store.isLoggedIn true), emitimos 'authenticated' e fechamos.
+ */
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/auth.store'
+const authStore = useAuthStore()
+const { isLoggedIn } = storeToRefs(authStore)
+
+watch(
+  isLoggedIn,
+  (logged) => {
+    if (logged && props.visible) {
+      emit('authenticated')
+      onRequestClose()
+    }
+  },
+  { immediate: false },
+)
 
 watch(
   () => props.visible,

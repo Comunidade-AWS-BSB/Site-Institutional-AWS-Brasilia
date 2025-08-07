@@ -30,3 +30,7 @@
 .amplify-authenticator {
   --amplify-components-authenticator-modal-max-width: 480px;
 }
+
+.amplify-authenticator__subtitle {
+    color: black;
+}
