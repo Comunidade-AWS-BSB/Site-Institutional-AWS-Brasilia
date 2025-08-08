@@ -12,7 +12,7 @@ frontend:
         - nvm use 22
         - node -v
         - npm ci --include=dev
-        - npx ampx generate outputs --app-id "$AWS_APP_ID" --branch "$AWS_BRANCH" --out ./amplify_outputs.json
+        - npx ampx generate outputs --app-id "$AWS_APP_ID" --branch "$AWS_BRANCH" ./amplify_outputs.json
     build:
       commands:
         - npm run build
