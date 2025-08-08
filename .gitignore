@@ -33,7 +33,7 @@ coverage
 # amplify
 node_modules
 .amplify
-amplify_outputs*
+# amplify_outputs* -> pra termos um arquivo básico de configuração durante o setup no console
 amplifyconfiguration*
 
 # general credentials
