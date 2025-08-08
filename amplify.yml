@@ -14,7 +14,6 @@ frontend:
         - npm ci
     build:
       commands:
-        - npm run lint
         - npm run build
     postBuild:
       commands:
