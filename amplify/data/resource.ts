@@ -1,53 +1,152 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any unauthenticated user can "create", "read", "update", 
-and "delete" any "Todo" records.
-=========================================================================*/
+/** Tipos */
+const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
+
+const SocialMedia = a.model({
+  name: a.string(),
+  url: a.url(),
+  speakerId: a.id().required(),
+  speaker: a.belongsTo("Speaker", "speakerId"),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** Modelo de Palestrante */
+const Speaker = a.model({
+  name: a.string().required(),
+  title: a.string(),
+  imageKey: a.string(), // Referencia objectKey no S3
+  bioIntro: a.string(),
+  bioExperience: a.string(),
+  bioExpertise: a.string(),
+  skills: a.string().array(),
+
+  // Relações 1‑N (um speaker pode ter várias talks e social medias)
+  talks: a.hasMany('Talk', 'speakerId'),
+  medias: a.hasMany('SocialMedia', 'speakerId'),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** Modelo de Evento
+ *  Observação: campos “planos” para venue e rótulos (dateLabel/timeLabel)
+ *  e coleções normalizadas como modelos relacionados (FAQ, Sponsor, Image).
+ */
+const Event = a.model({
+  title: a.string().required(),
+  theme: a.string(),
+  type: EventType,
+  date: a.date(),
+  time: a.time(),
+  dateLabel: a.string(),
+  timeLabel: a.string(),
+  location: a.string(),
+  description: a.string(),
+  hashtags: a.string().array(),
+  bannerKey: a.string(), // Referencia objectKey no S3
+  isCurrent: a.boolean(),
+
+  // Venue “flat” (mantém simples e direto)
+  venueName: a.string(),
+  venueAddress: a.string(),
+  venueMapUrl: a.url(),
+
+  // Relações 1‑N
+  talks: a.hasMany('Talk', 'eventId'),
+  faqs: a.hasMany('EventFaq', 'eventId'),
+  sponsors: a.hasMany('EventSponsor', 'eventId'),
+  gallery: a.hasMany('EventImage', 'eventId'),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** Palestra (Talk) – ligação Event x Speaker */
+const Talk = a.model({
+  title: a.string().required(),
+  abstract: a.string(),
+  order: a.integer(),
+  durationMinutes: a.integer(),
+
+  // FK + relacionamento
+  eventId: a.id().required(),
+  event: a.belongsTo('Event', 'eventId'),
+
+  speakerId: a.id().required(),
+  speaker: a.belongsTo('Speaker', 'speakerId'),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** FAQ do Evento */
+const EventFaq = a.model({
+  question: a.string().required(),
+  answer: a.string().required(),
+
+  eventId: a.id().required(),
+  event: a.belongsTo('Event', 'eventId'),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** Patrocinador do Evento */
+const EventSponsor = a.model({
+  name: a.string().required(),
+  logoKey: a.string(), // Referencia objectKey no S3
+
+  eventId: a.id().required(),
+  event: a.belongsTo('Event', 'eventId'),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** Imagem do Evento (galeria) */
+const EventImage = a.model({
+  src: a.string().required(), // Deve referenciar objectKey no S3
+  alt: a.string(),
+
+  eventId: a.id().required(),
+  event: a.belongsTo('Event', 'eventId'),
+}).authorization((allow) => [
+  allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
+  allow.authenticated().to(['read']),
+  allow.publicApiKey().to(['read']),
+])
+
+/** Esquema raiz */
 const schema = a.schema({
-  Todo: a
-    .model({
-      content: a.string(),
-    })
-    .authorization((allow) => [allow.guest()]),
-});
+  Speaker,
+  Event,
+  Talk,
+  EventFaq,
+  EventSponsor,
+  EventImage,
+  SocialMedia
+})
 
-export type Schema = ClientSchema<typeof schema>;
+export type Schema = ClientSchema<typeof schema>
 
+/**
+ * Authorization Modes:
+ * - default: userPool (usa o Cognito configurado via defineAuth)
+ * - apiKey: leitura pública (read‑only) para visitantes
+ */
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'identityPool',
+    defaultAuthorizationMode: 'userPool',
+    apiKeyAuthorizationMode: { expiresInDays: 30 },
   },
-});
-
-/*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
-=========================================================================*/
-
-/*
-"use client"
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>() // use this Data client for CRUDL requests
-*/
-
-/*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
-=========================================================================*/
-
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
+})
