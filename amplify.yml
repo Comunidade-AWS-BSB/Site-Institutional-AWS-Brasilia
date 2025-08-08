@@ -1,25 +1,31 @@
 version: 1
-appRoot: src
 
 env:
-  preBuild:
-    commands:
-      - nvm install
-      - nvm use
-      - npm ci
-  build:
-    commands:
-      - npm run lint
-      - npm run build
-  postBuild:
-    commands:
-      - echo "Deploy finalizado com sucesso"
+  variables:
+    NODE_ENV: production
 
-artifacts:
-  baseDirectory: dist
-  files:
-    - '**/*'
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 22
+        - nvm use 22
+        - node -v
+        - npm ci
+    build:
+      commands:
+        - npm run lint
+        - npm run build
+    postBuild:
+      commands:
+        - echo "Deploy finalizado com sucesso"
 
-cache:
-  paths:
-    - node_modules/**/*
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+
+  cache:
+    paths:
+      - node_modules/**/*
+
