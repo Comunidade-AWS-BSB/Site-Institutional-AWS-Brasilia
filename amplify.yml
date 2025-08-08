@@ -12,6 +12,7 @@ frontend:
         - nvm use 22
         - node -v
         - npm ci --include=dev
+        - npx ampx generate outputs --out ./amplify_outputs.json
     build:
       commands:
         - npm run build
