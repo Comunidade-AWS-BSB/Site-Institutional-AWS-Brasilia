@@ -11,7 +11,7 @@ frontend:
         - nvm install 22
         - nvm use 22
         - node -v
-        - npm ci
+        - npm ci --include=dev
     build:
       commands:
         - npm run build
@@ -27,4 +27,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-
