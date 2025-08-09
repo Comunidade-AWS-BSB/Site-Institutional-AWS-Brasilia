@@ -1,7 +1,9 @@
 import { getUrl, uploadData } from 'aws-amplify/storage'
 import { useFileStore } from '@/stores/file.store'
 
-export async function uploadImage(file: File, keyPrefix = 'events/'): Promise<string | undefined> {
+import { EVENTS_PREFIX } from '@/constants/storage'
+
+export async function uploadImage(file: File, keyPrefix = EVENTS_PREFIX): Promise<string | undefined> {
     const store = useFileStore()
     store.progress = 0
     store.loading = true

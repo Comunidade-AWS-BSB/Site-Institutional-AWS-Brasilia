@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <Toaster />
+
     <div class="min-h-screen bg-background">
       <TheHeader />
       <main>
@@ -26,6 +28,9 @@ import ModalAuthenticator from '@/components/auth/ModalAuthenticator.vue'
 import { useUiStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useAuth } from '@/composables/useAuth'
+
+import { Toaster } from '@/components/ui/sonner'
+import 'vue-sonner/style.css'
 
 // Estilo do Amplify UI já importado em main.ts (mantido aqui se App for renderizado isolado)
 import '@aws-amplify/ui-vue/styles.css'

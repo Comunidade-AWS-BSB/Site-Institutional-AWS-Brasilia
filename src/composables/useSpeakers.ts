@@ -4,6 +4,7 @@ import { uploadData, getUrl } from 'aws-amplify/storage'
 import { getDataClient } from './useData'
 import type { Schema } from '../../amplify/data/resource'
 import type { SelectionSet } from 'aws-amplify/data'
+import { buildSpeakerAvatarPath } from '@/constants/storage'
 
 // --- Tipos base vindos do Schema ---
 type Speaker = Schema['Speaker']['type']
@@ -11,7 +12,7 @@ type SpeakerId = Speaker['id']
 
 // --- SelectionSet: mantenha só os campos que a UI precisa ---
 // Isso evita LazyLoader de relacionamentos e “nullability” esquisita.
-const selection = ['id', 'name', 'bioIntro', 'bioExperience', 'bioExpertise', 'skills', 'imageKey', 'createdAt', 'updatedAt'] as const
+const selection = ['id', 'name', 'title', 'bioIntro', 'bioExperience', 'bioExpertise', 'skills', 'imageKey', 'createdAt', 'updatedAt'] as const
 type SpeakerRow = SelectionSet<Speaker, typeof selection>
 
 // --- Helpers para os inputs fortemente tipados a partir do client ---
@@ -118,7 +119,7 @@ export function useSpeakers() {
    */
   async function uploadAvatar(file: File, speakerId: SpeakerId) {
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
-    const path = `${PUBLIC_PREFIX}/${speakerId}/avatar-${Date.now()}.${ext}`
+    const path = buildSpeakerAvatarPath(speakerId, file.name)
 
     const task = uploadData({
       path, // ← API nova usa path (key é deprecated)

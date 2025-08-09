@@ -4,13 +4,14 @@ import { uploadData, getUrl } from 'aws-amplify/storage'
 import { getDataClient } from './useData'
 import type { Schema } from '../../amplify/data/resource'
 import type { SelectionSet } from 'aws-amplify/data'
+import { buildEventBannerPath } from '@/constants/storage'
 
 /**
  * Tipagem forte derivada do Schema (Amplify Gen 2)
  */
 type Event = Schema['Event']['type']
 type EventId = Event['id']
-type EventType = Schema['type']
+type EventType = Event['type']
 
 /**
  * Campos realmente usados na UI.
@@ -179,7 +180,7 @@ export function useEvents() {
    */
   async function uploadBanner(file: File, eventId: EventId) {
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
-    const path = `${PUBLIC_EVENTS_PREFIX}/${eventId}/banner-${Date.now()}.${ext}`
+    const path = buildEventBannerPath(eventId, file.name)
 
     const task = uploadData({
       path, // API nova (v6+) usa `path`, não `key`
