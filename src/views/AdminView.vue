@@ -15,7 +15,17 @@
             <TabsList>
                 <TabsTrigger value="events">Eventos</TabsTrigger>
                 <TabsTrigger value="speakers">Palestrantes</TabsTrigger>
+                <TabsTrigger value="site-gallery">Galeria</TabsTrigger>
+                <TabsTrigger value="site-carousel">Carrossel</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="site-gallery" class="mt-6 space-y-4">
+                <GalleryManager prefix="public/assets/site/gallery/" title="Galeria institucional" />
+            </TabsContent>
+
+            <TabsContent value="site-carousel" class="mt-6 space-y-4">
+                <GalleryManager prefix="public/assets/site/carousel/" title="Carrossel da Home" />
+            </TabsContent>
 
             <!-- Eventos -->
             <TabsContent value="events" class="mt-6 space-y-4">
@@ -103,6 +113,8 @@
                                                 @click="openEditEvent(ev)">Editar</Button>
                                             <Button variant="destructive" size="sm"
                                                 @click="confirmDeleteEvent(ev)">Excluir</Button>
+                                            <Button variant="outline" size="sm"
+                                                @click="openEventGallery(ev)">Galeria</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -193,6 +205,8 @@
 
         <UpdateCreateSpeakerModal :open="speakerModalOpen" :editing="editingSpeaker" @close="speakerModalOpen = false"
             @saved="onSpeakerSaved" />
+
+        <EventGalleryModal :open="eventGalleryOpen" :eventId="eventGalleryEventId" @close="eventGalleryOpen = false" />
     </div>
 </template>
 
@@ -202,6 +216,8 @@ import { useEvents } from '@/composables/useEvents'
 import { useSpeakers } from '@/composables/useSpeakers'
 import UpdateCreateEventModal from '@/components/admin/UpdateCreateEventModal.vue'
 import UpdateCreateSpeakerModal from '@/components/admin/UpdateCreateSpeakerModal.vue'
+import EventGalleryModal from '@/components/admin/EventGalleryModal.vue'
+import GalleryManager from '@/components/admin/GalleryManager.vue'
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -221,7 +237,7 @@ type EventRow = typeof events.items.value[number]
 type SpeakerRow = typeof speakers.items.value[number]
 type EventType = EventRow['type']
 
-const activeTab = ref<'events' | 'speakers'>('events')
+const activeTab = ref<'events' | 'speakers' | 'site-gallery' | 'site-carousel'>('events')
 
 // Filtros e busca — Eventos
 const eventSearch = ref<string>('')
@@ -252,6 +268,13 @@ const eventModalOpen = ref(false)
 const speakerModalOpen = ref(false)
 const editingEvent = ref<EventRow | null>(null)
 const editingSpeaker = ref<SpeakerRow | null>(null)
+const eventGalleryOpen = ref(false)
+const eventGalleryEventId = ref<string | null>(null)
+
+function openEventGallery(ev: EventRow) {
+    eventGalleryEventId.value = ev.id
+    eventGalleryOpen.value = true
+}
 
 /** Carrega eventos com filtros atuais */
 async function reloadEvents(): Promise<void> {
@@ -346,8 +369,8 @@ watch(speakerSearch, () => {
 // Inicial
 onMounted(async () => {
     await Promise.all([reloadEvents(), reloadSpeakers()])
-    console.log('Speakers carregados: ', speakers.items.value)
-    console.log('Eventos carregados', events.items.value)
+    console.log('Speakers carregados: ', speakers.items)
+    console.log('Eventos carregados', events.items)
     firstLoad.value = false
 })
 
