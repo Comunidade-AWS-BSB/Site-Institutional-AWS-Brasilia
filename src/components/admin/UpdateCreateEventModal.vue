@@ -1,6 +1,6 @@
 <template>
     <Dialog :open="open" @update:open="(v: boolean) => (!v) && $emit('close')">
-        <DialogContent class="max-w-4xl">
+        <DialogContent class="!max-w-none !w-[50vw]">
             <DialogHeader>
                 <DialogTitle>{{ editing ? 'Editar evento' : 'Novo evento' }}</DialogTitle>
                 <DialogDescription>Preencha os campos abaixo e salve.</DialogDescription>
@@ -24,10 +24,13 @@
                         <div>
                             <Label for="type">Tipo</Label>
                             <Select v-model="form.type">
-                                <SelectTrigger id="type">
+                                <SelectTrigger id="type"
+                                    class="bg-background border border-input shadow-sm focus:ring-2 focus:ring-ring focus:outline-none">
                                     <SelectValue placeholder="Selecionar" />
                                 </SelectTrigger>
-                                <SelectContent>
+
+                                <SelectContent
+                                    class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
                                     <SelectItem value="MEETUP">MEETUP</SelectItem>
                                     <SelectItem value="WORKSHOP">WORKSHOP</SelectItem>
                                     <SelectItem value="TALK">TALK</SelectItem>

@@ -213,11 +213,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import SkeletonRows from '@/components/admin/SkeletonRows.vue'
 
-type EventsHook = ReturnType<typeof useEvents>
-type SpeakersHook = ReturnType<typeof useSpeakers>
-
-const events: EventsHook = reactive(useEvents())
-const speakers: SpeakersHook = reactive(useSpeakers())
+const events = reactive(useEvents())
+const speakers = reactive(useSpeakers())
 
 // Deriva o tipo de linha a partir do estado dos hooks (sem export extra)
 type EventRow = typeof events.items.value[number]
