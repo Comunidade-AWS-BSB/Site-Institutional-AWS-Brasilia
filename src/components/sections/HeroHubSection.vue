@@ -18,19 +18,18 @@ import {
 import Autoplay from 'embla-carousel-autoplay'
 
 // Props: permite sobrescrever imagens se necessário
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   images?: string[]
   delay?: number
-}>(), {
-  images: () => [
-    '/img/event-gallery/event-gallery-10.jpg',
-    '/img/event-gallery/event-gallery-11.jpg',
-    '/img/event-gallery/event-gallery-6.jpg',
-    '/img/event-gallery/event-gallery-13.jpg',
-    '/img/event-gallery/event-gallery-8.jpg',
-  ],
-  delay: 4000,
-})
+}>()
+
+const fallback = [
+  '/img/event-gallery/event-gallery-10.jpg',
+  '/img/event-gallery/event-gallery-11.jpg',
+  '/img/event-gallery/event-gallery-6.jpg',
+  '/img/event-gallery/event-gallery-13.jpg',
+  '/img/event-gallery/event-gallery-8.jpg',
+]
 
 // Respeito a preferência do usuário por menos movimento
 const prefersReducedMotion = ref(false)
@@ -56,7 +55,6 @@ const plugins = computed(() => {
   if (prefersReducedMotion.value) return []
   return [
     Autoplay({
-      delay: props.delay,
       stopOnInteraction: false,
       stopOnMouseEnter: false,
     }),
@@ -65,13 +63,14 @@ const plugins = computed(() => {
 </script>
 
 <template>
-  <section class="relative isolate max-h-[95vh] overflow-hidden" aria-label="Destaques da comunidade">
+  <section class="relative isolate max-h-[98vh] overflow-hidden" aria-label="Destaques da comunidade">
     <!-- Background Carousel -->
     <div class="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true" role="presentation">
       <Carousel :opts="{ align: 'start', loop: true }" :plugins="plugins" class="w-full">
         <!-- Fix sizing: força altura mínima responsiva no content e nos itens -->
         <CarouselContent class="h-[min(72vh,720px)] min-h-[420px]">
-          <CarouselItem v-for="(img, idx) in props.images" :key="idx" class="h-full min-h-[420px]">
+          <CarouselItem v-for="(img, idx) in (props.images?.length ? props.images : fallback)" :key="idx"
+            class="h-full min-h-[420px]">
             <div class="relative h-full w-full">
               <img :src="img" :alt="''" class="pointer-events-none h-full w-full select-none object-cover"
                 loading="lazy" decoding="async" />

@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
     component: HomeView,
   },
   {
-    path: '/speaker-details',    // detalhes de palestrante
+    path: '/speakers/:id',    // detalhes de palestrante
     name: 'speaker-details',
     component: SpeakerDetailView,
     // meta: { protected: true }, // exemplo de rota protegida (desativado no MVP)
@@ -38,6 +38,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/event',
+    name: 'event',
     redirect: { name: 'event-details', params: { id: 'current' } }
   },
   {

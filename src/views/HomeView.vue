@@ -1,21 +1,17 @@
+<!-- src/views/HomeView.vue -->
 <template>
   <div>
-    <!-- 1) Hub com Hero + Próximo Evento (com Carousel de fundo) -->
-    <HeroHubSection />
+    <!-- Carrossel/Hero com imagens dinâmicas -->
+    <HeroHubSection :images="carousel.srcs" />
 
-    <!-- 2) Palestrantes -->
+    <!-- Palestrantes (inalterado) -->
     <SpeakersSection />
 
-    <!-- 3) Galeria -->
-    <GallerySection />
+    <!-- Galeria dinâmica -->
+    <GallerySection :images="gallery.srcs" />
 
-    <!-- 4) Patrocinadores -->
     <SponsorsSection />
-
-    <!-- 5) FAQ -->
     <FaqSection />
-
-    <!-- 6) Contatos (sem endereço) -->
     <ContactSection />
   </div>
 </template>
@@ -27,4 +23,17 @@ import GallerySection from '@/components/sections/GallerySection.vue'
 import SponsorsSection from '@/components/sections/SponsorsSection.vue'
 import FaqSection from '@/components/sections/FaqSection.vue'
 import ContactSection from '@/components/sections/ContactSection.vue'
+
+import { onMounted, reactive } from 'vue'
+import { useSiteImages } from '@/composables/useSiteImages'
+import { SITE_CAROUSEL_PREFIX, SITE_GALLERY_PREFIX } from '@/constants/storage'
+
+// carrossel e galeria do S3 (mesma origem do Admin > GalleryManager)
+const carousel = reactive(useSiteImages(SITE_CAROUSEL_PREFIX))
+const gallery  = reactive(useSiteImages(SITE_GALLERY_PREFIX))
+
+onMounted(async () => {
+  // carregamentos em paralelo
+  await Promise.all([carousel.load(true), gallery.load(true)])
+})
 </script>

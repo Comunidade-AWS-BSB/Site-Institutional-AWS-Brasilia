@@ -1,4 +1,4 @@
-// 
+// src/composables/useEvents.ts
 import { ref, computed, type Ref } from 'vue'
 import { uploadData, getUrl } from 'aws-amplify/storage'
 import { getDataClient } from './useData'
@@ -6,215 +6,245 @@ import type { Schema } from '../../amplify/data/resource'
 import type { SelectionSet } from 'aws-amplify/data'
 import { buildEventBannerPath } from '@/constants/storage'
 
-/**
- * Tipagem forte derivada do Schema (Amplify Gen 2)
- */
+// ===== Tipos base (derivados do schema) =====
 type Event = Schema['Event']['type']
-type EventId = Event['id']
-type EventType = Event['type']
+type Talk = Schema['Talk']['type']
+type Sponsor = Schema['EventSponsor']['type']
+type Faq = Schema['EventFaq']['type']
+type Speaker = Schema['Speaker']['type']
+type Social = Schema['SocialMedia']['type']
 
-/**
- * Campos realmente usados na UI.
- * - Usar selectionSet garante shape estável (sem LazyLoader e nulls “surpresa”).
- */
-const selection = [
-  'id',
-  'title',
-  'theme',
-  'type',
-  'date',
-  'time',
-  'dateLabel',
-  'timeLabel',
-  'location',
-  'description',
-  'hashtags',
-  'bannerKey',
-  'isCurrent',
-  'venueName',
-  'venueAddress',
-  'venueMapUrl',
+export type EventId = Event['id']
+export type EventType = Event['type']
+
+// ===== Seleções tipadas (somente campos usados pela UI) =====
+const baseSelection = [
+    'id', 'title', 'theme', 'type', 'date', 'time', 'dateLabel', 'timeLabel',
+    'location', 'description', 'hashtags', 'bannerKey', 'isCurrent',
+    'venueName', 'venueAddress', 'venueMapUrl',
 ] as const
-type EventRow = SelectionSet<Event, typeof selection>
+export type EventRow = SelectionSet<Event, typeof baseSelection>
 
-/** Opções de listagem/filtragem. */
+const talkSelection = [
+    'id', 'title', 'abstract', 'durationMinutes', 'order', 'eventId', 'speakerId'
+] as const
+export type TalkRow = SelectionSet<Talk, typeof talkSelection>
+
+const sponsorSelection = ['id', 'name', 'logoKey', 'eventId'] as const
+export type SponsorRow = SelectionSet<Sponsor, typeof sponsorSelection>
+
+const faqSelection = ['id', 'question', 'answer', 'eventId'] as const
+export type FaqRow = SelectionSet<Faq, typeof faqSelection>
+
+const speakerSelection = [
+    'id', 'name', 'title', 'imageKey', 'bioIntro', 'bioExperience', 'bioExpertise', 'skills'
+] as const
+export type SpeakerRow = SelectionSet<Speaker, typeof speakerSelection>
+
+const socialSelection = ['id', 'name', 'url', 'speakerId'] as const
+export type SocialRow = SelectionSet<Social, typeof socialSelection>
+
+// ===== Opções de listagem =====
 export type ListEventsOptions = {
-  search?: string          // title contains
-  type?: EventType         // enum eq
-  isCurrent?: boolean      // eq
-  from?: string            // date ge (ISO date: YYYY-MM-DD)
-  to?: string              // date le (ISO date)
-  limit?: number
-  nextToken?: string | null
+    search?: string
+    type?: EventType
+    isCurrent?: boolean
+    from?: string
+    to?: string
+    limit?: number
+    nextToken?: string | null
 }
 
 export function useEvents() {
-  const client = getDataClient()
+    const client = getDataClient()
 
-  // Deriva tipos de input a partir do client (sempre alinhado com o backend)
-  type CreateInput = Parameters<typeof client.models.Event.create>[0]
-  type UpdateInput = Parameters<typeof client.models.Event.update>[0]
-  type GetInput    = Parameters<typeof client.models.Event.get>[0]
-  type ListInput   = Parameters<typeof client.models.Event.list>[0]
+    // Inputs 100% fortemente tipados (derivados do client)
+    type CreateInput = Parameters<typeof client.models.Event.create>[0]
+    type UpdateInput = Parameters<typeof client.models.Event.update>[0]
+    type GetInput = Parameters<typeof client.models.Event.get>[0]
+    type ListInput = Parameters<typeof client.models.Event.list>[0]
 
-  // Estado reativo tipado
-  const items: Ref<EventRow[]> = ref([])
-  const loading = ref(false)
-  const error: Ref<Error | null> = ref(null)
-  const nextToken: Ref<string | null> = ref(null)
-  const hasMore = computed(() => nextToken.value !== null)
+    // ===== Estado =====
+    const items: Ref<EventRow[]> = ref([])
+    const loading = ref(false)
+    const error: Ref<Error | null> = ref(null)
+    const nextToken: Ref<string | null> = ref(null)
+    const hasMore = computed(() => nextToken.value !== null)
 
-  /**
-   * Lista eventos com filtros opcionais.
-   * - search → `title contains`
-   * - type → `eq`
-   * - isCurrent → `eq`
-   * - from/to → `date ge/le`
-   */
-  async function listEvents(opts?: ListEventsOptions) {
-    try {
-      loading.value = true
-      error.value = null
+    // ===== List / Get / CRUD =====
+    async function listEvents(opts?: ListEventsOptions) {
+        try {
+            loading.value = true
+            error.value = null
 
-      const filter =
-        !opts?.search && !opts?.type && typeof opts?.isCurrent === 'undefined' && !opts?.from && !opts?.to
-          ? undefined
-          : {
-              ...(opts?.search ? { title: { contains: opts.search } } : {}),
-              ...(opts?.type ? { type: { eq: opts.type } } : {}),
-              ...(typeof opts?.isCurrent === 'boolean' ? { isCurrent: { eq: opts.isCurrent } } : {}),
-              ...((opts?.from || opts?.to)
-                ? {
-                    date: {
-                      ...(opts.from ? { ge: opts.from } : {}),
-                      ...(opts.to ? { le: opts.to } : {}),
-                    },
-                  }
-                : {}),
+            const filter =
+                !opts?.search && !opts?.type && typeof opts?.isCurrent === 'undefined' && !opts?.from && !opts?.to
+                    ? undefined
+                    : {
+                        ...(opts?.search ? { title: { contains: opts.search } } : {}),
+                        ...(opts?.type ? { type: { eq: opts.type } } : {}),
+                        ...(typeof opts?.isCurrent === 'boolean' ? { isCurrent: { eq: opts.isCurrent } } : {}),
+                        ...((opts?.from || opts?.to)
+                            ? { date: { ...(opts.from ? { ge: opts.from } : {}), ...(opts.to ? { le: opts.to } : {}) } }
+                            : {}),
+                    }
+
+            const input: ListInput = {
+                filter,
+                limit: opts?.limit ?? 20,
+                nextToken: opts?.nextToken ?? undefined,
+                selectionSet: baseSelection,
             }
 
-      const input: ListInput = {
-        filter,
-        limit: opts?.limit ?? 20,
-        nextToken: opts?.nextToken ?? undefined,
-        selectionSet: selection,
-      }
+            const { data, nextToken: token, errors } = await client.models.Event.list(input)
+            if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
 
-      const { data, nextToken: token, errors } = await client.models.Event.list(input)
-      if (errors?.length) {
-        throw new Error(
-          errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; ')
-        )
-      }
-
-      items.value = data as EventRow[]
-      nextToken.value = token ?? null
-      return { data: items.value, nextToken: nextToken.value }
-    } catch (e) {
-      error.value = e instanceof Error ? e : new Error(String(e))
-      throw error.value
-    } finally {
-      loading.value = false
+            items.value = (data ?? []) as EventRow[]
+            nextToken.value = token ?? null
+            return { data: items.value, nextToken: nextToken.value }
+        } catch (e) {
+            error.value = e instanceof Error ? e : new Error(String(e))
+            throw error.value
+        } finally {
+            loading.value = false
+        }
     }
-  }
 
-  /** Busca evento por id (selectionSet aplicado). */
-  async function getEvent(id: EventId) {
-    const input: GetInput & { selectionSet: typeof selection } = { id, selectionSet: selection }
-    const { data, errors } = await client.models.Event.get(input)
-    if (errors?.length) {
-      throw new Error(
-        errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; ')
-      )
+    async function getEvent(id: EventId) {
+        const input: GetInput & { selectionSet: typeof baseSelection } = { id, selectionSet: baseSelection }
+        const { data, errors } = await client.models.Event.get(input)
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        return data as EventRow | null
     }
-    return data as EventRow | null
-  }
 
-  /** Cria evento e retorna a linha com o mesmo shape do estado. */
-  async function createEvent(input: CreateInput) {
-    const { data, errors } = await client.models.Event.create(input, { selectionSet: selection })
-    if (errors?.length) {
-      throw new Error(
-        errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; ')
-      )
+    async function createEvent(input: CreateInput) {
+        const { data, errors } = await client.models.Event.create(input, { selectionSet: baseSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        const row = data as EventRow
+        items.value = [row, ...items.value]
+        return row
     }
-    const row = data as EventRow
-    items.value = [row, ...items.value]
-    return row
-  }
 
-  /** Atualiza evento (patch deve conter `id`). */
-  async function updateEvent(patch: UpdateInput) {
-    const { data, errors } = await client.models.Event.update(patch, { selectionSet: selection })
-    if (errors?.length) {
-      throw new Error(
-        errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; ')
-      )
+    async function updateEvent(patch: UpdateInput) {
+        const { data, errors } = await client.models.Event.update(patch, { selectionSet: baseSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        const row = data as EventRow
+        items.value = items.value.map(ev => (ev.id === row.id ? row : ev))
+        return row
     }
-    const row = data as EventRow
-    items.value = items.value.map(ev => (ev.id === row.id ? row : ev))
-    return row
-  }
 
-  /** Deleta evento por id. */
-  async function deleteEvent(id: EventId) {
-    const { data, errors } = await client.models.Event.delete({ id }, { selectionSet: selection })
-    if (errors?.length) {
-      throw new Error(
-        errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; ')
-      )
+    async function deleteEvent(id: EventId) {
+        const { data, errors } = await client.models.Event.delete({ id }, { selectionSet: baseSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        items.value = items.value.filter(ev => ev.id !== id)
+        return data as EventRow
     }
-    items.value = items.value.filter(ev => ev.id !== id)
-    return data as EventRow
-  }
 
-  // === Storage (S3) com `path` ===
+    // ===== Relações (cada uma em sua própria requisição) =====
+    async function listTalksByEvent(eventId: EventId): Promise<TalkRow[]> {
+        const { data, errors } = await client.models.Talk.list({
+            filter: { eventId: { eq: eventId } },
+            limit: 100,
+            selectionSet: talkSelection,
+        })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        return (data ?? []) as TalkRow[]
+    }
 
-  /**
-   * Upload do banner (área pública).
-   * - Caminho: public/assets/events/{eventId}/banner-{timestamp}.{ext}
-   * - Persiste `bannerKey` no Event com a própria `path`.
-   */
-  async function uploadBanner(file: File, eventId: EventId) {
-    const path = buildEventBannerPath(eventId, file.name)
+    async function listSponsorsByEvent(eventId: EventId): Promise<SponsorRow[]> {
+        const { data, errors } = await client.models.EventSponsor.list({
+            filter: { eventId: { eq: eventId } },
+            limit: 100,
+            selectionSet: sponsorSelection,
+        })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        return (data ?? []) as SponsorRow[]
+    }
 
-    const task = uploadData({
-      path, // API nova (v6+) usa `path`, não `key`
-      data: file,
-      options: { contentType: file.type || 'application/octet-stream' },
-    })
-    await task.result
+    async function listFaqsByEvent(eventId: EventId): Promise<FaqRow[]> {
+        const { data, errors } = await client.models.EventFaq.list({
+            filter: { eventId: { eq: eventId } },
+            limit: 100,
+            selectionSet: faqSelection,
+        })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        return (data ?? []) as FaqRow[]
+    }
 
-    await updateEvent({ id: eventId, bannerKey: path } as UpdateInput)
-    return path
-  }
+    // ===== Utilitários específicos p/ EventDetails =====
 
-  /** URL assinada temporária para qualquer asset do evento. */
-  async function getAssetUrl(assetPath?: string, expiresInSeconds = 900) {
-    if (!assetPath) return null
-    const { url } = await getUrl({ path: assetPath, options: { expiresIn: expiresInSeconds } })
-    return url.toString()
-  }
+    /** Retorna a primeira Talk do evento + o Speaker dela (duas requisições). */
+    async function getPrimaryTalkWithSpeaker(eventId: EventId): Promise<{ talk: TalkRow; speaker: SpeakerRow } | null> {
+        const talks = await listTalksByEvent(eventId)
+        const first = talks[0]
+        if (!first?.speakerId) return null
 
-  return {
-    // state
-    items,
-    loading,
-    error,
-    nextToken,
-    hasMore,
+        const { data: sp, errors } = await client.models.Speaker.get({
+            id: first.speakerId,
+            selectionSet: speakerSelection,
+        })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        if (!sp) return null
 
-    // queries
-    listEvents,
-    getEvent,
+        return { talk: first, speaker: sp as SpeakerRow }
+    }
 
-    // mutations
-    createEvent,
-    updateEvent,
-    deleteEvent,
+    /** Lista redes sociais de um Speaker. */
+    async function listSocialsForSpeaker(speakerId: SpeakerRow['id']): Promise<SocialRow[]> {
+        const { data, errors } = await client.models.SocialMedia.list({
+            filter: { speakerId: { eq: speakerId } },
+            limit: 100,
+            selectionSet: socialSelection,
+        })
+        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        return (data ?? []) as SocialRow[]
+    }
 
-    // storage
-    uploadBanner,
-    getAssetUrl,
-  }
+    /** Alias com o nome esperado no EventDetails. */
+    async function listSponsorsForEvent(eventId: EventId): Promise<SponsorRow[]> {
+        return listSponsorsByEvent(eventId)
+    }
+
+    // ===== Storage utils =====
+    async function uploadBanner(file: File, eventId: EventId) {
+        const path = buildEventBannerPath(eventId, file.name)
+        await uploadData({
+            path,
+            data: file,
+            options: { contentType: file.type || 'application/octet-stream' },
+        }).result
+
+        await updateEvent({ id: eventId, bannerKey: path } as UpdateInput)
+        return path
+    }
+
+    async function getAssetUrl(assetPath?: string, expiresInSeconds = 900) {
+        if (!assetPath) return null
+        const { url } = await getUrl({ path: assetPath, options: { expiresIn: expiresInSeconds } })
+        return url.toString()
+    }
+
+    return {
+        // state
+        items, loading, error, nextToken, hasMore,
+
+        // base queries
+        listEvents, getEvent,
+
+        // relations
+        listTalksByEvent,
+        listSponsorsByEvent,
+        listSponsorsForEvent,   // alias usado pelo EventDetails
+        listFaqsByEvent,
+
+        // detail utilities
+        getPrimaryTalkWithSpeaker,
+        listSocialsForSpeaker,
+
+        // mutations
+        createEvent, updateEvent, deleteEvent,
+
+        // storage
+        uploadBanner, getAssetUrl,
+    }
 }

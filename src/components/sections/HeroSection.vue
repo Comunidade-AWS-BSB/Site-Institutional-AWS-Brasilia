@@ -1,6 +1,6 @@
 <template>
   <!-- Seção totalmente transparente para deixar o carousel de fundo visível -->
-  <section id="hero" class="relative overflow-visible bg-transparent">
+  <section id="hero" class="relative overflow-visible bg-transparent mt-10">
     <div class="container mx-auto px-4 py-[var(--app-space-xxxl)] text-center">
       <h1 class="app-display-l">AWS User Group Brasília</h1>
       <p class="app-h3 mt-[var(--app-space-m)]">Comunidade aberta para aprender e construir na nuvem</p>

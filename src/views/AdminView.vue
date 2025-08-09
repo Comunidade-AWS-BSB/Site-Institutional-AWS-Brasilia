@@ -200,7 +200,7 @@
         </Tabs>
 
         <!-- Modais -->
-        <UpdateCreateEventModal :open="eventModalOpen" :editing="editingEvent" @close="eventModalOpen = false"
+        <UpdateCreateEventModal :open="eventModalOpen" :editing="editingEvent" @close="onCloseEventModal"
             @saved="onEventSaved" />
 
         <UpdateCreateSpeakerModal :open="speakerModalOpen" :editing="editingSpeaker" @close="speakerModalOpen = false"
@@ -351,8 +351,14 @@ async function confirmDeleteSpeaker(sp: SpeakerRow): Promise<void> {
     await speakers.deleteSpeaker(sp.id)
 }
 
+function onCloseEventModal() {
+    eventModalOpen.value = false
+    editingEvent.value = null
+}
+
 function onEventSaved(): void {
     eventModalOpen.value = false
+    editingEvent.value = null
     reloadEvents()
 }
 function onSpeakerSaved(): void {

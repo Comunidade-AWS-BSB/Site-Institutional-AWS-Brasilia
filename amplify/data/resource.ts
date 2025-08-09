@@ -3,8 +3,10 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 /** Tipos */
 const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
 
+const MediaType = a.enum(['LINKEDIN', 'INSTAGRAM', 'GITHUB', 'MEDIUM', 'OTHER'])
+
 const SocialMedia = a.model({
-  name: a.string(),
+  name: MediaType,
   url: a.url(),
   speakerId: a.id().required(),
   speaker: a.belongsTo("Speaker", "speakerId"),

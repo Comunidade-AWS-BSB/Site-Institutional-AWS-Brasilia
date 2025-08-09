@@ -1,4 +1,3 @@
-// src/composables/useSpeakers.ts
 import { ref, computed, type Ref } from 'vue'
 import { uploadData, getUrl } from 'aws-amplify/storage'
 import { getDataClient } from './useData'
@@ -6,151 +5,191 @@ import type { Schema } from '../../amplify/data/resource'
 import type { SelectionSet } from 'aws-amplify/data'
 import { buildSpeakerAvatarPath } from '@/constants/storage'
 
-// --- Tipos base vindos do Schema ---
+// ===================== Tipos base (Schema) =====================
 type Speaker = Schema['Speaker']['type']
 type SpeakerId = Speaker['id']
 
-// --- SelectionSet: mantenha só os campos que a UI precisa ---
-// Isso evita LazyLoader de relacionamentos e “nullability” esquisita.
-const selection = ['id', 'name', 'title', 'bioIntro', 'bioExperience', 'bioExpertise', 'skills', 'imageKey', 'createdAt', 'updatedAt'] as const
-type SpeakerRow = SelectionSet<Speaker, typeof selection>
+type SocialMedia = Schema['SocialMedia']['type']
+type SocialMediaId = SocialMedia['id']
 
-// --- Helpers para os inputs fortemente tipados a partir do client ---
-/**
- * OBS: Em Gen 2, o tipo dos inputs é inferido no client.
- * Usamos `Parameters<typeof client.models.Speaker.create>[0]` etc.
- * Assim não precisamos adivinhar campos opcionais/relacionais.
- */
+// ===================== SelectionSets =====================
+const speakerSelection = [
+    'id',
+    'name',
+    'title',
+    'bioIntro',
+    'bioExperience',
+    'bioExpertise',
+    'skills',
+    'imageKey',
+    'createdAt',
+    'updatedAt',
+] as const
+export type SpeakerRow = SelectionSet<Speaker, typeof speakerSelection>
 
+const mediaSelection = [
+    'id',
+    'name',
+    'url',
+    'speakerId',
+] as const
+export type SocialMediaRow = SelectionSet<SocialMedia, typeof mediaSelection>
+export type SpeakerRich = {
+    speaker: SpeakerRow | null
+    avatarUrl: string | null
+    medias: SocialMediaRow[]
+}
+
+// ===================== Composable =====================
 export function useSpeakers() {
-  const client = getDataClient()
+    const client = getDataClient()
 
-  // Deriva tipos dos inputs a partir do client (100% alinhado com backend)
-  type CreateInput = Parameters<typeof client.models.Speaker.create>[0]
-  type UpdateInput = Parameters<typeof client.models.Speaker.update>[0]
-  type GetInput    = Parameters<typeof client.models.Speaker.get>[0]
-  type ListInput   = Parameters<typeof client.models.Speaker.list>[0]
+    // Inputs inferidos do client (100% alinhados ao backend)
+    type CreateSpeakerInput = Parameters<typeof client.models.Speaker.create>[0]
+    type UpdateSpeakerInput = Parameters<typeof client.models.Speaker.update>[0]
+    type GetSpeakerInput = Parameters<typeof client.models.Speaker.get>[0]
+    type ListSpeakerInput = Parameters<typeof client.models.Speaker.list>[0]
 
-  // Estado reativo 100% tipado
-  const items: Ref<SpeakerRow[]> = ref([])
-  const loading = ref(false)
-  const error: Ref<Error | null> = ref(null)
-  const nextToken: Ref<string | null> = ref(null)
-  const hasMore = computed(() => nextToken.value !== null)
+    type CreateMediaInput = Parameters<typeof client.models.SocialMedia.create>[0]
+    type UpdateMediaInput = Parameters<typeof client.models.SocialMedia.update>[0]
+    type DeleteMediaInput = Parameters<typeof client.models.SocialMedia.delete>[0]
+    type ListMediaInput = Parameters<typeof client.models.SocialMedia.list>[0]
 
-  // --- LIST ---
-  async function listSpeakers(opts?: {
-    search?: string
-    limit?: number
-    nextToken?: string | null
-  }) {
-    try {
-      loading.value = true
-      error.value = null
+    // Estado
+    const items: Ref<SpeakerRow[]> = ref([])
+    const loading = ref(false)
+    const error: Ref<Error | null> = ref(null)
+    const nextToken: Ref<string | null> = ref(null)
+    const hasMore = computed(() => nextToken.value !== null)
 
-      const input: ListInput = {
-        filter: opts?.search ? { name: { contains: opts.search } } : undefined,
-        limit: opts?.limit ?? 20,
-        nextToken: opts?.nextToken ?? undefined,
-        // selectionSet vale para list
-        selectionSet: selection,
-      }
+    // ===================== SPEAKERS =====================
+    async function listSpeakers(opts?: { search?: string; limit?: number; nextToken?: string | null }) {
+        try {
+            loading.value = true
+            error.value = null
 
-      // @ts-ignore
-      const { data, nextToken: token, errors } = await client.models.Speaker.list(input)
+            const input: ListSpeakerInput = {
+                filter: opts?.search ? { name: { contains: opts.search } } : undefined,
+                limit: opts?.limit ?? 20,
+                nextToken: opts?.nextToken ?? undefined,
+                selectionSet: speakerSelection,
+            }
 
-      // @ts-ignore
-      if (errors?.length) throw new Error(errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; '))
+            const { data, nextToken: token, errors } = await client.models.Speaker.list(input)
+            if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
 
-      items.value = data as SpeakerRow[]
-      nextToken.value = token ?? null
-      return { data: items.value, nextToken: nextToken.value }
-    } catch (e) {
-      error.value = e instanceof Error ? e : new Error(String(e))
-      throw error.value
-    } finally {
-      loading.value = false
+            items.value = data as SpeakerRow[]
+            nextToken.value = token ?? null
+            return { data: items.value, nextToken: nextToken.value }
+        } finally {
+            loading.value = false
+        }
     }
-  }
 
-  // --- GET ---
-  async function getSpeaker(id: SpeakerId) {
-    const input: GetInput & { selectionSet: typeof selection } = { id, selectionSet: selection }
-    const { data, errors } = await client.models.Speaker.get(input)
-    if (errors?.length) throw new Error(errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; '))
-    return data as SpeakerRow | null
-  }
+    async function getSpeaker(id: SpeakerId) {
+        const input: GetSpeakerInput & { selectionSet: typeof speakerSelection } = { id, selectionSet: speakerSelection }
+        const { data, errors } = await client.models.Speaker.get(input)
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        return data as SpeakerRow | null
+    }
 
-  // --- CREATE ---
-  async function createSpeaker(input: CreateInput) {
-    const { data, errors } = await client.models.Speaker.create(input, { selectionSet: selection })
-    if (errors?.length) throw new Error(errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; '))
-    const row = data as SpeakerRow
-    // Atualização otimista com o MESMO shape do items (evita erro de tipo)
-    items.value = [row, ...items.value]
-    return row
-  }
+    async function createSpeaker(input: CreateSpeakerInput) {
+        const { data, errors } = await client.models.Speaker.create(input, { selectionSet: speakerSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        const row = data as SpeakerRow
+        items.value = [row, ...items.value]
+        return row
+    }
 
-  // --- UPDATE ---
-  async function updateSpeaker(patch: UpdateInput) {
-    const { data, errors } = await client.models.Speaker.update(patch, { selectionSet: selection })
-    if (errors?.length) throw new Error(errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; '))
-    const row = data as SpeakerRow
-    items.value = items.value.map(s => (s.id === row.id ? row : s))
-    return row
-  }
+    async function updateSpeaker(patch: UpdateSpeakerInput) {
+        const { data, errors } = await client.models.Speaker.update(patch, { selectionSet: speakerSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        const row = data as SpeakerRow
+        items.value = items.value.map(s => (s.id === row.id ? row : s))
+        return row
+    }
 
-  // --- DELETE ---
-  async function deleteSpeaker(id: SpeakerId) {
-    const { data, errors } = await client.models.Speaker.delete({ id }, { selectionSet: selection })
-    if (errors?.length) throw new Error(errors.map(e => (e as unknown as Record<string, unknown>).message ?? String(e)).join('; '))
-    items.value = items.value.filter(s => s.id !== id)
-    return data as SpeakerRow
-  }
+    async function deleteSpeaker(id: SpeakerId) {
+        const { data, errors } = await client.models.Speaker.delete({ id }, { selectionSet: speakerSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        items.value = items.value.filter(s => s.id !== id)
+        return data as SpeakerRow
+    }
 
-  // --- STORAGE (S3) — novas assinaturas com path ---
+    // ===================== SOCIAL MEDIAS (por Speaker) =====================
+    async function listMediasBySpeaker(speakerId: SpeakerId, limit = 50) {
+        const input: ListMediaInput = {
+            filter: { speakerId: { eq: speakerId } },
+            limit,
+            selectionSet: mediaSelection,
+        }
+        const { data, errors } = await client.models.SocialMedia.list(input)
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        return (data ?? []) as SocialMediaRow[]
+    }
 
-  /**
-   * Upload do avatar do palestrante (público leitura).
-   * Em v6 use `path`, não `key`. Ex.: 'public/...'
-   * (Pode ser função de path p/ protected/private com identityId)
-   */
-  async function uploadAvatar(file: File, speakerId: SpeakerId) {
-    const path = buildSpeakerAvatarPath(speakerId, file.name)
+    async function createSpeakerMedia(speakerId: SpeakerId, name: string, url: string) {
+        const body: CreateMediaInput = { speakerId, name, url }
+        const { data, errors } = await client.models.SocialMedia.create(body, { selectionSet: mediaSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        return data as SocialMediaRow
+    }
 
-    const task = uploadData({
-      path, // ← API nova usa path (key é deprecated)
-      data: file,
-      options: { contentType: file.type || 'application/octet-stream' },
-    })
-    await task.result
+    async function updateSpeakerMedia(patch: UpdateMediaInput) {
+        const { data, errors } = await client.models.SocialMedia.update(patch, { selectionSet: mediaSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        return data as SocialMediaRow
+    }
 
-    // persiste a path no registro (ex.: imageKey)
-    await updateSpeaker({ id: speakerId, imageKey: path } as UpdateInput)
-    return path
-  }
+    async function deleteSpeakerMedia(id: SocialMediaId) {
+        const { data, errors } = await client.models.SocialMedia.delete({ id } as DeleteMediaInput, { selectionSet: mediaSelection })
+        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        return data as SocialMediaRow
+    }
 
-  /**
-   * Gera URL assinada temporária via getUrl({ path }).
-   * `expiresIn` em segundos (máx. costuma ser ~1h dependendo da sessão).
-   */
-  async function getAvatarUrl(avatarPath?: string, expiresInSeconds = 900) {
-    if (!avatarPath) return null
-    const { url } = await getUrl({
-      path: avatarPath,                // ← path, não key
-      options: { expiresIn: expiresInSeconds },
-    })
-    return url.toString()
-  }
+    // ===================== STORAGE (Avatar) =====================
+    async function uploadAvatar(file: File, speakerId: SpeakerId) {
+        const path = buildSpeakerAvatarPath(speakerId, file.name)
+        const task = uploadData({
+            path,
+            data: file,
+            options: { contentType: file.type || 'application/octet-stream' },
+        })
+        await task.result
+        await updateSpeaker({ id: speakerId, imageKey: path } as UpdateSpeakerInput)
+        return path
+    }
 
-  return {
-    // state
-    items, loading, error, nextToken, hasMore,
-    // queries
-    listSpeakers, getSpeaker,
-    // mutations
-    createSpeaker, updateSpeaker, deleteSpeaker,
-    // storage
-    uploadAvatar, getAvatarUrl,
-  }
+    async function getAvatarUrl(avatarPath?: string, expiresInSeconds = 900) {
+        if (!avatarPath) return null
+        const { url } = await getUrl({ path: avatarPath, options: { expiresIn: expiresInSeconds } })
+        return url.toString()
+    }
+
+    // ===================== Helper “rico” (speaker + avatar + mídias) =====================
+    async function getSpeakerRich(id: SpeakerId): Promise<SpeakerRich> {
+        const speaker = await getSpeaker(id)
+        const [avatarUrl, medias] = await Promise.all([
+            speaker?.imageKey ? getAvatarUrl(speaker.imageKey) : Promise.resolve(null),
+            listMediasBySpeaker(id),
+        ])
+        return { speaker, avatarUrl, medias }
+    }
+
+    return {
+        // state
+        items, loading, error, nextToken, hasMore,
+
+        // speaker CRUD
+        listSpeakers, getSpeaker, createSpeaker, updateSpeaker, deleteSpeaker,
+
+        // medias CRUD
+        listMediasBySpeaker, createSpeakerMedia, updateSpeakerMedia, deleteSpeakerMedia,
+
+        // storage
+        uploadAvatar, getAvatarUrl,
+
+        // rich
+        getSpeakerRich
+    }
 }
