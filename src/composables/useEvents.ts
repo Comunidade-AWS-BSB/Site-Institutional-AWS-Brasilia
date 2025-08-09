@@ -48,9 +48,6 @@ export type ListEventsOptions = {
   nextToken?: string | null
 }
 
-/** Prefixo (área pública) para assets de eventos. Ajuste se necessário. */
-const PUBLIC_EVENTS_PREFIX = 'public/assets/events'
-
 export function useEvents() {
   const client = getDataClient()
 
@@ -179,7 +176,6 @@ export function useEvents() {
    * - Persiste `bannerKey` no Event com a própria `path`.
    */
   async function uploadBanner(file: File, eventId: EventId) {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
     const path = buildEventBannerPath(eventId, file.name)
 
     const task = uploadData({

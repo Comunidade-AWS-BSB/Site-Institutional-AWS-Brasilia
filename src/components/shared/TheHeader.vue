@@ -24,7 +24,7 @@
         </router-link>
 
         <!-- CTA destacado: Próximo evento (altura alinhada) -->
-        <router-link to="/events/current"
+        <router-link to="/event"
           class="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-colors duration-200">
           Próximo evento
         </router-link>
@@ -84,7 +84,7 @@
         </router-link>
 
         <!-- CTA mobile: Próximo evento -->
-        <router-link to="/events/current"
+        <router-link to="/event"
           class="block text-center text-sm font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200 mt-2"
           @click="closeMobileMenu">
           Próximo evento
@@ -129,7 +129,8 @@ const navLinks: NavLink[] = [
   { text: 'Home', to: '/' },
   { text: 'Palestrantes', to: '#speakers' },
   { text: 'Galeria', to: '#gallery' },
-  { text: 'Contato', to: '#contact' }
+  { text: 'Contato', to: '#contact' },
+  { text: 'Eventos', to: '/events' }
 ]
 
 const isScrolled = ref(false)
@@ -165,9 +166,6 @@ const isActiveRoute = (to: string) => {
   if (to.startsWith('#')) return false
   return router.currentRoute.value.path === to
 }
-
-/** se rota atual é /events/current */
-const isOnEventsCurrent = computed(() => router.currentRoute.value.path === '/events/current')
 
 // Métodos de UI/Auth
 const openAuthModal = () => ui.openAuthModal()

@@ -61,7 +61,8 @@
                         </div>
 
                         <div class="flex items-center gap-2 pt-1">
-                            <Switch id="isCurrent" v-model:checked="form.isCurrent" />
+                            <Switch id="isCurrent" :model-value="form.isCurrent"
+                                @update:model-value="updateIsCurrent" />
                             <Label for="isCurrent">Evento atual</Label>
                         </div>
 
@@ -103,11 +104,16 @@
                             <Textarea id="description" v-model="form.description" rows="6" />
                         </div>
 
+                        <div>
+                            <Label for="hashtags">Hashtags (separadas por vírgula)</Label>
+                            <Input id="hashtags" v-model="hashtagsInput" placeholder="aws, comunidade, dev" />
+                        </div>
+
                         <!-- Pré-visualização -->
                         <div v-if="bannerPreviewUrl" class="mt-2">
                             <div class="text-xs text-muted-foreground mb-1">Pré-visualização</div>
                             <img :src="bannerPreviewUrl" alt="Pré-visualização do banner"
-                                class="block w-full max-h-56 object-cover rounded-md border" />
+                                class="block w-full max-h-30 object-cover rounded-md border" />
                         </div>
                     </div>
                 </div>
@@ -155,6 +161,8 @@ const bannerFile = ref<File | null>(null)
 
 const bannerPreviewUrl = ref<string | null>(null)
 let bannerObjectUrl: string | null = null
+
+const updateIsCurrent = (val: boolean) => { form.isCurrent = val }
 
 // Computa a melhor fonte de preview:
 // 1) se usuário escolheu arquivo -> ObjectURL

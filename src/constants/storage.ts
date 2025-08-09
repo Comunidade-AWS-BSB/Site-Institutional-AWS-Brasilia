@@ -3,6 +3,9 @@ export const ACCESS_PREFIX = 'public/' as const;
 // Raiz de assets
 export const ASSETS_ROOT = `${ACCESS_PREFIX}assets/` as const;
 
+// Raiz de fotos de perfil
+export const PROFILE_PICTURES_ROOT = `${ACCESS_PREFIX}profile-pictures/{entity_id}/*`
+
 // Coleções
 export const EVENTS_PREFIX = `${ASSETS_ROOT}events/` as const;
 export const SPEAKERS_PREFIX = `${ASSETS_ROOT}speakers/` as const;

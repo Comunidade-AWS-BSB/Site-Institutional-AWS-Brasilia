@@ -3,7 +3,8 @@ import { fetchAuthSession } from 'aws-amplify/auth'
 
 import HomeView from '@/views/HomeView.vue'
 import AdminView from '@/views/AdminView.vue'
-const EventTabView = () => import('@/views/EventTabView.vue')
+const EventView = () => import('@/views/EventView.vue')
+const EventHistoryView = () => import('@/views/EventHistoryView.vue')
 const StoreView = () => import('@/views/StoreView.vue')
 import SpeakerDetailView from '@/views/SpeakerDetailView.vue'
 
@@ -31,9 +32,18 @@ const routes: RouteRecordRaw[] = [
     // meta: { protected: true }, // exemplo de rota protegida (desativado no MVP)
   },
   {
-    path: '/events/current',     // EventTab
-    name: 'events-current',
-    component: EventTabView,
+    path: '/event/:id',     // EventTab
+    name: 'event-details',
+    component: EventView,
+  },
+  {
+    path: '/event',
+    redirect: { name: 'event-details', params: { id: 'current' } }
+  },
+  {
+    path: '/events',
+    name: 'event-history',
+    component: EventHistoryView,
   },
   {
     path: '/store',              // Lojinha

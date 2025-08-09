@@ -10,7 +10,7 @@
                     Infraestrutura como código: Terraform na nuvem.
                 </p>
                 <div class="mt-[var(--app-space-l)]">
-                    <router-link to="/events/current"
+                    <router-link to="/event"
                         class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200">
                         Ver próximo evento
                     </router-link>
@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 // Seção compacta e sem detalhes de local/galeria/agenda.
-// Conteúdos definitivos serão alimentados via EventTab (/events/current).
+// Conteúdos definitivos serão alimentados via EventView (/event).
 </script>
 
 <style scoped>

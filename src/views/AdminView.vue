@@ -20,11 +20,11 @@
             </TabsList>
 
             <TabsContent value="site-gallery" class="mt-6 space-y-4">
-                <GalleryManager prefix="public/assets/site/gallery/" title="Galeria institucional" />
+                <GalleryManager :prefix="siteGalleryPrefix" title="Galeria institucional" />
             </TabsContent>
 
             <TabsContent value="site-carousel" class="mt-6 space-y-4">
-                <GalleryManager prefix="public/assets/site/carousel/" title="Carrossel da Home" />
+                <GalleryManager :prefix="siteCarouselPrefix" title="Carrossel da Home" />
             </TabsContent>
 
             <!-- Eventos -->
@@ -228,6 +228,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import SkeletonRows from '@/components/admin/SkeletonRows.vue'
+import { EVENTS_PREFIX } from '@/constants/storage'
 
 const events = reactive(useEvents())
 const speakers = reactive(useSpeakers())
@@ -246,6 +247,10 @@ const isCurrentFilterStr = ref<'ALL' | 'TRUE' | 'FALSE'>('ALL')
 
 // Estado de carregamento
 const firstLoad = ref(true)
+
+// Prefixos dinâmicos
+const siteGalleryPrefix = `${EVENTS_PREFIX}site/gallery/`
+const siteCarouselPrefix = `${EVENTS_PREFIX}site/carousel/`
 
 const eventTypeFilter = computed<EventType | undefined>({
     get: () => (eventTypeFilterStr.value === 'ALL' ? undefined : (eventTypeFilterStr.value as EventType)),

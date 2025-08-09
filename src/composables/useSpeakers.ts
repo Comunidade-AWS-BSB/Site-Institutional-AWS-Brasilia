@@ -22,8 +22,6 @@ type SpeakerRow = SelectionSet<Speaker, typeof selection>
  * Assim não precisamos adivinhar campos opcionais/relacionais.
  */
 
-const PUBLIC_PREFIX = 'assets/speakers'
-
 export function useSpeakers() {
   const client = getDataClient()
 
@@ -118,7 +116,6 @@ export function useSpeakers() {
    * (Pode ser função de path p/ protected/private com identityId)
    */
   async function uploadAvatar(file: File, speakerId: SpeakerId) {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
     const path = buildSpeakerAvatarPath(speakerId, file.name)
 
     const task = uploadData({

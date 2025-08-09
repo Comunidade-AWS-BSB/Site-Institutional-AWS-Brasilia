@@ -14,7 +14,7 @@
           class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200">
           Conheça a comunidade
         </a>
-        <router-link to="/events/current"
+        <router-link to="/event"
           class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg border border-border text-foreground hover:bg-muted/50 transition-colors duration-200">
           Próximo evento
         </router-link>
