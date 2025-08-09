@@ -1,5 +1,11 @@
 <template>
-    <div class="px-6 py-8 space-y-6 mt-15 min-h-[100vh]">
+    <div v-if="pageLoading" class="space-y-6">
+        <Skeleton class="h-8 w-40" />
+        <SkeletonRows :rows="5" />
+        <SkeletonRows :rows="5" />
+    </div>
+
+    <div v-else class="px-6 py-8 space-y-6 mt-15 min-h-[100vh]">
         <header class="flex items-center justify-between">
             <h1 class="text-2xl font-semibold">Admin</h1>
             <div class="text-sm text-muted-foreground">Gerencie eventos e palestrantes</div>
@@ -76,8 +82,8 @@
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <template v-if="events.items.value.length">
-                                <TableRow v-for="ev in events.items.value" :key="ev.id">
+                            <template v-if="events.items.length">
+                                <TableRow v-for="ev in events.items" :key="ev.id">
                                     <TableCell class="font-medium">
                                         <div class="flex items-center gap-2">
                                             <span>{{ ev.title }}</span>
@@ -101,7 +107,7 @@
                                     </TableCell>
                                 </TableRow>
                             </template>
-                            <TableRow v-else-if="!events.loading || events.items.value.length === 0">
+                            <TableRow v-else-if="!events.loading || events.items.length === 0">
                                 <TableCell colspan="5" class="text-center text-muted-foreground">
                                     Nenhum evento encontrado.
                                 </TableCell>
@@ -143,8 +149,8 @@
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <template v-if="speakers.items.value.length">
-                                <TableRow v-for="sp in speakers.items.value" :key="sp.id">
+                            <template v-if="speakers.items.length">
+                                <TableRow v-for="sp in speakers.items" :key="sp.id">
                                     <TableCell class="font-medium">
                                         <div>{{ sp.name }}</div>
                                         <div class="text-xs text-muted-foreground line-clamp-1">{{ sp.bioIntro }}</div>
@@ -163,7 +169,7 @@
                                     </TableCell>
                                 </TableRow>
                             </template>
-                            <TableRow v-else-if="!speakers.loading || speakers.items.value.length === 0">
+                            <TableRow v-else-if="!speakers.loading || speakers.items.length === 0">
                                 <TableCell colspan="4" class="text-center text-muted-foreground">
                                     Nenhum palestrante encontrado.
                                 </TableCell>
@@ -191,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed, reactive } from 'vue'
 import { useEvents } from '@/composables/useEvents'
 import { useSpeakers } from '@/composables/useSpeakers'
 import UpdateCreateEventModal from '@/components/admin/UpdateCreateEventModal.vue'
@@ -204,12 +210,14 @@ import { Label } from '@/components/ui/label'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import SkeletonRows from '@/components/admin/SkeletonRows.vue'
 
 type EventsHook = ReturnType<typeof useEvents>
 type SpeakersHook = ReturnType<typeof useSpeakers>
 
-const events: EventsHook = useEvents()
-const speakers: SpeakersHook = useSpeakers()
+const events: EventsHook = reactive(useEvents())
+const speakers: SpeakersHook = reactive(useSpeakers())
 
 // Deriva o tipo de linha a partir do estado dos hooks (sem export extra)
 type EventRow = typeof events.items.value[number]
@@ -222,6 +230,9 @@ const activeTab = ref<'events' | 'speakers'>('events')
 const eventSearch = ref<string>('')
 const eventTypeFilterStr = ref<'ALL' | 'MEETUP' | 'WORKSHOP' | 'TALK'>('ALL')
 const isCurrentFilterStr = ref<'ALL' | 'TRUE' | 'FALSE'>('ALL')
+
+// Estado de carregamento
+const firstLoad = ref(true)
 
 const eventTypeFilter = computed<EventType | undefined>({
     get: () => (eventTypeFilterStr.value === 'ALL' ? undefined : (eventTypeFilterStr.value as EventType)),
@@ -317,12 +328,11 @@ async function confirmDeleteSpeaker(sp: SpeakerRow): Promise<void> {
 
 function onEventSaved(): void {
     eventModalOpen.value = false
-    // Estado já é atualizado pelo composable (append/replace). Opcional recarregar:
-    // reloadEvents()
+    reloadEvents()
 }
 function onSpeakerSaved(): void {
     speakerModalOpen.value = false
-    // reloadSpeakers()
+    reloadSpeakers()
 }
 
 // Recarrega ao alterar filtros/busca (debounce simples)
@@ -341,5 +351,8 @@ onMounted(async () => {
     await Promise.all([reloadEvents(), reloadSpeakers()])
     console.log('Speakers carregados: ', speakers.items.value)
     console.log('Eventos carregados', events.items.value)
+    firstLoad.value = false
 })
+
+const pageLoading = computed(() => firstLoad.value || events.loading || speakers.loading)
 </script>

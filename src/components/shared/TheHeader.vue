@@ -202,8 +202,6 @@ const scrollToSection = (sectionId: string) => {
 // Adiciona o listener de rolagem ao montar o componente
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
-  // bootstrap do auth para refletir sessão após refresh
-  auth.bootstrap()
   await checkAdmin()
 })
 
