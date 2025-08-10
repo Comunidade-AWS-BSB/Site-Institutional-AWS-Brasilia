@@ -69,25 +69,27 @@ import { Button } from '@/components/ui/button'
 import { Eye, Plus, ChevronLeft, ChevronRight, X } from 'lucide-vue-next'
 
 const props = defineProps<{ images?: string[] }>()
-// fallback local (apenas se S3 estiver vazio)
-const fallback = [
-  '/img/event-gallery/event-gallery-1.jpg',
-  '/img/event-gallery/event-gallery-2.jpg',
-  '/img/event-gallery/event-gallery-3.jpg',
-  '/img/event-gallery/event-gallery-4.jpg',
-  '/img/event-gallery/event-gallery-5.jpg',
-  '/img/event-gallery/event-gallery-6.jpg',
-  '/img/event-gallery/event-gallery-7.jpg',
-  '/img/event-gallery/event-gallery-8.jpg',
-  '/img/event-gallery/event-gallery-9.jpg',
-  '/img/event-gallery/event-gallery-10.jpg',
-  '/img/event-gallery/event-gallery-11.jpg',
-  '/img/event-gallery/event-gallery-12.jpg',
-  '/img/event-gallery/event-gallery-13.jpg',
-  '/img/event-gallery/event-gallery-14.jpg',
-]
 
-const imagesToUse = computed(() => (props.images?.length ? props.images : fallback))
+// fallback local (apenas se S3 estiver vazio)
+// const fallback = [
+//   '/img/event-gallery/event-gallery-1.jpg',
+//   '/img/event-gallery/event-gallery-2.jpg',
+//   '/img/event-gallery/event-gallery-3.jpg',
+//   '/img/event-gallery/event-gallery-4.jpg',
+//   '/img/event-gallery/event-gallery-5.jpg',
+//   '/img/event-gallery/event-gallery-6.jpg',
+//   '/img/event-gallery/event-gallery-7.jpg',
+//   '/img/event-gallery/event-gallery-8.jpg',
+//   '/img/event-gallery/event-gallery-9.jpg',
+//   '/img/event-gallery/event-gallery-10.jpg',
+//   '/img/event-gallery/event-gallery-11.jpg',
+//   '/img/event-gallery/event-gallery-12.jpg',
+//   '/img/event-gallery/event-gallery-13.jpg',
+//   '/img/event-gallery/event-gallery-14.jpg',
+// ]
+
+// Vou desativar isso por enquanto, mas podemos adicionar fallbacks no futuro trocando o fallback do ternário para a lista acima
+const imagesToUse = computed(() => (props.images?.length ? props.images : []))
 
 const firstBatch = 8
 const showAll = ref(false)

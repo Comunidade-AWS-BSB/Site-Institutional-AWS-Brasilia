@@ -1,10 +1,14 @@
 <template>
-  <!-- Seção totalmente transparente para deixar o carousel de fundo visível -->
-  <section id="hero" class="relative overflow-visible bg-transparent mt-10">
-    <div class="container mx-auto px-4 py-[var(--app-space-xxxl)] text-center">
-      <h1 class="app-display-l">AWS User Group Brasília</h1>
-      <p class="app-h3 mt-[var(--app-space-m)]">Comunidade aberta para aprender e construir na nuvem</p>
-      <p class="app-body-m mt-[var(--app-space-md)] text-foreground/80 max-w-2xl mx-auto">
+  <section id="hero" class="relative overflow-visible">
+    <!-- Overlay escuro para contraste -->
+    <div class="absolute inset-0 bg-[rgba(0,8,32,0.5)] pointer-events-none rounded-t-xl"></div>
+
+    <div class="container relative mx-auto px-4 py-[var(--app-space-xxxl)] text-center rounded-xl">
+      <h1 class="app-display-l text-white">AWS User Group Brasília</h1>
+      <p class="app-h3 mt-[var(--app-space-m)] text-white/90">
+        Comunidade aberta para aprender e construir na nuvem
+      </p>
+      <p class="app-body-m mt-[var(--app-space-md)] text-white/80 max-w-2xl mx-auto">
         Somos voluntários e entusiastas de AWS em Brasília. Reunimos iniciantes e especialistas para compartilhar
         experiências, talks e networking. Encontros gratuitos e abertos ao público.
       </p>
@@ -15,17 +19,19 @@
           Conheça a comunidade
         </a>
         <router-link to="/event"
-          class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg border border-border text-foreground hover:bg-muted/50 transition-colors duration-200">
+          class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg border border-border text-white hover:bg-white/10 transition-colors duration-200">
           Próximo evento
         </router-link>
       </div>
+
+      <!-- hidden pois não tenho certeza sobre se fica muito legal, mas podemos pensar no futuro: -->
+      <div class="!w-full flex items-center justify-center mt-5 hidden">
+        <img src="/img/logo.png" class="p-4 bg-[rgba(0,8,32,0.8)] rounded-lg" />
+      </div>
+
     </div>
   </section>
 </template>
-
-<script setup lang="ts">
-// Novo Hero focado na comunidade (copy baseada em 08-copys-hero-faq.md - Opção A)
-</script>
 
 <style scoped>
 .container {

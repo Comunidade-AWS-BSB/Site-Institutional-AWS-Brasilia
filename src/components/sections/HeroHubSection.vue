@@ -23,13 +23,13 @@ const props = defineProps<{
   delay?: number
 }>()
 
-const fallback = [
-  '/img/event-gallery/event-gallery-10.jpg',
-  '/img/event-gallery/event-gallery-11.jpg',
-  '/img/event-gallery/event-gallery-6.jpg',
-  '/img/event-gallery/event-gallery-13.jpg',
-  '/img/event-gallery/event-gallery-8.jpg',
-]
+// const fallback = [
+//   '/img/event-gallery/event-gallery-10.jpg',
+//   '/img/event-gallery/event-gallery-11.jpg',
+//   '/img/event-gallery/event-gallery-6.jpg',
+//   '/img/event-gallery/event-gallery-13.jpg',
+//   '/img/event-gallery/event-gallery-8.jpg',
+// ]
 
 // Respeito a preferência do usuário por menos movimento
 const prefersReducedMotion = ref(false)
@@ -69,7 +69,7 @@ const plugins = computed(() => {
       <Carousel :opts="{ align: 'start', loop: true }" :plugins="plugins" class="w-full">
         <!-- Fix sizing: força altura mínima responsiva no content e nos itens -->
         <CarouselContent class="h-[min(72vh,720px)] min-h-[420px]">
-          <CarouselItem v-for="(img, idx) in (props.images?.length ? props.images : fallback)" :key="idx"
+          <CarouselItem v-for="(img, idx) in (props.images?.length ? props.images : [])" :key="idx"
             class="h-full min-h-[420px]">
             <div class="relative h-full w-full">
               <img :src="img" :alt="''" class="pointer-events-none h-full w-full select-none object-cover"
