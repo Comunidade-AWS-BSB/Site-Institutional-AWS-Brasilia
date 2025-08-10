@@ -1,4 +1,3 @@
-<!-- src/views/EventTabView.vue -->
 <template>
   <main class="min-h-[60vh] mt-20">
     <section v-if="loading" class="container mx-auto px-4 py-10 space-y-6">
@@ -7,7 +6,7 @@
       <Skeleton class="h-6 w-40" />
     </section>
 
-    <EventDetails v-else-if="currentEvent" :event="currentEvent" :hasAgenda="false" />
+    <EventDetails v-else-if="event" :event="event" />
 
     <section v-else class="container mx-auto px-4 py-16 text-center text-muted-foreground">
       Nenhum evento atual encontrado.
@@ -16,38 +15,41 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useEvents } from '@/composables/useEvents'
-import EventDetails from '@/components/event/EventDetails.vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useEvents, type EventRow } from '@/composables/useEvents'
 import { Skeleton } from '@/components/ui/skeleton'
+import EventDetails from '@/components/event/EventDetails.vue'
 
+const route = useRoute()
 const events = useEvents()
+
+const event = ref<EventRow | null>(null)
 const loading = ref(true)
 
-onMounted(async () => {
-  if (events.items.value.length === 0) {
-    await events.listEvents({ isCurrent: undefined, limit: 50, nextToken: null })
+// helper: pega evento atual (isCurrent)
+async function loadCurrent() {
+  const { data } = await events.listEvents({ isCurrent: true, limit: 1 })
+  return data[0] ?? null
+}
+
+async function load() {
+  loading.value = true
+  try {
+    const id = route.params.id as string | undefined
+    if (id) {
+      event.value = await events.getEvent(id)
+    } else {
+      event.value = await loadCurrent()
+    }
+  } finally {
+    loading.value = false
   }
-  loading.value = false
-})
+}
 
-const currentEvent = computed(() => {
-  const list = events.items.value
-  if (!list.length) return null
-  // 1) Preferir isCurrent
-  const current = list.find(e => e.isCurrent)
-  if (current) return current
-
-  // 2) Fallback: evento mais próximo no futuro; senão, o mais recente do passado
-  const now = new Date()
-  const dated = list
-    .filter(e => e.date)
-    .map(e => ({ e, d: new Date(e.date!) }))
-    .sort((a, b) => +a.d - +b.d)
-
-  const upcoming = dated.find(x => x.d >= now)?.e
-  return upcoming ?? dated.at(-1)?.e ?? list[0]
-})
+onMounted(load)
+// MUITO importante: o Vue reaproveita a instância quando o :id muda.
+watch(() => route.params.id, () => { void load() })
 </script>
 
 <style scoped>

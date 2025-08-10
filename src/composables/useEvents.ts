@@ -93,11 +93,10 @@ export function useEvents() {
                 filter,
                 limit: opts?.limit ?? 20,
                 nextToken: opts?.nextToken ?? undefined,
-                selectionSet: baseSelection,
             }
 
-            const { data, nextToken: token, errors } = await client.models.Event.list(input)
-            if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+            const { data, nextToken: token, errors } = await client.models.Event.list({ ...(input as any), selectionSet: baseSelection })
+            if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
 
             items.value = (data ?? []) as EventRow[]
             nextToken.value = token ?? null
@@ -111,9 +110,9 @@ export function useEvents() {
     }
 
     async function getEvent(id: EventId) {
-        const input: GetInput & { selectionSet: typeof baseSelection } = { id, selectionSet: baseSelection }
-        const { data, errors } = await client.models.Event.get(input)
-        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        const input: GetInput = { id }
+        const { data, errors } = await client.models.Event.get({ ...(input as any), selectionSet: baseSelection })
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return data as EventRow | null
     }
 
@@ -146,8 +145,8 @@ export function useEvents() {
             filter: { eventId: { eq: eventId } },
             limit: 100,
             selectionSet: talkSelection,
-        })
-        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        } as any)
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return (data ?? []) as TalkRow[]
     }
 
@@ -156,8 +155,8 @@ export function useEvents() {
             filter: { eventId: { eq: eventId } },
             limit: 100,
             selectionSet: sponsorSelection,
-        })
-        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        } as any)
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return (data ?? []) as SponsorRow[]
     }
 
@@ -166,8 +165,8 @@ export function useEvents() {
             filter: { eventId: { eq: eventId } },
             limit: 100,
             selectionSet: faqSelection,
-        })
-        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        } as any)
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return (data ?? []) as FaqRow[]
     }
 
@@ -179,11 +178,8 @@ export function useEvents() {
         const first = talks[0]
         if (!first?.speakerId) return null
 
-        const { data: sp, errors } = await client.models.Speaker.get({
-            id: first.speakerId,
-            selectionSet: speakerSelection,
-        })
-        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        const { data: sp, errors } = await client.models.Speaker.get({ id: first.speakerId, selectionSet: speakerSelection } as any)
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         if (!sp) return null
 
         return { talk: first, speaker: sp as SpeakerRow }
@@ -195,8 +191,8 @@ export function useEvents() {
             filter: { speakerId: { eq: speakerId } },
             limit: 100,
             selectionSet: socialSelection,
-        })
-        if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
+        } as any)
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return (data ?? []) as SocialRow[]
     }
 

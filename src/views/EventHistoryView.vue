@@ -1,13 +1,15 @@
 <!-- src/views/EventHistory.vue -->
 <template>
-  <main class="container mx-auto px-4 py-10 space-y-6">
+  <main class="container mx-auto px-4 py-10 space-y-6 mt-15">
     <header class="flex items-end gap-3">
       <h1 class="text-2xl font-semibold">Eventos</h1>
       <div class="ms-auto flex gap-2">
         <Input v-model="q" placeholder="Buscar por título..." class="w-64" />
         <Select v-model="scope">
-          <SelectTrigger class="w-40"><SelectValue placeholder="Período" /></SelectTrigger>
-          <SelectContent>
+          <SelectTrigger class="w-40">
+            <SelectValue placeholder="Período" />
+          </SelectTrigger>
+          <SelectContent class="bg-black">
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="upcoming">Próximos</SelectItem>
             <SelectItem value="past">Passados</SelectItem>
@@ -33,7 +35,8 @@
               {{ ev.dateLabel || ev.date || '—' }}
               <span v-if="ev.time || ev.timeLabel"> · {{ ev.timeLabel || ev.time }}</span>
             </div>
-            <RouterLink :to="{ name: 'event', params: { id: ev.id } }" class="text-primary text-sm underline mt-2 inline-block">
+            <RouterLink :to="{ name: 'event-details', params: { id: ev.id } }"
+              class="text-primary text-sm underline mt-2 inline-block">
               Ver detalhes
             </RouterLink>
           </div>

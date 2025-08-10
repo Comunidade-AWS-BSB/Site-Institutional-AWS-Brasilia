@@ -215,7 +215,11 @@ async function reloadExistingSocials(): Promise<void> {
         return
     }
     const data = await speakers.listMediasBySpeaker(editingId.value, 100)
-    existingSocials.value = (data ?? []).map(m => ({ id: m.id, name: m.name as MediaName, url: m.url }))
+    existingSocials.value = (data ?? []).map(m => ({
+        id: m.id,
+        name: m.name as MediaName,
+        url: m.url ?? ''
+    }))
 }
 
 function addPendingSocial(): void {

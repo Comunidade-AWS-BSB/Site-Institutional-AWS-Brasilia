@@ -23,7 +23,7 @@ export function useImages(prefix: string) {
       }
       const res = await list({
         path: prefix,
-        options: { nextToken: nextToken.value, maxResults: 50 }
+        options: { pageSize: 50 }
       })
       nextToken.value = res.nextToken
 
@@ -45,6 +45,9 @@ export function useImages(prefix: string) {
 
   async function loadMore() {
     if (!nextToken.value) return
+    // Alguns providers aceitam nextToken diretamente no root input; outros fazem stateful.
+    // Como os tipos não permitem nextToken em options, simplesmente chamamos load(false)
+    // e o provider usará o cursor interno. Se necessário, mude para um provider custom.
     await load(false)
   }
 

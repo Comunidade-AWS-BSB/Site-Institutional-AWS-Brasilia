@@ -121,8 +121,8 @@
                   <h3 class="font-display font-semibold text-lg text-foreground mb-3">Áreas de Especialização</h3>
                   <div class="flex flex-wrap gap-2">
                     <span
-                      v-for="skill in speaker?.skills"
-                      :key="skill"
+                      v-for="skill in (speaker?.skills ?? []).filter(Boolean)"
+                      :key="skill!"
                       class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
                     >
                       {{ skill }}
@@ -185,11 +185,11 @@ const socials = computed<Socials>(() => {
   const out: Socials = {}
   for (const m of medias.value) {
     switch (m.name) {
-      case 'LINKEDIN': out.linkedin = m.url; break
-      case 'INSTAGRAM': out.instagram = m.url; break
-      case 'GITHUB': out.github = m.url; break
-      case 'MEDIUM': out.medium = m.url; break
-      case 'OTHER': if (!out.other) out.other = m.url; break
+      case 'LINKEDIN': out.linkedin = m.url ?? undefined; break
+      case 'INSTAGRAM': out.instagram = m.url ?? undefined; break
+      case 'GITHUB': out.github = m.url ?? undefined; break
+      case 'MEDIUM': out.medium = m.url ?? undefined; break
+      case 'OTHER': if (!out.other) out.other = m.url ?? undefined; break
     }
   }
   return out

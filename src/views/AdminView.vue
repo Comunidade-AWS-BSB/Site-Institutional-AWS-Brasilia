@@ -206,12 +206,12 @@
         <UpdateCreateSpeakerModal :open="speakerModalOpen" :editing="editingSpeaker" @close="speakerModalOpen = false"
             @saved="onSpeakerSaved" />
 
-        <EventGalleryModal :open="eventGalleryOpen" :eventId="eventGalleryEventId" @close="eventGalleryOpen = false" />
+        <EventGalleryModal :key="eventGalleryEventId || 'gallery-null'" :open="eventGalleryOpen" :eventId="eventGalleryEventId" @close="eventGalleryOpen = false" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed, reactive } from 'vue'
+import { ref, watch, onMounted, computed, reactive, nextTick } from 'vue'
 import { useEvents } from '@/composables/useEvents'
 import { useSpeakers } from '@/composables/useSpeakers'
 import UpdateCreateEventModal from '@/components/admin/UpdateCreateEventModal.vue'
@@ -234,8 +234,8 @@ const events = reactive(useEvents())
 const speakers = reactive(useSpeakers())
 
 // Deriva o tipo de linha a partir do estado dos hooks (sem export extra)
-type EventRow = typeof events.items.value[number]
-type SpeakerRow = typeof speakers.items.value[number]
+type EventRow = typeof events.items[number]
+type SpeakerRow = typeof speakers.items[number]
 type EventType = EventRow['type']
 
 const activeTab = ref<'events' | 'speakers' | 'site-gallery' | 'site-carousel'>('events')
@@ -276,9 +276,19 @@ const editingSpeaker = ref<SpeakerRow | null>(null)
 const eventGalleryOpen = ref(false)
 const eventGalleryEventId = ref<string | null>(null)
 
-function openEventGallery(ev: EventRow) {
+async function openEventGallery(ev: EventRow) {
+    if (eventGalleryOpen.value) {
+        eventGalleryOpen.value = false
+        await nextTick()
+    }
+
     eventGalleryEventId.value = ev.id
     eventGalleryOpen.value = true
+}
+
+function handleCloseGallery() {
+    eventGalleryOpen.value = false
+    eventGalleryEventId.value = null
 }
 
 /** Carrega eventos com filtros atuais */
@@ -303,7 +313,7 @@ async function loadMoreEvents(): Promise<void> {
         from: fromDate.value || undefined,
         to: toDate.value || undefined,
         limit: 20,
-        nextToken: events.nextToken.value,
+        nextToken: events.nextToken,
     })
 }
 
@@ -321,7 +331,7 @@ async function loadMoreSpeakers(): Promise<void> {
     await speakers.listSpeakers({
         search: speakerSearch.value || undefined,
         limit: 20,
-        nextToken: speakers.nextToken.value,
+        nextToken: speakers.nextToken,
     })
 }
 

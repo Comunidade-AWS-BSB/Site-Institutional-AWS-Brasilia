@@ -72,7 +72,7 @@
         <section v-if="(event.hashtags?.length ?? 0) > 0">
           <h2 class="text-lg font-semibold mb-2">Hashtags</h2>
           <div class="flex flex-wrap gap-2 justify-center md:justify-start">
-            <Badge v-for="tag in event.hashtags" :key="tag" variant="secondary">#{{ tag }}</Badge>
+            <Badge v-for="tag in (event.hashtags ?? []).filter(Boolean)" :key="tag!" variant="secondary">#{{ tag }}</Badge>
           </div>
         </section>
       </TabsContent>
@@ -126,7 +126,7 @@
               <div v-if="(speaker?.skills?.length ?? 0) > 0">
                 <div class="text-xs text-muted-foreground mb-1">Skills</div>
                 <div class="flex flex-wrap gap-2 justify-center">
-                  <Badge v-for="s in speaker?.skills" :key="s" variant="outline">{{ s }}</Badge>
+                  <Badge v-for="s in (speaker?.skills ?? []).filter(Boolean)" :key="s!" variant="outline">{{ s }}</Badge>
                 </div>
               </div>
 
@@ -339,7 +339,7 @@ type SpeakerRow = {
   bioIntro?: string | null
   bioExperience?: string | null
   bioExpertise?: string | null
-  skills?: string[] | null
+  skills?: (string | null)[] | null
 }
 type SocialName = 'LINKEDIN' | 'INSTAGRAM' | 'GITHUB' | 'MEDIUM' | 'OTHER'
 type SocialRow = { id: string; name: SocialName; url: string }
@@ -400,7 +400,11 @@ async function hydrateAll() {
   socials.value = []
   if (speaker.value?.id) {
     const media = await speakers.listMediasBySpeaker(speaker.value.id)
-    socials.value = (media ?? []).map(m => ({ id: m.id, name: m.name as SocialName, url: m.url }))
+    socials.value = (media ?? []).map(m => ({
+      id: m.id,
+      name: m.name as SocialName,
+      url: m.url ?? ''
+    }))
   }
 
   // Sponsors

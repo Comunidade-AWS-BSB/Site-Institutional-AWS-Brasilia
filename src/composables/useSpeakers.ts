@@ -72,11 +72,10 @@ export function useSpeakers() {
                 filter: opts?.search ? { name: { contains: opts.search } } : undefined,
                 limit: opts?.limit ?? 20,
                 nextToken: opts?.nextToken ?? undefined,
-                selectionSet: speakerSelection,
             }
 
-            const { data, nextToken: token, errors } = await client.models.Speaker.list(input)
-            if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+            const { data, nextToken: token, errors } = await client.models.Speaker.list({ ...(input as any), selectionSet: speakerSelection })
+            if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
 
             items.value = data as SpeakerRow[]
             nextToken.value = token ?? null
@@ -87,9 +86,10 @@ export function useSpeakers() {
     }
 
     async function getSpeaker(id: SpeakerId) {
-        const input: GetSpeakerInput & { selectionSet: typeof speakerSelection } = { id, selectionSet: speakerSelection }
-        const { data, errors } = await client.models.Speaker.get(input)
-        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        const input: GetSpeakerInput = { id }
+        const resGet = await client.models.Speaker.get(input as any, { selectionSet: speakerSelection })
+        const { data, errors } = resGet as any
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return data as SpeakerRow | null
     }
 
@@ -121,17 +121,16 @@ export function useSpeakers() {
         const input: ListMediaInput = {
             filter: { speakerId: { eq: speakerId } },
             limit,
-            selectionSet: mediaSelection,
         }
-        const { data, errors } = await client.models.SocialMedia.list(input)
-        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        const { data, errors } = await client.models.SocialMedia.list({ ...(input as any), selectionSet: mediaSelection })
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return (data ?? []) as SocialMediaRow[]
     }
 
-    async function createSpeakerMedia(speakerId: SpeakerId, name: string, url: string) {
+    async function createSpeakerMedia(speakerId: SpeakerId, name: CreateMediaInput['name'], url: string) {
         const body: CreateMediaInput = { speakerId, name, url }
         const { data, errors } = await client.models.SocialMedia.create(body, { selectionSet: mediaSelection })
-        if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
+        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return data as SocialMediaRow
     }
 

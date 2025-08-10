@@ -76,7 +76,7 @@
 import { Linkedin } from 'lucide-vue-next'
 
 interface Speaker {
-  id: number
+  id: string
   name: string
   title: string
   imageUrl: string

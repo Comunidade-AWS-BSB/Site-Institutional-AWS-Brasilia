@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, reactive } from 'vue'
+import { ref, watch, computed, reactive, onMounted } from 'vue'
 import { useImages } from '@/composables/useImages'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -113,4 +113,8 @@ function onPick(e: Event) {
 function confirmRemove(key: string) {
     if (confirm('Remover esta imagem?')) imgs.removeKey(key)
 }
+
+onMounted(() => {
+    console.log('Props recebidas: ', props)
+})
 </script>
