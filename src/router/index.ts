@@ -10,6 +10,8 @@ import SpeakerDetailView from '@/views/SpeakerDetailView.vue'
 
 import { useAuthStore } from '@/stores/auth.store'
 import { useUiStore } from '@/stores/ui.store'
+import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
+import UseTermsView from '@/views/UseTermsView.vue'
 
 // Helper: extrai grupos do ID token de forma segura
 function getGroupsFromSession(session: Awaited<ReturnType<typeof fetchAuthSession>>): string[] {
@@ -57,6 +59,16 @@ const routes: RouteRecordRaw[] = [
     component: AdminView,
     meta: { requiresAdmin: true },
   },
+  {
+    path: '/privacy',
+    name: 'privacy',
+    component: PrivacyPolicyView
+  },
+  {
+    path: '/terms',
+    name: 'terms',
+    component: UseTermsView
+  }
 ]
 
 export const router = createRouter({

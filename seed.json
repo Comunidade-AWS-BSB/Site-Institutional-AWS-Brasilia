@@ -1,11 +1,29 @@
 {
   "navigation": [
-    { "text": "Home", "to": "#hero" },
-    { "text": "Palestrantes", "to": "#speakers" },
-    { "text": "Eventos", "to": "#schedule" },
-    { "text": "Local", "to": "#venue" },
-    { "text": "Galeria", "to": "#gallery" },
-    { "text": "Contato", "to": "#contact" }
+    {
+      "text": "Home",
+      "to": "#hero"
+    },
+    {
+      "text": "Palestrantes",
+      "to": "#speakers"
+    },
+    {
+      "text": "Eventos",
+      "to": "#schedule"
+    },
+    {
+      "text": "Local",
+      "to": "#venue"
+    },
+    {
+      "text": "Galeria",
+      "to": "#gallery"
+    },
+    {
+      "text": "Contato",
+      "to": "#contact"
+    }
   ],
   "event": {
     "id": 16,
@@ -123,9 +141,18 @@
       "price": 0,
       "currency": "BRL",
       "benefits": [
-        { "text": "Acesso completo ao evento", "included": true },
-        { "text": "Networking com a comunidade", "included": true },
-        { "text": "Kit de materiais", "included": false }
+        {
+          "text": "Acesso completo ao evento",
+          "included": true
+        },
+        {
+          "text": "Networking com a comunidade",
+          "included": true
+        },
+        {
+          "text": "Kit de materiais",
+          "included": false
+        }
       ]
     },
     {
@@ -134,9 +161,18 @@
       "price": 100,
       "currency": "BRL",
       "benefits": [
-        { "text": "Camisa Polo Azul Escuro", "included": true },
-        { "text": "Bloco de Notas, Caneta", "included": true },
-        { "text": "Chaveiro", "included": true }
+        {
+          "text": "Camisa Polo Azul Escuro",
+          "included": true
+        },
+        {
+          "text": "Bloco de Notas, Caneta",
+          "included": true
+        },
+        {
+          "text": "Chaveiro",
+          "included": true
+        }
       ]
     }
   ],
@@ -183,54 +219,149 @@
         "src": "/img/venue-gallery/venue-gallery-1.jpg",
         "alt": "Vista externa do Centro Universitário UDF"
       },
-      { "src": "/img/venue-gallery/venue-gallery-2.jpg", "alt": "Auditório principal" },
-      { "src": "/img/venue-gallery/venue-gallery-3.jpg", "alt": "Área de networking" },
-      { "src": "/img/venue-gallery/venue-gallery-4.jpg", "alt": "Recepção do evento" }
+      {
+        "src": "/img/venue-gallery/venue-gallery-2.jpg",
+        "alt": "Auditório principal"
+      },
+      {
+        "src": "/img/venue-gallery/venue-gallery-3.jpg",
+        "alt": "Área de networking"
+      },
+      {
+        "src": "/img/venue-gallery/venue-gallery-4.jpg",
+        "alt": "Recepção do evento"
+      }
     ]
   },
   "gallery": [
-    { "src": "/img/event-gallery/event-gallery-1.jpg", "alt": "Evento AWS User Group - Foto 1" },
-    { "src": "/img/event-gallery/event-gallery-2.jpg", "alt": "Evento AWS User Group - Foto 2" },
-    { "src": "/img/event-gallery/event-gallery-3.jpg", "alt": "Evento AWS User Group - Foto 3" },
-    { "src": "/img/event-gallery/event-gallery-4.jpg", "alt": "Evento AWS User Group - Foto 4" },
-    { "src": "/img/event-gallery/event-gallery-5.jpg", "alt": "Evento AWS User Group - Foto 5" },
-    { "src": "/img/event-gallery/event-gallery-6.jpg", "alt": "Evento AWS User Group - Foto 6" },
-    { "src": "/img/event-gallery/event-gallery-7.jpg", "alt": "Evento AWS User Group - Foto 7" },
-    { "src": "/img/event-gallery/event-gallery-8.jpg", "alt": "Evento AWS User Group - Foto 8" },
-    { "src": "/img/event-gallery/event-gallery-9.jpg", "alt": "Evento AWS User Group - Foto 9" },
-    { "src": "/img/event-gallery/event-gallery-10.jpg", "alt": "Evento AWS User Group - Foto 10" },
-    { "src": "/img/event-gallery/event-gallery-11.jpg", "alt": "Evento AWS User Group - Foto 11" },
-    { "src": "/img/event-gallery/event-gallery-12.jpg", "alt": "Evento AWS User Group - Foto 12" },
-    { "src": "/img/event-gallery/event-gallery-13.jpg", "alt": "Evento AWS User Group - Foto 13" },
-    { "src": "/img/event-gallery/event-gallery-14.jpg", "alt": "Evento AWS User Group - Foto 14" }
+    {
+      "src": "/img/event-gallery/event-gallery-1.jpg",
+      "alt": "Evento AWS User Group - Foto 1"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-2.jpg",
+      "alt": "Evento AWS User Group - Foto 2"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-3.jpg",
+      "alt": "Evento AWS User Group - Foto 3"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-4.jpg",
+      "alt": "Evento AWS User Group - Foto 4"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-5.jpg",
+      "alt": "Evento AWS User Group - Foto 5"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-6.jpg",
+      "alt": "Evento AWS User Group - Foto 6"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-7.jpg",
+      "alt": "Evento AWS User Group - Foto 7"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-8.jpg",
+      "alt": "Evento AWS User Group - Foto 8"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-9.jpg",
+      "alt": "Evento AWS User Group - Foto 9"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-10.jpg",
+      "alt": "Evento AWS User Group - Foto 10"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-11.jpg",
+      "alt": "Evento AWS User Group - Foto 11"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-12.jpg",
+      "alt": "Evento AWS User Group - Foto 12"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-13.jpg",
+      "alt": "Evento AWS User Group - Foto 13"
+    },
+    {
+      "src": "/img/event-gallery/event-gallery-14.jpg",
+      "alt": "Evento AWS User Group - Foto 14"
+    }
   ],
   "sponsors": [
-    { "id": 1, "name": "AWS", "logo": "/img/clients/client-1.png" },
-    { "id": 2, "name": "Microsoft Azure", "logo": "/img/clients/client-2.png" },
-    { "id": 3, "name": "Google Cloud", "logo": "/img/clients/client-3.png" },
-    { "id": 4, "name": "Docker", "logo": "/img/clients/client-4.png" },
-    { "id": 5, "name": "Kubernetes", "logo": "/img/clients/client-5.png" },
-    { "id": 6, "name": "Terraform", "logo": "/img/clients/client-6.png" },
-    { "id": 7, "name": "GitHub", "logo": "/img/clients/client-7.png" },
-    { "id": 8, "name": "GitLab", "logo": "/img/clients/client-8.png" }
+    {
+      "id": 1,
+      "name": "AWS",
+      "logo": "/img/clients/client-1.png"
+    },
+    {
+      "id": 2,
+      "name": "Microsoft Azure",
+      "logo": "/img/clients/client-2.png"
+    },
+    {
+      "id": 3,
+      "name": "Google Cloud",
+      "logo": "/img/clients/client-3.png"
+    },
+    {
+      "id": 4,
+      "name": "Docker",
+      "logo": "/img/clients/client-4.png"
+    },
+    {
+      "id": 5,
+      "name": "Kubernetes",
+      "logo": "/img/clients/client-5.png"
+    },
+    {
+      "id": 6,
+      "name": "Terraform",
+      "logo": "/img/clients/client-6.png"
+    },
+    {
+      "id": 7,
+      "name": "GitHub",
+      "logo": "/img/clients/client-7.png"
+    },
+    {
+      "id": 8,
+      "name": "GitLab",
+      "logo": "/img/clients/client-8.png"
+    }
   ],
   "contact": {
     "address": "Brasília - DF",
     "phone": "(61) 9 9176-9304",
-    "email": "contatoawsbrasilia@outlook.com.br",
+    "email": "contatoawsbrasilia@gmail.com",
     "social": [
-      { "platform": "WhatsApp", "url": "https://api.whatsapp.com/send/?phone=556191769304" },
-      { "platform": "YouTube", "url": "https://www.youtube.com/@AWSUsergroupBrasilia/streams" },
+      {
+        "platform": "WhatsApp",
+        "url": "https://api.whatsapp.com/send/?phone=556191769304"
+      },
+      {
+        "platform": "YouTube",
+        "url": "https://www.youtube.com/@AWSUsergroupBrasilia/streams"
+      },
       {
         "platform": "Facebook",
         "url": "https://www.facebook.com/people/AWS-User-Group-Bras%C3%ADlia/61556738932977/"
       },
-      { "platform": "Instagram", "url": "https://www.instagram.com/awsbrasilia/" },
+      {
+        "platform": "Instagram",
+        "url": "https://www.instagram.com/awsbrasilia/"
+      },
       {
         "platform": "LinkedIn",
         "url": "https://www.linkedin.com/company/aws-user-group-bsb/posts/?feedView=all"
       },
-      { "platform": "GitHub", "url": "https://github.com/AwsUgBRasilia" }
+      {
+        "platform": "GitHub",
+        "url": "https://github.com/AwsUgBRasilia"
+      }
     ]
   }
 }

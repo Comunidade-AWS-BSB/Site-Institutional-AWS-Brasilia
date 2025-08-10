@@ -36,7 +36,7 @@
             E-mail
           </h3>
           <p class="text-muted-foreground">
-            contatoawsbrasilia@outlook.com.br
+            contatoawsbrasilia@gmail.com
           </p>
         </div>
       </div>
