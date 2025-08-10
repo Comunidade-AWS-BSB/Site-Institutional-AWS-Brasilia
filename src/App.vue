@@ -1,6 +1,17 @@
 <template>
   <div id="app">
-    <div class="min-h-screen bg-background">
+    <Toaster />
+
+    <div v-if="homeLoading" class="container mx-auto px-4 py-8 space-y-6">
+      <Skeleton class="h-10 w-64" />
+      <Skeleton class="h-64 w-full" />
+      <Skeleton class="h-6 w-40" />
+      <div class="grid md:grid-cols-3 gap-6">
+        <Skeleton v-for="i in 6" :key="i" class="h-40 w-full" />
+      </div>
+    </div>
+
+    <div v-else class="min-h-screen bg-background">
       <TheHeader />
       <main>
         <router-view />
@@ -9,30 +20,33 @@
     </div>
 
     <!-- Modal de Autenticação global -->
-    <ModalAuthenticator
-      :visible="ui.authModalOpen"
-      @close="ui.closeAuthModal()"
-      @authenticated="onAuthenticated"
-      @error="onAuthError"
-    />
+    <ModalAuthenticator :visible="ui.authModalOpen" @close="ui.closeAuthModal()" @authenticated="onAuthenticated"
+      @error="onAuthError" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import TheHeader from '@/components/shared/TheHeader.vue'
 import TheFooter from '@/components/shared/TheFooter.vue'
 import ModalAuthenticator from '@/components/auth/ModalAuthenticator.vue'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useUiStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useAuth } from '@/composables/useAuth'
+import { storeToRefs } from 'pinia'
 
-// Estilo do Amplify UI já importado em main.ts (mantido aqui se App for renderizado isolado)
+import { Toaster } from '@/components/ui/sonner'
+import 'vue-sonner/style.css'
+
 import '@aws-amplify/ui-vue/styles.css'
 
 const ui = useUiStore()
 const auth = useAuthStore()
 const { handleRedirectResult } = useAuth()
+const { loading: authLoading } = storeToRefs(auth)
+
+const firstHomeLoad = ref(true)
 
 function onAuthenticated() {
   // Atualiza snapshot de sessão e fecha modal (fechamento já ocorre no componente)
@@ -49,13 +63,19 @@ function onAuthError(err: unknown) {
 onMounted(async () => {
   try {
     await handleRedirectResult()
-    await auth.refreshUser()
+    await auth.bootstrap()
+    
+
   } catch (e) {
     if (import.meta.env.DEV) {
       console.debug('[App] handleRedirectResult skipped/failed', e)
     }
+  } finally {
+    firstHomeLoad.value = false
   }
 })
+
+const homeLoading = computed(() => firstHomeLoad.value || authLoading.value)
 </script>
 
 <style></style>

@@ -1,23 +1,67 @@
- // router/index.ts
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { fetchAuthSession } from 'aws-amplify/auth'
+
 import HomeView from '@/views/HomeView.vue'
+import AdminView from '@/views/AdminView.vue'
+const EventView = () => import('@/views/EventView.vue')
+const EventHistoryView = () => import('@/views/EventHistoryView.vue')
+const StoreView = () => import('@/views/StoreView.vue')
 import SpeakerDetailView from '@/views/SpeakerDetailView.vue'
+
+import { useAuthStore } from '@/stores/auth.store'
+import { useUiStore } from '@/stores/ui.store'
+
+// Helper: extrai grupos do ID token de forma segura
+function getGroupsFromSession(session: Awaited<ReturnType<typeof fetchAuthSession>>): string[] {
+  const raw = session.tokens?.idToken?.payload?.['cognito:groups']
+  if (!raw) return []
+  // O payload pode vir como string[] ou string; normaliza para string[]
+  return Array.isArray(raw) ? raw.map(String) : [String(raw)]
+}
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',                   // página inicial
+    name: 'home',
+    component: HomeView,
+  },
+  {
+    path: '/speakers/:id',    // detalhes de palestrante
+    name: 'speaker-details',
+    component: SpeakerDetailView,
+    // meta: { protected: true }, // exemplo de rota protegida (desativado no MVP)
+  },
+  {
+    path: '/event/:id',     // EventTab
+    name: 'event-details',
+    component: EventView,
+  },
+  {
+    path: '/event',
+    name: 'event',
+    redirect: { name: 'event-details', params: { id: 'current' } }
+  },
+  {
+    path: '/events',
+    name: 'event-history',
+    component: EventHistoryView,
+  },
+  {
+    path: '/store',              // Lojinha
+    name: 'store',
+    component: StoreView,
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminView,
+    meta: { requiresAdmin: true },
+  },
+]
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',                   // página inicial
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/speaker-details',    // rota de detalhes
-      name: 'speaker-details',
-      component: SpeakerDetailView,
-      // meta: { protected: true }, // exemplo de rota protegida (desativado no MVP)
-    },
-  ],
+  routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
@@ -25,19 +69,40 @@ export const router = createRouter({
   },
 })
 
-// TODO(auth): quando habilitar proteção de rotas, usar o guard abaixo.
-// Mantemos desativado neste MVP; o modal será aberto pelo Header e UI store.
-// import { useAuthStore } from '@/stores/auth.store'
-// import { useUiStore } from '@/stores/ui.store'
-// router.beforeEach(async (to) => {
-//   const auth = useAuthStore()
-//   const ui = useUiStore()
-//   if (!auth.snapshot.userId) await auth.bootstrap()
-//   if (to.meta?.protected && !auth.isLoggedIn) {
-//     // Ao invés de redirecionar, podemos abrir o modal:
-//     ui.openAuthModal()
-//     return false
-//   }
-// })
+router.beforeEach(async (to) => {
+  const auth = useAuthStore()
+  const ui = useUiStore()
+
+  // Garante que o snapshot exista
+  if (!auth.snapshot.userId) {
+    await auth.bootstrap()
+  }
+
+  // Se a rota não exige admin, segue o baile
+  if (!to.meta.requiresAdmin) return true
+
+  // Precisa estar logado
+  if (!auth.isLoggedIn) {
+    // opcional: ui.toast('Você precisa entrar para acessar o Admin')
+    return { path: '/', query: { login: 'required', next: to.fullPath } }
+  }
+
+  // Verifica grupo ADMINS no ID token
+  try {
+    const session = await fetchAuthSession()
+    const groups = getGroupsFromSession(session)
+    const isAdmin = groups.includes('ADMINS')
+
+    if (!isAdmin) {
+      // opcional: ui.toast('Acesso negado: apenas administradores')
+      return { path: '/', query: { denied: 'admin' } }
+    }
+
+    return true
+  } catch {
+    // Falha ao ler sessão → trata como não autorizado
+    return { path: '/', query: { denied: 'session' } }
+  }
+})
 
 export default router

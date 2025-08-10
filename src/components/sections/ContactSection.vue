@@ -12,23 +12,10 @@
         <div class="w-12 h-1 bg-primary mx-auto"></div>
       </div>
 
-      <!-- Cartões de Informações de Contato -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <!-- Endereço -->
-        <div class="bg-card border border-border rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in-up">
-          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MapPin class="h-8 w-8 text-primary" />
-          </div>
-          <h3 class="font-display font-bold text-lg text-foreground mb-2">
-            Endereço
-          </h3>
-          <p class="text-muted-foreground">
-            Brasília - DF
-          </p>
-        </div>
-
+      <!-- Cartões de Informações de Contato (sem endereço) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         <!-- Telefone -->
-        <div class="bg-card border border-border rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in-up" style="animation-delay: 0.1s">
+        <div class="bg-card border border-border rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in-up">
           <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Phone class="h-8 w-8 text-primary" />
           </div>
@@ -41,7 +28,7 @@
         </div>
 
         <!-- E-mail -->
-        <div class="bg-card border border-border rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in-up" style="animation-delay: 0.2s">
+        <div class="bg-card border border-border rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in-up" style="animation-delay: 0.1s">
           <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail class="h-8 w-8 text-primary" />
           </div>
@@ -54,24 +41,10 @@
         </div>
       </div>
 
-      <!-- Formulário de Contato e Mapa -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Mapa -->
-        <div class="animate-slide-in-left">
-          <div class="bg-card border border-border rounded-lg overflow-hidden shadow-sm h-96">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d61425.97957307317!2d-47.933087018318815!3d-15.797428929072634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935a3d18df9ae275%3A0x738470e469754a24!2zQnJhc8OtbGlhLCBERg!5e0!3m2!1spt-BR!2sbr!4v1752618308272!5m2!1spt-BR!2sbr"
-              class="w-full h-full border-0"
-              allowfullscreen
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              title="Localização de Brasília"
-            ></iframe>
-          </div>
-        </div>
-
+      <!-- Formulário de Contato (removido mapa) -->
+      <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
         <!-- Formulário de Contato -->
-        <div class="animate-slide-in-right">
+        <div class="animate-fade-in-up">
           <div class="bg-card border border-border rounded-lg p-6 shadow-sm">
             <form @submit.prevent="submitForm" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -168,7 +141,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Mail, Send } from 'lucide-vue-next'
+import { Phone, Mail, Send } from 'lucide-vue-next'
 
 interface ContactForm {
   name: string

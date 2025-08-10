@@ -1,122 +1,40 @@
 <template>
-  <section
-    id="hero"
-    class="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden"
-  >
-    <!-- Imagem de Fundo -->
-    <div class="absolute inset-0 z-0">
-      <img
-        src="/img/hero-bg.jpg"
-        alt="Hero Background"
-        class="w-full h-full object-cover"
-      >
-      <div class="absolute inset-0 hero-overlay"></div>
-    </div>
+  <section id="hero" class="relative overflow-visible">
+    <!-- Overlay escuro para contraste -->
+    <div class="absolute inset-0 bg-[rgba(0,8,32,0.5)] pointer-events-none rounded-t-xl"></div>
 
-    <!-- Conteúdo Principal -->
-    <div class="relative z-10 container mx-auto px-4 py-20">
-      <div class="max-w-4xl mx-auto space-y-8">
-        <!-- Título do Evento -->
-        <div class="animate-fade-in-up" style="animation-delay: 0.2s">
-          <h1 class="hero-title font-display font-bold text-5xl md:text-6xl lg:text-7xl leading-tight mb-4">
-            MeetUp #16
-          </h1>
-          <h2 class="hero-subtitle text-2xl md:text-3xl lg:text-4xl font-display font-semibold">
-            <span class="text-primary">Infraestrutura como código</span><br>
-            Utilizando Terraform na Nuvem
-          </h2>
-        </div>
+    <div class="container relative mx-auto px-4 py-[var(--app-space-xxxl)] text-center rounded-xl">
+      <h1 class="app-display-l text-white">AWS User Group Brasília</h1>
+      <p class="app-h3 mt-[var(--app-space-m)] text-white/90">
+        Comunidade aberta para aprender e construir na nuvem
+      </p>
+      <p class="app-body-m mt-[var(--app-space-md)] text-white/80 max-w-2xl mx-auto">
+        Somos voluntários e entusiastas de AWS em Brasília. Reunimos iniciantes e especialistas para compartilhar
+        experiências, talks e networking. Encontros gratuitos e abertos ao público.
+      </p>
 
-        <!-- Data e Local do Evento -->
-        <p
-          class="hero-subtitle text-lg md:text-xl text-white/90 animate-fade-in-up"
-          style="animation-delay: 0.4s"
-        >
-          28 Agosto 2025, Universidade UDF, Brasília - DF
-        </p>
-
-        <!-- Botão de Play -->
-        <div
-          class="animate-fade-in-up"
-          style="animation-delay: 0.6s"
-        >
-          <button
-            class="pulsating-play-btn mx-auto"
-            @click="openVideo"
-            aria-label="Assistir vídeo do evento"
-          >
-          </button>
-        </div>
+      <div class="mt-[var(--app-space-xl)] flex items-center justify-center gap-[var(--app-space-m)]">
+        <a href="#faq"
+          class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors duration-200">
+          Conheça a comunidade
+        </a>
+        <router-link to="/event"
+          class="inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-lg border border-border text-white hover:bg-white/10 transition-colors duration-200">
+          Próximo evento
+        </router-link>
       </div>
-    </div>
 
-    <!-- Seção de Informações do Evento -->
-    <div class="relative z-10 w-full mt-auto">
-      <div class="bg-black/50 backdrop-blur-sm py-12">
-        <div class="container mx-auto px-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <!-- Sobre -->
-            <div
-              class="text-center md:text-left animate-slide-in-left"
-              style="animation-delay: 0.8s"
-            >
-              <h3 class="font-display font-bold text-xl mb-4 text-white">
-                Sobre o Evento
-              </h3>
-              <p class="text-white/90 text-sm leading-relaxed">
-                Nesta palestra vamos explorar o conceito de Infraestrutura como Código (IaC)
-                e entender por que essa abordagem tem transformado a forma como gerenciamos
-                ambientes de TI.
-              </p>
-            </div>
-
-            <!-- Onde -->
-            <div
-              class="text-center animate-fade-in-up"
-              style="animation-delay: 1s"
-            >
-              <h3 class="font-display font-bold text-xl mb-4 text-white">
-                Onde
-              </h3>
-              <p class="text-white/90 text-sm leading-relaxed">
-                Centro Universidade UDF<br>
-                704/904, Brasília - DF
-              </p>
-            </div>
-
-            <!-- Quando -->
-            <div
-              class="text-center md:text-right animate-slide-in-right"
-              style="animation-delay: 1.2s"
-            >
-              <h3 class="font-display font-bold text-xl mb-4 text-white">
-                Quando
-              </h3>
-              <p class="text-white/90 text-sm leading-relaxed">
-                Quinta Feira<br>
-                28 de Agosto 2025
-              </p>
-            </div>
-          </div>
-        </div>
+      <!-- hidden pois não tenho certeza sobre se fica muito legal, mas podemos pensar no futuro: -->
+      <div class="!w-full flex items-center justify-center mt-5 hidden">
+        <img src="/img/logo.png" class="p-4 bg-[rgba(0,8,32,0.8)] rounded-lg" />
       </div>
+
     </div>
   </section>
 </template>
 
-<script setup lang="ts">
-const openVideo = () => {
-  // TODO: adicionar integração com YouTube
-  window.open('https://www.youtube.com/watch?v=8JI9wQ8sUdQ&t=1s', '_blank')
-}
-</script>
-
 <style scoped>
-/* Garantir que as animações sejam visíveis */
-.animate-fade-in-up,
-.animate-slide-in-left,
-.animate-slide-in-right {
-  opacity: 0;
-  animation-fill-mode: forwards;
+.container {
+  max-width: 1120px;
 }
 </style>

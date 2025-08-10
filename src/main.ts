@@ -10,10 +10,9 @@ import './lib/amplify'
 
 // Estilos globais
 import '@aws-amplify/ui-vue/styles.css'
+import '@/theme/tokens.css'
 import '@/assets/main.css'
 import '@/assets/amplify-theme.css'
-
-// Locale: a biblioteca @aws-amplify/ui-vue não exporta Amplify; para textos usaremos o dicionário i18n no componente.
 
 const app = createApp(App)
 

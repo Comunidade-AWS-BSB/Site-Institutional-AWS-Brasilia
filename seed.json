@@ -1,0 +1,236 @@
+{
+  "navigation": [
+    { "text": "Home", "to": "#hero" },
+    { "text": "Palestrantes", "to": "#speakers" },
+    { "text": "Eventos", "to": "#schedule" },
+    { "text": "Local", "to": "#venue" },
+    { "text": "Galeria", "to": "#gallery" },
+    { "text": "Contato", "to": "#contact" }
+  ],
+  "event": {
+    "id": 16,
+    "name": "MeetUp #16",
+    "theme": "Infraestrutura como código: Utilizando Terraform na Nuvem",
+    "date": "28 Agosto 2025",
+    "location": "Universidade UDF, Brasília - DF",
+    "description": "Nesta palestra vamos explorar o conceito de Infraestrutura como Código (IaC) e entender por que essa abordagem tem transformado a forma como gerenciamos ambientes de TI.",
+    "details": {
+      "where": "Centro Universidade UDF, 704/904, Brasília - DF",
+      "when": "Quinta Feira, 28 de Agosto 2025"
+    }
+  },
+  "speakers": [
+    {
+      "id": 1,
+      "name": "Patricia Góis",
+      "title": "Consultora e Arquiteta Cloud",
+      "imageUrl": "/img/speakers/speaker-1-2.jpg",
+      "social": {
+        "linkedin": "https://linkedin.com/in/patricia-gois",
+        "twitter": "https://twitter.com/patricia_gois",
+        "github": "https://github.com/patricia-gois"
+      },
+      "bio": {
+        "intro": "Patricia é uma profissional experiente em arquitetura de soluções cloud, com mais de 8 anos de experiência em transformação digital e migração para a nuvem.",
+        "experience": "Ao longo de sua carreira, ela tem ajudado empresas de diversos setores a modernizar suas infraestruturas, implementando soluções escaláveis e seguras na AWS.",
+        "expertise": "Especialista em Terraform, Kubernetes e práticas de DevOps, Patricia é reconhecida por sua capacidade de traduzir requisitos de negócio em soluções técnicas robustas e eficientes."
+      },
+      "skills": [
+        "AWS",
+        "Terraform",
+        "Kubernetes",
+        "DevOps",
+        "Infrastructure as Code",
+        "Cloud Architecture",
+        "CI/CD",
+        "Docker"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Evandro Pires",
+      "title": "AWS Serverless Hero Embaixador",
+      "imageUrl": "/img/speakers/speaker-2.jpg",
+      "social": {
+        "linkedin": "https://www.linkedin.com/in/epiresdasilva/?originalSubdomain=br"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Dan Rezende",
+      "title": "Solutions Architect",
+      "imageUrl": "/img/speakers/speaker-3.jpg",
+      "social": {
+        "linkedin": "#"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Marcelo Paiva",
+      "title": "CTO at Softprime",
+      "imageUrl": "/img/speakers/speaker-4.jpg",
+      "social": {
+        "linkedin": "https://www.linkedin.com/in/marcelopaiva/"
+      }
+    }
+  ],
+  "schedule": [
+    {
+      "id": 1,
+      "name": "Dia 1",
+      "date": "28 de agosto 2025",
+      "location": "Centro Universitário UDF, Brasília-DF",
+      "items": [
+        {
+          "time": "18:40",
+          "title": "Credenciamento",
+          "description": "Recepção dos participantes e entrega de materiais do evento."
+        },
+        {
+          "time": "19:00",
+          "title": "Keynote",
+          "speaker": "Patricia Góis",
+          "description": "Infraestrutura como código: Utilizando ferramenta Terraform na Nuvem.",
+          "speakerImage": "/img/speakers/speaker-1-2.jpg"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Dia 2",
+      "date": "29 de agosto 2025",
+      "location": "Centro Universitário UDF, Brasília-DF",
+      "items": [
+        {
+          "time": "19:00",
+          "title": "Workshop Avançado",
+          "speaker": "Evandro Pires",
+          "description": "Implementação prática de soluções serverless na AWS.",
+          "speakerImage": "/img/speakers/speaker-2.jpg"
+        },
+        {
+          "time": "20:30",
+          "title": "Networking",
+          "description": "Momento de integração entre os participantes e palestrantes."
+        }
+      ]
+    }
+  ],
+  "tickets": [
+    {
+      "id": "evento",
+      "name": "Evento",
+      "price": 0,
+      "currency": "BRL",
+      "benefits": [
+        { "text": "Acesso completo ao evento", "included": true },
+        { "text": "Networking com a comunidade", "included": true },
+        { "text": "Kit de materiais", "included": false }
+      ]
+    },
+    {
+      "id": "kit_camisa",
+      "name": "Kit Camisa",
+      "price": 100,
+      "currency": "BRL",
+      "benefits": [
+        { "text": "Camisa Polo Azul Escuro", "included": true },
+        { "text": "Bloco de Notas, Caneta", "included": true },
+        { "text": "Chaveiro", "included": true }
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "id": 1,
+      "question": "O que é o User Group AWS Brasília?",
+      "answer": "É uma comunidade local de entusiastas, profissionais e estudantes interessados em tecnologias da AWS (Amazon Web Services). O grupo promove encontros, palestras e networking para compartilhar conhecimento e experiências."
+    },
+    {
+      "id": 2,
+      "question": "Quem pode participar do grupo?",
+      "answer": "Qualquer pessoa interessada em AWS é bem-vinda — desde iniciantes até especialistas. Não é necessário ter certificações ou experiência prévia."
+    },
+    {
+      "id": 3,
+      "question": "Como posso me inscrever ou participar?",
+      "answer": "Você pode participar se inscrevendo gratuitamente nos eventos via plataformas como Meetup, LinkedIn ou acompanhando o grupo em redes sociais. Os links costumam ser divulgados com antecedência."
+    },
+    {
+      "id": 4,
+      "question": "Os eventos são pagos?",
+      "answer": "Não. A maioria dos eventos promovidos pelo User Group AWS Brasília é gratuita e aberta ao público."
+    },
+    {
+      "id": 5,
+      "question": "Onde os encontros acontecem?",
+      "answer": "Os eventos podem ser presenciais em Brasília (DF), em locais como coworkings, universidades e empresas parceiras, ou online via plataformas como Zoom ou YouTube."
+    },
+    {
+      "id": 6,
+      "question": "O grupo é oficial da AWS?",
+      "answer": "Sim, é reconhecido como um AWS User Group oficial e faz parte do programa global de comunidades da AWS, embora seja mantido por voluntários."
+    }
+  ],
+  "venue": {
+    "name": "Centro Universidade UDF",
+    "address": "704/904, Brasília - DF",
+    "date": "28 de Agosto de 2025",
+    "time": "18:40 - 21:00",
+    "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3839.024317735003!2d-47.90197802411197!3d-15.80267172316045!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935a3aea806d74eb%3A0x139eddc3c7f58173!2sUDF%20-%20Centro%20Universit%C3%A1rio%20-%20Campus%20Sede!5e0!3m2!1spt-BR!2sbr!4v1754100867872!5m2!1spt-BR!2sbr",
+    "images": [
+      {
+        "src": "/img/venue-gallery/venue-gallery-1.jpg",
+        "alt": "Vista externa do Centro Universitário UDF"
+      },
+      { "src": "/img/venue-gallery/venue-gallery-2.jpg", "alt": "Auditório principal" },
+      { "src": "/img/venue-gallery/venue-gallery-3.jpg", "alt": "Área de networking" },
+      { "src": "/img/venue-gallery/venue-gallery-4.jpg", "alt": "Recepção do evento" }
+    ]
+  },
+  "gallery": [
+    { "src": "/img/event-gallery/event-gallery-1.jpg", "alt": "Evento AWS User Group - Foto 1" },
+    { "src": "/img/event-gallery/event-gallery-2.jpg", "alt": "Evento AWS User Group - Foto 2" },
+    { "src": "/img/event-gallery/event-gallery-3.jpg", "alt": "Evento AWS User Group - Foto 3" },
+    { "src": "/img/event-gallery/event-gallery-4.jpg", "alt": "Evento AWS User Group - Foto 4" },
+    { "src": "/img/event-gallery/event-gallery-5.jpg", "alt": "Evento AWS User Group - Foto 5" },
+    { "src": "/img/event-gallery/event-gallery-6.jpg", "alt": "Evento AWS User Group - Foto 6" },
+    { "src": "/img/event-gallery/event-gallery-7.jpg", "alt": "Evento AWS User Group - Foto 7" },
+    { "src": "/img/event-gallery/event-gallery-8.jpg", "alt": "Evento AWS User Group - Foto 8" },
+    { "src": "/img/event-gallery/event-gallery-9.jpg", "alt": "Evento AWS User Group - Foto 9" },
+    { "src": "/img/event-gallery/event-gallery-10.jpg", "alt": "Evento AWS User Group - Foto 10" },
+    { "src": "/img/event-gallery/event-gallery-11.jpg", "alt": "Evento AWS User Group - Foto 11" },
+    { "src": "/img/event-gallery/event-gallery-12.jpg", "alt": "Evento AWS User Group - Foto 12" },
+    { "src": "/img/event-gallery/event-gallery-13.jpg", "alt": "Evento AWS User Group - Foto 13" },
+    { "src": "/img/event-gallery/event-gallery-14.jpg", "alt": "Evento AWS User Group - Foto 14" }
+  ],
+  "sponsors": [
+    { "id": 1, "name": "AWS", "logo": "/img/clients/client-1.png" },
+    { "id": 2, "name": "Microsoft Azure", "logo": "/img/clients/client-2.png" },
+    { "id": 3, "name": "Google Cloud", "logo": "/img/clients/client-3.png" },
+    { "id": 4, "name": "Docker", "logo": "/img/clients/client-4.png" },
+    { "id": 5, "name": "Kubernetes", "logo": "/img/clients/client-5.png" },
+    { "id": 6, "name": "Terraform", "logo": "/img/clients/client-6.png" },
+    { "id": 7, "name": "GitHub", "logo": "/img/clients/client-7.png" },
+    { "id": 8, "name": "GitLab", "logo": "/img/clients/client-8.png" }
+  ],
+  "contact": {
+    "address": "Brasília - DF",
+    "phone": "(61) 9 9176-9304",
+    "email": "contatoawsbrasilia@outlook.com.br",
+    "social": [
+      { "platform": "WhatsApp", "url": "https://api.whatsapp.com/send/?phone=556191769304" },
+      { "platform": "YouTube", "url": "https://www.youtube.com/@AWSUsergroupBrasilia/streams" },
+      {
+        "platform": "Facebook",
+        "url": "https://www.facebook.com/people/AWS-User-Group-Bras%C3%ADlia/61556738932977/"
+      },
+      { "platform": "Instagram", "url": "https://www.instagram.com/awsbrasilia/" },
+      {
+        "platform": "LinkedIn",
+        "url": "https://www.linkedin.com/company/aws-user-group-bsb/posts/?feedView=all"
+      },
+      { "platform": "GitHub", "url": "https://github.com/AwsUgBRasilia" }
+    ]
+  }
+}

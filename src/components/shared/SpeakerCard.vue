@@ -15,7 +15,7 @@
           <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
             <h4 class="font-display font-bold text-lg mb-1">
               <router-link
-                to="/speaker-details"
+                :to="{ name: 'speaker-details', params: { id: speaker.id } }"
                 class="hover:text-primary transition-colors"
               >
                 {{ speaker.name }}
@@ -46,7 +46,7 @@
     <div class="p-4 md:hidden">
       <h4 class="font-display font-bold text-lg text-foreground mb-1">
         <router-link
-          to="/speaker-details"
+          :to="{ name: 'speaker-details', params: { id: speaker.id } }"
           class="hover:text-primary transition-colors"
         >
           {{ speaker.name }}
@@ -76,7 +76,7 @@
 import { Linkedin } from 'lucide-vue-next'
 
 interface Speaker {
-  id: number
+  id: string
   name: string
   title: string
   imageUrl: string
