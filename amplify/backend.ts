@@ -20,9 +20,14 @@ const domain = userPool.addDomain('CustomAuthDomain', {
 })
 
 // 3) Alias no Route53 para o domínio do Cognito
-const zone = route53.HostedZone.fromLookup(Stack.of(userPool), 'Zone', {
-  domainName: 'awsbrasilia.com.br',
-})
+const zone = route53.HostedZone.fromHostedZoneAttributes(
+  Stack.of(userPool),
+  'Zone',
+  {
+    hostedZoneId: process.env.ROUTE53_ZONE_ID!,
+    zoneName: 'awsbrasilia.com.br',
+  }
+)
 
 new route53.ARecord(Stack.of(userPool), 'AuthAliasRecord', {
   zone,
