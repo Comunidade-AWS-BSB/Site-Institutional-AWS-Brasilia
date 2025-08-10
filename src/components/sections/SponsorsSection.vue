@@ -30,7 +30,7 @@
 
       <!-- Sem patrocinadores -->
       <div v-else class="text-center text-muted-foreground max-w-2xl mx-auto">
-        <p class="mb-8">Ainda não temos patrocinadores cadastrados para este evento.</p>
+        <p class="mb-8">Ainda não temos patrocinadores cadastrados.</p>
       </div>
 
       <!-- Chamada para Ação -->

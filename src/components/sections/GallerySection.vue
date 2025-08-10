@@ -14,11 +14,12 @@
       <!-- Grade -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
         <div v-for="(src, index) in visible" :key="index"
-             class="group relative aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in-up"
-             :style="{ animationDelay: `${index * 0.05}s` }"
-             @click="openLightbox(index)">
-          <img :src="src" alt="" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+          class="group relative aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in-up"
+          :style="{ animationDelay: `${index * 0.05}s` }" @click="openLightbox(index)">
+          <img :src="src" alt=""
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+          <div
+            class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
             <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                 <Eye class="h-6 w-6 text-white" />
@@ -29,35 +30,41 @@
       </div>
 
       <!-- Ver mais -->
-      <div v-if="!showAll && (imagesToUse.length > firstBatch)" class="text-center animate-fade-in-up" style="animation-delay: 0.6s">
+      <div v-if="!showAll && (imagesToUse.length > firstBatch)" class="text-center animate-fade-in-up"
+        style="animation-delay: 0.6s">
         <Button variant="outline" size="lg" @click="loadMore">
           <Plus class="h-4 w-4 mr-2" /> Ver Mais Fotos
         </Button>
       </div>
 
       <!-- Lightbox -->
-      <div v-if="lightboxOpen" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" @click="closeLightbox">
+      <div v-if="lightboxOpen" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+        @click="closeLightbox">
         <div class="relative max-w-4xl max-h-full">
           <img :src="imagesToUse[currentImageIndex]" alt="" class="max-w-full max-h-full object-contain rounded-lg" />
           <Button v-if="currentImageIndex > 0" variant="ghost" size="sm"
-                  class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
-                  @click.stop="previousImage">
+            class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+            @click.stop="previousImage">
             <ChevronLeft class="h-6 w-6" />
           </Button>
           <Button v-if="currentImageIndex < imagesToUse.length - 1" variant="ghost" size="sm"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
-                  @click.stop="nextImage">
+            class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+            @click.stop="nextImage">
             <ChevronRight class="h-6 w-6" />
           </Button>
-          <Button variant="ghost" size="sm"
-                  class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white"
-                  @click="closeLightbox">
+          <Button variant="ghost" size="sm" class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white"
+            @click="closeLightbox">
             <X class="h-6 w-6" />
           </Button>
-          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+          <div
+            class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
             {{ currentImageIndex + 1 }} / {{ imagesToUse.length }}
           </div>
         </div>
+      </div>
+
+      <div v-if="imagesToUse.length === 0" class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+        <div v-for="i in 8" :key="i" class="h-24 bg-muted/40 rounded-lg animate-pulse" />
       </div>
     </div>
   </section>

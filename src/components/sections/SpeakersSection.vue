@@ -21,7 +21,7 @@
       </div>
 
       <!-- Vazio -->
-      <p v-if="loaded && cards.length === 0" class="mt-8 text-center text-sm text-muted-foreground">
+      <p v-if="(loaded && cards.length === 0) || (cards.length === 0)" class="mt-8 text-center text-sm text-muted-foreground">
         Nenhum palestrante cadastrado ainda.
       </p>
     </div>

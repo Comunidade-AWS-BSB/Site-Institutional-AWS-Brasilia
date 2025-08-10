@@ -1,5 +1,5 @@
 <template>
-  <section id="hero" class="relative overflow-visible">
+  <section id="hero" class="relative overflow-visible flex items-center">
     <!-- Overlay escuro para contraste -->
     <div class="absolute inset-0 bg-[rgba(0,8,32,0.5)] pointer-events-none rounded-t-xl"></div>
 
