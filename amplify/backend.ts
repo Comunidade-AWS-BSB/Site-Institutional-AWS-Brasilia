@@ -15,6 +15,7 @@ const backend = defineBackend({ auth, data, storage })
 const userPool = backend.auth.resources.userPool
 
 const domainName = 'auth.awsbrasilia.com.br'
+const zoneName = 'awsbrasilia.com.br'
 const certArn = process.env.COGNITO_CUSTOM_CERT_ARN!
 const hostedZoneId = process.env.ROUTE53_ZONE_ID!
 
@@ -38,17 +39,24 @@ if (certArn && hostedZoneId) {
     }
   )
 
-  // Hosted Zone só com ID
-  const zone = route53.HostedZone.fromHostedZoneId(
-    backend.stack,
-    'PrimaryZone',
-    hostedZoneId
+  const zone = route53.HostedZone.fromHostedZoneAttributes(
+    backend.stack, 'PrimaryZone',
+    { hostedZoneId, zoneName }
   )
 
-  // Alias para o domínio do Cognito (CloudFront) — subdomínio "auth"
+
+  const recordName = 'auth'
   new route53.ARecord(backend.stack, 'AuthAliasA', {
     zone,
-    recordName: 'auth', // subdomínio de awsbrasilia.com.br
+    recordName,
+    target: route53.RecordTarget.fromAlias(
+      new targets.UserPoolDomainTarget(userPoolDomain)
+    ),
+  })
+
+  new route53.AaaaRecord(backend.stack, 'AuthAliasAAAA', {
+    zone,
+    recordName,
     target: route53.RecordTarget.fromAlias(
       new targets.UserPoolDomainTarget(userPoolDomain)
     ),
