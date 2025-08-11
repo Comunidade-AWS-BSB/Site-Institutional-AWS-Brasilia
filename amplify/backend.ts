@@ -1,36 +1,56 @@
+// amplify/backend.ts
 import { defineBackend } from '@aws-amplify/backend'
-import { aws_certificatemanager as acm, aws_route53 as route53, aws_route53_targets as targets, Stack } from 'aws-cdk-lib'
 import { auth } from './auth/resource'
 import { data } from './data/resource'
+import { storage } from './storage/resource'
 
-const backend = defineBackend({ auth, data })
+import * as cognito from 'aws-cdk-lib/aws-cognito'
+import * as acm from 'aws-cdk-lib/aws-certificatemanager'
+import * as route53 from 'aws-cdk-lib/aws-route53'
+import * as targets from 'aws-cdk-lib/aws-route53-targets'
 
+const backend = defineBackend({ auth, data, storage })
+
+// User Pool criado pelo defineAuth
 const userPool = backend.auth.resources.userPool
 
-// 1) Cert em us-east-1
+const domainName = 'auth.awsbrasilia.com.br'
 const certArn = process.env.COGNITO_CUSTOM_CERT_ARN!
-const cert = acm.Certificate.fromCertificateArn(Stack.of(userPool), 'AuthCert', certArn)
+const hostedZoneId = process.env.ROUTE53_ZONE_ID!
 
-// 2) Domínio custom no Cognito
-const domain = userPool.addDomain('CustomAuthDomain', {
-  customDomain: {
-    domainName: 'auth.awsbrasilia.com.br',
-    certificate: cert,
-  },
-})
+if (certArn && hostedZoneId) {
+  const cert = acm.Certificate.fromCertificateArn(
+    backend.stack,
+    'AuthCustomCert',
+    certArn
+  )
 
-// 3) Alias no Route53 para o domínio do Cognito
-const zone = route53.HostedZone.fromHostedZoneAttributes(
-  Stack.of(userPool),
-  'Zone',
-  {
-    hostedZoneId: process.env.ROUTE53_ZONE_ID!,
-    zoneName: 'awsbrasilia.com.br',
-  }
-)
+  // Domínio customizado do Cognito (Hosted UI)
+  const userPoolDomain = new cognito.UserPoolDomain(
+    backend.stack,
+    'AuthCustomDomain',
+    {
+      userPool,
+      customDomain: {
+        domainName,
+        certificate: cert,
+      },
+    }
+  )
 
-new route53.ARecord(Stack.of(userPool), 'AuthAliasRecord', {
-  zone,
-  recordName: 'auth',
-  target: route53.RecordTarget.fromAlias(new targets.UserPoolDomainTarget(domain)),
-})
+  // Hosted Zone só com ID
+  const zone = route53.HostedZone.fromHostedZoneId(
+    backend.stack,
+    'PrimaryZone',
+    hostedZoneId
+  )
+
+  // Alias para o domínio do Cognito (CloudFront) — subdomínio "auth"
+  new route53.ARecord(backend.stack, 'AuthAliasA', {
+    zone,
+    recordName: 'auth', // subdomínio de awsbrasilia.com.br
+    target: route53.RecordTarget.fromAlias(
+      new targets.UserPoolDomainTarget(userPoolDomain)
+    ),
+  })
+}
