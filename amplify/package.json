@@ -1,3 +1,13 @@
 {
-  "type": "module"
+    "name": "amplify-backend",
+    "private": true,
+    "type": "module",
+    "devDependencies": {
+        "@aws-amplify/backend": "^1.16.1",
+        "@aws-amplify/backend-cli": "^1.8.0",
+        "aws-cdk-lib": "^2.204.0",
+        "constructs": "^10.4.2",
+        "@types/node": "^22.16.5",
+        "typescript": "^5.8.3"
+    }
 }
