@@ -342,7 +342,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { buildSponsorLogoPath } from '@/constants/storage'
 
 type EventsHook = ReturnType<typeof useEvents>
-type SpeakerRow = SpeakersHook['items']['value'][number]
+type SpeakersHook = ReturnType<typeof useSpeakers>
+
+const events: EventsHook = useEvents()
+const speakersHook: SpeakersHook = useSpeakers()
+const client = getDataClient()
+
+type EventRow = typeof events.items.value[number]
+type SpeakerRow = typeof speakersHook.items.value[number]
+type CreateInput = Parameters<EventsHook['createEvent']>[0]
+type UpdateInput = Parameters<EventsHook['updateEvent']>[0]
 
 type ExistingFaq = { id: string; question: string; answer: string }
 type PendingFaq = { _id: string; question: string; answer: string }
@@ -450,7 +459,7 @@ function removePendingTalk(id: string) {
     pendingTalks.value = pendingTalks.value.filter(t => t._id !== id)
 }
 async function deleteExistingTalk(id: string) {
-    await client.models.Talk.delete({ id })
+    await client.models.Talk.delete({ id }, { authMode: 'userPool' })
     existingTalks.value = existingTalks.value.filter(t => t.id !== id)
 }
 function getSpeakerName(speakerId: string) {
@@ -484,7 +493,7 @@ function removePendingFaq(id: string) {
 }
 
 async function deleteExistingFaq(id: string) {
-    await client.models.EventFaq.delete({ id })
+    await client.models.EventFaq.delete({ id }, { authMode: 'userPool' })
     existingFaqs.value = existingFaqs.value.filter(f => f.id !== id)
 }
 
@@ -650,7 +659,7 @@ async function onSubmit() {
                 durationMinutes: talk.durationMinutes ?? undefined,
                 order: talk.order ?? undefined,
                 speakerId: talk.speakerId,
-            })
+            }, { authMode: 'userPool' })
         }
 
         // sponsors pendentes
@@ -661,12 +670,12 @@ async function onSubmit() {
                 await uploadData({ path, data: sp.logoFile, options: { contentType: sp.logoFile.type || 'image/*' } }).result
                 logoKey = path
             }
-            await client.models.EventSponsor.create({ name: sp.name, eventId: saved.id, logoKey })
+            await client.models.EventSponsor.create({ name: sp.name, eventId: saved.id, logoKey }, { authMode: 'userPool' })
         }
 
         // faqs pendentes
         for (const f of pendingFaqs.value) {
-            await client.models.EventFaq.create({ eventId: saved.id, question: f.question, answer: f.answer })
+            await client.models.EventFaq.create({ eventId: saved.id, question: f.question, answer: f.answer }, { authMode: 'userPool' })
         }
 
         emit('saved', saved)

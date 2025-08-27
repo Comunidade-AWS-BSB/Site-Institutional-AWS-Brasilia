@@ -46,6 +46,14 @@ export const auth = defineAuth({
       mutable: true,
       required: false,
     },
+    phoneNumber: {
+      mutable: true,
+      required: false,
+    },
+    profilePicture: {
+      mutable: true,
+      required: false,
+    }
   },
   // Podemos possivelmente querer mudar isso no futuro pra adicionar um grupo de palestrantes
   groups: [

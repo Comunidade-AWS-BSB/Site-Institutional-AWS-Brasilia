@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { computed, watch, onMounted, onBeforeUnmount, ref } from 'vue'
 import { Authenticator, translations } from '@aws-amplify/ui-vue'
 import { I18n } from 'aws-amplify/utils'
 
@@ -175,6 +175,14 @@ const formFields = {
       isRequired: true,
       order: 4,
     },
+    phone_number: {
+      label: 'Número de telefone',
+      placeholder: '+55 61 9 9999-9999',
+      isRequired: false,
+      order: 5,
+      dialCode: '+55',
+      inputProps: { type: 'tel' }
+    }
   },
 } as const
 
@@ -185,15 +193,30 @@ const formFields = {
  */
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
+import { fetchUserAttributes } from 'aws-amplify/auth';
+import { debuglog } from 'util';
 const authStore = useAuthStore()
 const { isLoggedIn } = storeToRefs(authStore)
 
+const showProfileModal = ref(false)
+
+function onProfileSaved() {
+  showProfileModal.value = false
+}
+
 watch(
   isLoggedIn,
-  (logged) => {
-    if (logged && props.visible) {
-      emit('authenticated')
-      onRequestClose()
+  async (logged) => {
+    if (!logged) return
+    emit('authenticated')
+    onRequestClose()
+    try {
+      const attrs = await fetchUserAttributes()
+      const hasPicture = !!attrs?.picture
+      showProfileModal.value = !hasPicture
+    } catch (err) {
+      console.warn('[AUTH-MODAL] fetchUserAttributes falhou: ', err)
+      showProfileModal.value = false
     }
   },
   { immediate: false },

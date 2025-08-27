@@ -51,12 +51,14 @@ export function useImages(prefix: string) {
     await load(false)
   }
 
-  async function upload(file: File) {
+  async function upload(file: File, returnUrl: boolean | null = false): Promise<S3Image | void> {
     uploading.value = true
     try {
       const key = `${prefix}${crypto.randomUUID()}-${file.name}`
       await uploadData({ path: key, data: file, options: { contentType: file.type } }).result
+      const { url } = await getUrl({ path: key, options: { expiresIn: 1800 } })
       // re-carrega para aparecer já com URL
+      if (returnUrl) return { key, url: url.toString() } as S3Image
       await load(true)
     } finally {
       uploading.value = false
