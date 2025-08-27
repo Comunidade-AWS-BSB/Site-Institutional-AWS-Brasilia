@@ -117,7 +117,7 @@ export function useEvents() {
     }
 
     async function createEvent(input: CreateInput) {
-        const { data, errors } = await client.models.Event.create(input, { selectionSet: baseSelection })
+        const { data, errors } = await client.models.Event.create(input, { authMode: 'userPool', selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
         const row = data as EventRow
         items.value = [row, ...items.value]
@@ -125,7 +125,7 @@ export function useEvents() {
     }
 
     async function updateEvent(patch: UpdateInput) {
-        const { data, errors } = await client.models.Event.update(patch, { selectionSet: baseSelection })
+        const { data, errors } = await client.models.Event.update(patch, { authMode: 'userPool', selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
         const row = data as EventRow
         items.value = items.value.map(ev => (ev.id === row.id ? row : ev))
@@ -133,7 +133,7 @@ export function useEvents() {
     }
 
     async function deleteEvent(id: EventId) {
-        const { data, errors } = await client.models.Event.delete({ id }, { selectionSet: baseSelection })
+        const { data, errors } = await client.models.Event.delete({ id }, { authMode: 'userPool', selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
         items.value = items.value.filter(ev => ev.id !== id)
         return data as EventRow

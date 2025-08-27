@@ -126,6 +126,9 @@
                 </div>
 
                 <DialogFooter>
+                    <Button v-if="editing" type="button" variant="destructive" class="mr-auto" @click="onDelete" :disabled="submitting">
+                        Excluir
+                    </Button>
                     <Button type="button" variant="secondary" @click="$emit('close')">Cancelar</Button>
                     <Button type="submit" :disabled="submitting">{{ submitting ? 'Salvando…' : 'Salvar' }}</Button>
                 </DialogFooter>
@@ -305,6 +308,21 @@ watch(() => editingId.value, (id) => {
     if (id) void reloadExistingSocials()
     else existingSocials.value = []
 }, { immediate: true })
+
+/* ================= Delete ================= */
+async function onDelete(): Promise<void> {
+    if (!props.editing) return
+    if (!confirm(`Tem certeza que deseja excluir o palestrante "${props.editing.name}"?`)) return
+
+    try {
+        submitting.value = true
+        await speakers.deleteSpeaker(props.editing.id)
+        emit('saved', props.editing) // reloads list on parent
+    } finally {
+        submitting.value = false
+        emit('close')
+    }
+}
 
 /* ================= Submit ================= */
 async function onSubmit(): Promise<void> {

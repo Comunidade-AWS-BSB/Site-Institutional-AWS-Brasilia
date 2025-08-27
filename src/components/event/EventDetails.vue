@@ -79,77 +79,79 @@
 
       <!-- Palestra + Speaker -->
       <TabsContent value="palestra" class="mt-6 space-y-6">
-        <section v-if="hasTalk" class="space-y-6">
-          <!-- Talk em Card, centralizado -->
-          <Card>
-            <CardContent class="p-6 text-center space-y-3">
-              <h2 class="text-xl font-semibold">{{ talk?.title }}</h2>
-              <p class="text-sm text-muted-foreground" v-if="talk?.durationMinutes || talk?.order">
-                <span v-if="talk?.durationMinutes">Duração: {{ talk?.durationMinutes }} min</span>
-                <span v-if="talk?.order" class="ml-2">• Ordem: {{ talk?.order }}</span>
-              </p>
-              <p class="leading-relaxed whitespace-pre-line">{{ talk?.abstract || '—' }}</p>
-            </CardContent>
-          </Card>
+        <section v-if="hasTalk" class="space-y-8">
+          <div v-for="{ talk, speaker, avatarUrl, socials } in talks" :key="talk.id" class="space-y-6 border-b last:border-b-0 pb-8">
+            <!-- Talk em Card, centralizado -->
+            <Card>
+              <CardContent class="p-6 text-center space-y-3">
+                <h2 class="text-xl font-semibold">{{ talk?.title }}</h2>
+                <p class="text-sm text-muted-foreground" v-if="talk?.durationMinutes || talk?.order">
+                  <span v-if="talk?.durationMinutes">Duração: {{ talk?.durationMinutes }} min</span>
+                  <span v-if="talk?.order" class="ml-2">• Ordem: {{ talk?.order }}</span>
+                </p>
+                <p class="leading-relaxed whitespace-pre-line">{{ talk?.abstract || '—' }}</p>
+              </CardContent>
+            </Card>
 
-          <!-- Speaker Card mais largo e centrado -->
-          <Card class="max-w-2xl mx-auto">
-            <CardContent class="p-6 space-y-5 text-center">
-              <div class="flex flex-col items-center gap-3">
-                <img
-                  v-if="speakerAvatar"
-                  :src="speakerAvatar"
-                  class="h-24 w-24 rounded-full object-cover border"
-                  alt="Foto do palestrante"
-                />
-                <div>
-                  <div class="font-semibold text-lg">{{ speaker?.name }}</div>
-                  <div class="text-xs text-muted-foreground">{{ speaker?.title }}</div>
+            <!-- Speaker Card mais largo e centrado -->
+            <Card v-if="speaker" class="max-w-2xl mx-auto">
+              <CardContent class="p-6 space-y-5 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <img
+                    v-if="avatarUrl"
+                    :src="avatarUrl"
+                    class="h-24 w-24 rounded-full object-cover border"
+                    alt="Foto do palestrante"
+                  />
+                  <div>
+                    <div class="font-semibold text-lg">{{ speaker?.name }}</div>
+                    <div class="text-xs text-muted-foreground">{{ speaker?.title }}</div>
+                  </div>
                 </div>
-              </div>
 
-              <div v-if="speaker?.bioIntro" class="text-sm">
-                <div class="text-xs text-muted-foreground mb-1">Introdução</div>
-                <p class="leading-relaxed whitespace-pre-line">{{ speaker?.bioIntro }}</p>
-              </div>
-
-              <div v-if="speaker?.bioExperience" class="text-sm">
-                <div class="text-xs text-muted-foreground mb-1">Experiência</div>
-                <p class="leading-relaxed whitespace-pre-line">{{ speaker?.bioExperience }}</p>
-              </div>
-
-              <div v-if="speaker?.bioExpertise" class="text-sm">
-                <div class="text-xs text-muted-foreground mb-1">Expertise</div>
-                <p class="leading-relaxed whitespace-pre-line">{{ speaker?.bioExpertise }}</p>
-              </div>
-
-              <div v-if="(speaker?.skills?.length ?? 0) > 0">
-                <div class="text-xs text-muted-foreground mb-1">Skills</div>
-                <div class="flex flex-wrap gap-2 justify-center">
-                  <Badge v-for="s in (speaker?.skills ?? []).filter(Boolean)" :key="s!" variant="outline">{{ s }}</Badge>
+                <div v-if="speaker?.bioIntro" class="text-sm">
+                  <div class="text-xs text-muted-foreground mb-1">Introdução</div>
+                  <p class="leading-relaxed whitespace-pre-line">{{ speaker?.bioIntro }}</p>
                 </div>
-              </div>
 
-              <!-- Redes sociais com ícones -->
-              <div v-if="socials.length" class="pt-1">
-                <div class="text-xs text-muted-foreground mb-2">Redes</div>
-                <div class="flex flex-wrap gap-2 justify-center">
-                  <a
-                    v-for="m in socials"
-                    :key="m.id"
-                    class="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted/60"
-                    :href="m.url"
-                    target="_blank"
-                    rel="noopener"
-                    :aria-label="labelFor(m.name)"
-                  >
-                    <component :is="iconFor(m.name)" class="h-5 w-5" />
-                    <span>{{ labelFor(m.name) }}</span>
-                  </a>
+                <div v-if="speaker?.bioExperience" class="text-sm">
+                  <div class="text-xs text-muted-foreground mb-1">Experiência</div>
+                  <p class="leading-relaxed whitespace-pre-line">{{ speaker?.bioExperience }}</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+
+                <div v-if="speaker?.bioExpertise" class="text-sm">
+                  <div class="text-xs text-muted-foreground mb-1">Expertise</div>
+                  <p class="leading-relaxed whitespace-pre-line">{{ speaker?.bioExpertise }}</p>
+                </div>
+
+                <div v-if="(speaker?.skills?.length ?? 0) > 0">
+                  <div class="text-xs text-muted-foreground mb-1">Skills</div>
+                  <div class="flex flex-wrap gap-2 justify-center">
+                    <Badge v-for="s in (speaker?.skills ?? []).filter(Boolean)" :key="s!" variant="outline">{{ s }}</Badge>
+                  </div>
+                </div>
+
+                <!-- Redes sociais com ícones -->
+                <div v-if="socials.length" class="pt-1">
+                  <div class="text-xs text-muted-foreground mb-2">Redes</div>
+                  <div class="flex flex-wrap gap-2 justify-center">
+                    <a
+                      v-for="m in socials"
+                      :key="m.id"
+                      class="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted/60"
+                      :href="m.url"
+                      target="_blank"
+                      rel="noopener"
+                      :aria-label="labelFor(m.name)"
+                    >
+                      <component :is="iconFor(m.name)" class="h-5 w-5" />
+                      <span>{{ labelFor(m.name) }}</span>
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </section>
 
         <div v-else class="text-sm text-muted-foreground text-center mt-2">Sem palestra cadastrada.</div>
@@ -346,15 +348,20 @@ type SocialRow = { id: string; name: SocialName; url: string }
 type SponsorView = { id: string; name: string; logoKey?: string | null; logoUrl?: string | null }
 type FaqRow = { id: string; question: string; answer: string }
 
+type EnrichedTalk = {
+  talk: TalkRow
+  speaker: SpeakerRow | null
+  avatarUrl: string | null
+  socials: SocialRow[]
+}
+
+
 /* ===== Talk + Speaker + Socials + Sponsors + FAQ ===== */
-const talk = ref<TalkRow | null>(null)
-const speaker = ref<SpeakerRow | null>(null)
-const speakerAvatar = ref<string | null>(null)
-const socials = ref<SocialRow[]>([])
+const talks = ref<EnrichedTalk[]>([])
 const sponsors = ref<SponsorView[]>([])
 const faqs = ref<FaqRow[]>([])
 
-const hasTalk = computed(() => !!talk.value && !!speaker.value)
+const hasTalk = computed(() => talks.value.length > 0)
 
 /* Ícones/labels por enum de rede */
 function iconFor(name: SocialName) {
@@ -384,28 +391,27 @@ async function hydrateAll() {
   // Galeria
   await reloadGallery()
 
-  // Talk + Speaker (helper do useEvents)
-  const rel = await events.getPrimaryTalkWithSpeaker(props.event.id)
-  talk.value = rel?.talk ?? null
-  speaker.value = rel?.speaker ?? null
-
-  // Avatar
-  if (speaker.value?.imageKey) {
-    speakerAvatar.value = await speakers.getAvatarUrl(speaker.value.imageKey)
-  } else {
-    speakerAvatar.value = null
-  }
-
-  // Social medias
-  socials.value = []
-  if (speaker.value?.id) {
-    const media = await speakers.listMediasBySpeaker(speaker.value.id)
-    socials.value = (media ?? []).map(m => ({
-      id: m.id,
-      name: m.name as SocialName,
-      url: m.url ?? ''
-    }))
-  }
+  // Talks + Speakers
+  const talkRows = await events.listTalksByEvent(props.event.id)
+  const enrichedTalks: EnrichedTalk[] = await Promise.all(
+    talkRows.map(async (talk) => {
+      if (!talk.speakerId) {
+        return { talk, speaker: null, avatarUrl: null, socials: [] }
+      }
+      const speaker = await speakers.getSpeaker(talk.speakerId)
+      const [avatarUrl, socials] = await Promise.all([
+        speaker?.imageKey ? speakers.getAvatarUrl(speaker.imageKey) : Promise.resolve(null),
+        speakers.listMediasBySpeaker(talk.speakerId)
+      ])
+      return {
+        talk,
+        speaker,
+        avatarUrl,
+        socials: (socials ?? []).map(m => ({ id: m.id, name: m.name as SocialName, url: m.url ?? '' }))
+      }
+    })
+  )
+  talks.value = enrichedTalks
 
   // Sponsors
   const sps = await events.listSponsorsByEvent(props.event.id)

@@ -127,54 +127,76 @@
                     </TabsContent>
 
                     <!-- ============ ABA: INFORMAÇÕES DA PALESTRA ============ -->
-                    <TabsContent value="talk" class="mt-6">
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="space-y-4">
+                    <TabsContent value="talk" class="mt-6 space-y-6">
+                        <!-- Lista de palestras existentes -->
+                        <div v-if="existingTalks.length" class="border rounded-xl p-3 space-y-2">
+                            <h3 class="text-sm font-medium mb-2">Palestras do evento:</h3>
+                            <div v-for="t in existingTalks" :key="t.id" class="border rounded-md p-2 flex items-center justify-between">
                                 <div>
-                                    <Label for="talkTitle">Título da palestra</Label>
-                                    <Input id="talkTitle" v-model="talk.title"
-                                        placeholder="Ex.: Serverless na prática" />
+                                    <p class="font-medium">{{ t.title }}</p>
+                                    <p class="text-sm text-muted-foreground">Palestrante: {{ t.speaker?.name ?? 'Não encontrado' }}</p>
                                 </div>
-
-                                <div>
-                                    <Label for="speaker">Palestrante</Label>
-                                    <Select v-model="talk.speakerId">
-                                        <SelectTrigger id="speaker">
-                                            <SelectValue placeholder="Selecionar palestrante" />
-                                        </SelectTrigger>
-                                        <SelectContent
-                                            class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
-                                            <SelectItem v-for="sp in speakerOptions" :key="sp.id" :value="sp.id">
-                                                {{ sp.name }} <span v-if="sp.title" class="text-muted-foreground"> — {{
-                                                    sp.title }}</span>
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <Label for="duration">Duração (min)</Label>
-                                        <Input id="duration" type="number" min="0"
-                                            v-model.number="talk.durationMinutes" />
-                                    </div>
-                                    <div>
-                                        <Label for="order">Ordem</Label>
-                                        <Input id="order" type="number" min="0" v-model.number="talk.order" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <Label for="abstract">Resumo / Abstract</Label>
-                                <Textarea id="abstract" rows="8" v-model="talk.abstract"
-                                    placeholder="Descrição breve do conteúdo da palestra" />
+                                <Button size="sm" variant="destructive" type="button" @click="deleteExistingTalk(t.id)">Excluir</Button>
                             </div>
                         </div>
 
-                        <p class="text-xs text-muted-foreground mt-3">
-                            Dica: deixe em branco se ainda não quiser cadastrar a palestra; você pode voltar depois.
-                        </p>
+                        <!-- Lista de palestras pendentes -->
+                        <div v-if="pendingTalks.length" class="border rounded-xl p-3 space-y-2">
+                            <h3 class="text-sm font-medium mb-2">Palestras a serem adicionadas:</h3>
+                             <div v-for="t in pendingTalks" :key="t._id" class="border rounded-md p-2 flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">{{ t.title }}</p>
+                                    <p class="text-sm text-muted-foreground">Palestrante: {{ getSpeakerName(t.speakerId) }}</p>
+                                </div>
+                                <Button size="sm" variant="ghost" type="button" @click="removePendingTalk(t._id)">Remover</Button>
+                            </div>
+                        </div>
+
+                        <!-- Formulário para adicionar nova palestra -->
+                        <div class="border rounded-xl p-4 space-y-4">
+                            <h3 class="text-lg font-semibold">Adicionar Palestra</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <Label for="talkTitle">Título da palestra *</Label>
+                                        <Input id="talkTitle" v-model="talkForm.title" placeholder="Ex.: Serverless na prática" />
+                                    </div>
+
+                                    <div>
+                                        <Label for="speaker">Palestrante *</Label>
+                                        <Select v-model="talkForm.speakerId">
+                                            <SelectTrigger id="speaker">
+                                                <SelectValue placeholder="Selecionar palestrante" />
+                                            </SelectTrigger>
+                                            <SelectContent class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
+                                                <SelectItem v-for="sp in speakerOptions" :key="sp.id" :value="sp.id">
+                                                    {{ sp.name }} <span v-if="sp.title" class="text-muted-foreground"> — {{ sp.title }}</span>
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <Label for="duration">Duração (min)</Label>
+                                            <Input id="duration" type="number" min="0" v-model.number="talkForm.durationMinutes" />
+                                        </div>
+                                        <div>
+                                            <Label for="order">Ordem</Label>
+                                            <Input id="order" type="number" min="0" v-model.number="talkForm.order" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <Label for="abstract">Resumo / Abstract</Label>
+                                    <Textarea id="abstract" rows="8" v-model="talkForm.abstract" placeholder="Descrição breve do conteúdo da palestra" />
+                                </div>
+                            </div>
+                             <Button type="button" @click="addPendingTalk" :disabled="!talkForm.title || !talkForm.speakerId">
+                                Adicionar Palestra à Lista
+                            </Button>
+                        </div>
                     </TabsContent>
 
                     <!-- ============ ABA: PATROCINADORES ============ -->
@@ -320,20 +342,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { buildSponsorLogoPath } from '@/constants/storage'
 
 type EventsHook = ReturnType<typeof useEvents>
-type SpeakersHook = ReturnType<typeof useSpeakers>
-
-const events: EventsHook = useEvents()
-const speakersHook: SpeakersHook = useSpeakers()
-const client = getDataClient()
-
-type EventRow = typeof events.items.value[number]
-type CreateInput = Parameters<EventsHook['createEvent']>[0]
-type UpdateInput = Parameters<EventsHook['updateEvent']>[0]
+type SpeakerRow = SpeakersHook['items']['value'][number]
 
 type ExistingFaq = { id: string; question: string; answer: string }
 type PendingFaq = { _id: string; question: string; answer: string }
 type ExistingSponsor = { id: string; name: string; logoKey?: string | null }
 type PendingSponsor = { _id: string; name: string; logoFile?: File | null; previewUrl?: string | null }
+type ExistingTalk = TalkRow & { speaker?: SpeakerRow }
+type PendingTalk = { _id: string; title: string; abstract?: string; durationMinutes?: number; order?: number; speakerId: string }
+
 
 const props = defineProps<{ open: boolean; editing: EventRow | null }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved', payload: EventRow): void }>()
@@ -356,17 +373,16 @@ const hashtagsInput = computed({
     set: (v: string) => { form.hashtags = v.split(',').map(s => s.trim()).filter(Boolean) }
 })
 
-/* ---------------- Talk ---------------- */
-const talk = reactive<{
-    title: string
-    abstract: string
-    durationMinutes: number | null
-    order: number | null
-    speakerId: string | null
-}>({
-    title: '', abstract: '', durationMinutes: null, order: null, speakerId: null
+/* ---------------- Talks ---------------- */
+const existingTalks = ref<ExistingTalk[]>([])
+const pendingTalks = ref<PendingTalk[]>([])
+const talkForm = reactive<Omit<PendingTalk, '_id'>>({
+    title: '',
+    abstract: '',
+    durationMinutes: 60,
+    order: 1,
+    speakerId: '',
 })
-const talkId = ref<string | null>(null)
 
 /* ---------------- Sponsors ---------------- */
 const existingSponsors = ref<ExistingSponsor[]>([])
@@ -399,21 +415,16 @@ function existingLogoUrl(key?: string | null) {
 
 /* ---------------- Hidratação das relações (Talk/Sponsors/FAQ) ---------------- */
 async function hydrateRelations(eventId: string): Promise<void> {
-    // Talk (pega a primeira)
-    const talkRes = await client.models.Talk.list({ filter: { eventId: { eq: eventId } }, limit: 1 })
-    const firstTalk = Array.isArray(talkRes.data) ? talkRes.data[0] : undefined
-    if (firstTalk) {
-        talkId.value = firstTalk.id
-        talk.title = firstTalk.title ?? ''
-        talk.abstract = firstTalk.abstract ?? ''
-        talk.durationMinutes = firstTalk.durationMinutes ?? null
-        talk.order = firstTalk.order ?? null
-        talk.speakerId = firstTalk.speakerId ?? null
-    } else {
-        talkId.value = null
-        talk.title = ''; talk.abstract = ''
-        talk.durationMinutes = null; talk.order = null; talk.speakerId = null
-    }
+    // Talks
+    const talkRes = await client.models.Talk.list({ filter: { eventId: { eq: eventId } }, limit: 100 })
+    const talksArr = (talkRes.data ?? []) as TalkRow[]
+    const populatedTalks = await Promise.all(
+        talksArr.map(async (t: TalkRow) => {
+            const speaker = t.speakerId ? await speakersHook.getSpeaker(t.speakerId) : undefined
+            return { ...t, speaker: speaker || undefined }
+        })
+    )
+    existingTalks.value = populatedTalks
 
     // Sponsors existentes
     const spRes = await client.models.EventSponsor.list({ filter: { eventId: { eq: eventId } }, limit: 100 })
@@ -422,6 +433,28 @@ async function hydrateRelations(eventId: string): Promise<void> {
 
     // FAQs existentes
     await reloadExistingFaqs(eventId)
+}
+
+/* ---------------- Talk helpers ---------------- */
+function addPendingTalk() {
+    if (!talkForm.title || !talkForm.speakerId) return
+    pendingTalks.value.push({ ...talkForm, _id: crypto.randomUUID() })
+    // Reset form
+    talkForm.title = ''
+    talkForm.abstract = ''
+    talkForm.durationMinutes = 60
+    talkForm.order = (pendingTalks.value.length + existingTalks.value.length) + 1
+    talkForm.speakerId = ''
+}
+function removePendingTalk(id: string) {
+    pendingTalks.value = pendingTalks.value.filter(t => t._id !== id)
+}
+async function deleteExistingTalk(id: string) {
+    await client.models.Talk.delete({ id })
+    existingTalks.value = existingTalks.value.filter(t => t.id !== id)
+}
+function getSpeakerName(speakerId: string) {
+    return speakerOptions.value.find(s => s.id === speakerId)?.name ?? '?'
 }
 
 /* ---------------- FAQ helpers ---------------- */
@@ -508,10 +541,14 @@ watch([bannerFile, () => props.editing?.bannerKey], () => { void computeBannerPr
 
 /* ---------------- Hidratação “ao abrir” ---------------- */
 function resetAuxTabs() {
-    // talk
-    talkId.value = null
-    talk.title = ''; talk.abstract = ''
-    talk.durationMinutes = null; talk.order = null; talk.speakerId = null
+    // talks
+    existingTalks.value = []
+    pendingTalks.value = []
+    talkForm.title = ''
+    talkForm.abstract = ''
+    talkForm.durationMinutes = 60
+    talkForm.order = 1
+    talkForm.speakerId = ''
 
     // sponsors pendentes
     for (const sp of pendingSponsors.value) if (sp.previewUrl) URL.revokeObjectURL(sp.previewUrl)
@@ -604,28 +641,16 @@ async function onSubmit() {
             await events.uploadBanner(bannerFile.value, saved.id)
         }
 
-        // talk
-        if (talk.title && talk.speakerId) {
-            if (talkId.value) {
-                await client.models.Talk.update({
-                    id: talkId.value,
-                    title: talk.title,
-                    abstract: talk.abstract || undefined,
-                    durationMinutes: talk.durationMinutes ?? undefined,
-                    order: talk.order ?? undefined,
-                    eventId: saved.id,
-                    speakerId: talk.speakerId,
-                })
-            } else {
-                await client.models.Talk.create({
-                    title: talk.title,
-                    abstract: talk.abstract || undefined,
-                    durationMinutes: talk.durationMinutes ?? undefined,
-                    order: talk.order ?? undefined,
-                    eventId: saved.id,
-                    speakerId: talk.speakerId,
-                })
-            }
+        // talks pendentes
+        for (const talk of pendingTalks.value) {
+            await client.models.Talk.create({
+                eventId: saved.id,
+                title: talk.title,
+                abstract: talk.abstract || undefined,
+                durationMinutes: talk.durationMinutes ?? undefined,
+                order: talk.order ?? undefined,
+                speakerId: talk.speakerId,
+            })
         }
 
         // sponsors pendentes

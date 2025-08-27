@@ -94,7 +94,7 @@ export function useSpeakers() {
     }
 
     async function createSpeaker(input: CreateSpeakerInput) {
-        const { data, errors } = await client.models.Speaker.create(input, { selectionSet: speakerSelection })
+        const { data, errors } = await client.models.Speaker.create(input, { authMode: 'userPool', selectionSet: speakerSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         const row = data as SpeakerRow
         items.value = [row, ...items.value]
@@ -102,7 +102,7 @@ export function useSpeakers() {
     }
 
     async function updateSpeaker(patch: UpdateSpeakerInput) {
-        const { data, errors } = await client.models.Speaker.update(patch, { selectionSet: speakerSelection })
+        const { data, errors } = await client.models.Speaker.update(patch, { authMode: 'userPool', selectionSet: speakerSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         const row = data as SpeakerRow
         items.value = items.value.map(s => (s.id === row.id ? row : s))
@@ -110,7 +110,7 @@ export function useSpeakers() {
     }
 
     async function deleteSpeaker(id: SpeakerId) {
-        const { data, errors } = await client.models.Speaker.delete({ id }, { selectionSet: speakerSelection })
+        const { data, errors } = await client.models.Speaker.delete({ id }, { authMode: 'userPool', selectionSet: speakerSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         items.value = items.value.filter(s => s.id !== id)
         return data as SpeakerRow
@@ -129,19 +129,19 @@ export function useSpeakers() {
 
     async function createSpeakerMedia(speakerId: SpeakerId, name: CreateMediaInput['name'], url: string) {
         const body: CreateMediaInput = { speakerId, name, url }
-        const { data, errors } = await client.models.SocialMedia.create(body, { selectionSet: mediaSelection })
+        const { data, errors } = await client.models.SocialMedia.create(body, { authMode: 'userPool', selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return data as SocialMediaRow
     }
 
     async function updateSpeakerMedia(patch: UpdateMediaInput) {
-        const { data, errors } = await client.models.SocialMedia.update(patch, { selectionSet: mediaSelection })
+        const { data, errors } = await client.models.SocialMedia.update(patch, { authMode: 'userPool', selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         return data as SocialMediaRow
     }
 
     async function deleteSpeakerMedia(id: SocialMediaId) {
-        const { data, errors } = await client.models.SocialMedia.delete({ id } as DeleteMediaInput, { selectionSet: mediaSelection })
+        const { data, errors } = await client.models.SocialMedia.delete({ id } as DeleteMediaInput, { authMode: 'userPool', selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         return data as SocialMediaRow
     }
