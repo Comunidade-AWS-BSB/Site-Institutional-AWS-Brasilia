@@ -12,7 +12,6 @@
       "$amplify/*": [
         "../.amplify/generated/*"
       ]
-    },
-    "types": ["vite/client"],
+    }
   },
 }

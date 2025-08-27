@@ -1,6 +1,5 @@
 import { defineAuth, secret } from '@aws-amplify/backend'
-import * as cdk from 'aws-cdk-lib'
-import * as acm from 'aws-cdk-lib/aws-certificatemanager'
+
 
 export const auth = defineAuth({
   loginWith: {
