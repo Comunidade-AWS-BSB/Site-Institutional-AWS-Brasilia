@@ -54,7 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
       // Não derruba UI; apenas limpa sessão
       snapshot.value = { userId: null, username: null, attributes: null }
       if (import.meta.env && (import.meta as unknown as { env?: Record<string, unknown> }).env?.DEV) {
-        // eslint-disable-next-line no-console
+         
         console.warn('[auth.bootstrap] error', e)
       }
     } finally {
@@ -78,7 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (e) {
       error.value = e
       if (import.meta.env && (import.meta as unknown as { env?: Record<string, unknown> }).env?.DEV) {
-        // eslint-disable-next-line no-console
+         
         console.warn('[auth.refreshUser] error', e)
       }
     }
@@ -103,7 +103,7 @@ export const useAuthStore = defineStore('auth', () => {
       return Object.fromEntries(Object.entries(result).map(([k, v]) => [k, String(v)]))
     } catch (e) {
       if (import.meta.env && (import.meta as unknown as { env?: Record<string, unknown> }).env?.DEV) {
-        // eslint-disable-next-line no-console
+         
         console.warn('[auth.fetchAttributes] error', e)
       }
       return {}
