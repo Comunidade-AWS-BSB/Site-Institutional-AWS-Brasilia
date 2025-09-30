@@ -142,7 +142,9 @@ const EventBroadcast = a.model({
   cron: a.string(), // quando kind = CRON
 
   status: BroadcastStatus,
-})
+}).authorization(allow => [
+  allow.group('ADMINS').to(['create', 'read', 'update', 'delete'])
+])
 
 const OutboundMessage = a.model({
   broadcastId: a.id().required(),
@@ -155,7 +157,9 @@ const OutboundMessage = a.model({
   attempts: a.integer(),
   error: a.string(),
   lastUpdateIso: a.string()
-})
+}).authorization(allow => [
+  allow.group('ADMINS').to(['create', 'read', 'update', 'delete'])
+])
 
 /** Esquema raiz */
 const schema = a.schema({
