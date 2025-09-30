@@ -413,7 +413,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch, onBeforeUnmount, onMounted } from 'vue'
-import { useEvents, type TalkRow, type SponsorRow } from '@/composables/useEvents'
+import { useEvents, type TalkRow } from '@/composables/useEvents'
 import { useSpeakers } from '@/composables/useSpeakers'
 import { getDataClient } from '@/composables/useData'
 import { uploadData } from 'aws-amplify/storage'
@@ -434,9 +434,9 @@ import outputs from '../../../amplify_outputs.json'
 type EventsHook = ReturnType<typeof useEvents>
 type SpeakersHook = ReturnType<typeof useSpeakers>
 
-const events: EventsHook = useEvents()
-const speakersHook: SpeakersHook = useSpeakers()
-const client = getDataClient()
+const events: EventsHook = useEvents({ mode: 'private' })
+const speakersHook: SpeakersHook = useSpeakers({ mode: 'private' })
+const client = getDataClient('private')
 
 type EventRow = typeof events.items.value[number]
 type SpeakerRow = typeof speakersHook.items.value[number]

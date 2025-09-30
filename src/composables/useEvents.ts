@@ -44,6 +44,9 @@ export type SpeakerRow = SelectionSet<Speaker, typeof speakerSelection>
 const socialSelection = ['id', 'name', 'url', 'speakerId'] as const
 export type SocialRow = SelectionSet<Social, typeof socialSelection>
 
+type DataClient = ReturnType<typeof getDataClient>
+type UseEventsMode = 'auto' | 'public' | 'private'
+
 // ===== Opções de listagem =====
 export type ListEventsOptions = {
     search?: string
@@ -55,14 +58,22 @@ export type ListEventsOptions = {
     nextToken?: string | null
 }
 
-export function useEvents() {
-    const client = getDataClient()
+type UseEventsOptions = { mode?: UseEventsMode }
+
+export function useEvents(options: UseEventsOptions = {}) {
+    const mode: UseEventsMode = options.mode ?? 'auto'
+
+    function resolveClient(): DataClient {
+        return mode === 'auto' ? getDataClient() : getDataClient(mode)
+    }
 
     // Inputs 100% fortemente tipados (derivados do client)
-    type CreateInput = Parameters<typeof client.models.Event.create>[0]
-    type UpdateInput = Parameters<typeof client.models.Event.update>[0]
-    type GetInput = Parameters<typeof client.models.Event.get>[0]
-    type ListInput = Parameters<typeof client.models.Event.list>[0]
+    type ClientModels = DataClient['models']
+    type EventModel = ClientModels['Event']
+    type CreateInput = Parameters<EventModel['create']>[0]
+    type UpdateInput = Parameters<EventModel['update']>[0]
+    type GetInput = Parameters<EventModel['get']>[0]
+    type ListInput = Parameters<EventModel['list']>[0]
 
     // ===== Estado =====
     const items: Ref<EventRow[]> = ref([])
@@ -95,6 +106,7 @@ export function useEvents() {
                 nextToken: opts?.nextToken ?? undefined,
             }
 
+            const client = resolveClient()
             const { data, nextToken: token, errors } = await client.models.Event.list({ ...(input as any), selectionSet: baseSelection })
             if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
 
@@ -110,6 +122,7 @@ export function useEvents() {
     }
 
     async function getEvent(id: EventId) {
+        const client = resolveClient()
         const input: GetInput = { id }
         const { data, errors } = await client.models.Event.get({ ...(input as any), selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
@@ -117,6 +130,7 @@ export function useEvents() {
     }
 
     async function createEvent(input: CreateInput) {
+        const client = resolveClient()
         const { data, errors } = await client.models.Event.create(input, { authMode: 'userPool', selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
         const row = data as EventRow
@@ -125,6 +139,7 @@ export function useEvents() {
     }
 
     async function updateEvent(patch: UpdateInput) {
+        const client = resolveClient()
         const { data, errors } = await client.models.Event.update(patch, { authMode: 'userPool', selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
         const row = data as EventRow
@@ -133,6 +148,7 @@ export function useEvents() {
     }
 
     async function deleteEvent(id: EventId) {
+        const client = resolveClient()
         const { data, errors } = await client.models.Event.delete({ id }, { authMode: 'userPool', selectionSet: baseSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as any).message ?? String(e)).join('; '))
         items.value = items.value.filter(ev => ev.id !== id)
@@ -141,6 +157,7 @@ export function useEvents() {
 
     // ===== Relações (cada uma em sua própria requisição) =====
     async function listTalksByEvent(eventId: EventId): Promise<TalkRow[]> {
+        const client = resolveClient()
         const { data, errors } = await client.models.Talk.list({
             filter: { eventId: { eq: eventId } },
             limit: 100,
@@ -151,6 +168,7 @@ export function useEvents() {
     }
 
     async function listSponsorsByEvent(eventId: EventId): Promise<SponsorRow[]> {
+        const client = resolveClient()
         const { data, errors } = await client.models.EventSponsor.list({
             filter: { eventId: { eq: eventId } },
             limit: 100,
@@ -161,6 +179,7 @@ export function useEvents() {
     }
 
     async function listFaqsByEvent(eventId: EventId): Promise<FaqRow[]> {
+        const client = resolveClient()
         const { data, errors } = await client.models.EventFaq.list({
             filter: { eventId: { eq: eventId } },
             limit: 100,
@@ -178,6 +197,7 @@ export function useEvents() {
         const first = talks[0]
         if (!first?.speakerId) return null
 
+        const client = resolveClient()
         const { data: sp, errors } = await client.models.Speaker.get({ id: first.speakerId, selectionSet: speakerSelection } as any)
         if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         if (!sp) return null
@@ -187,6 +207,7 @@ export function useEvents() {
 
     /** Lista redes sociais de um Speaker. */
     async function listSocialsForSpeaker(speakerId: SpeakerRow['id']): Promise<SocialRow[]> {
+        const client = resolveClient()
         const { data, errors } = await client.models.SocialMedia.list({
             filter: { speakerId: { eq: speakerId } },
             limit: 100,

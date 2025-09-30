@@ -5,12 +5,13 @@ import { getCurrentUser } from 'aws-amplify/auth'
 import { Hub } from 'aws-amplify/utils'
 
 type Client = ReturnType<typeof generateClient<Schema>>
+type AuthMode = 'public' | 'private'
 
 let publicClient: Client | null = null
 let privateClient: Client | null = null
 
 // estado interno do modo atual
-let authMode: 'public' | 'private' = 'public'
+let authMode: AuthMode = 'public'
 
 // cria (lazy) os dois clientes; chamamos quando necessário
 function ensureClients() {
@@ -43,9 +44,10 @@ void probeAuthMode()
  * Ele alterna entre apiKey (público) e userPool (privado) com base
  * no último estado detectado de autenticação.
  */
-export function getDataClient() {
+export function getDataClient(preferredMode?: AuthMode) {
     ensureClients()
-    return authMode === 'private' ? (privateClient as Client) : (publicClient as Client)
+    const mode: AuthMode = preferredMode ?? authMode
+    return mode === 'private' ? (privateClient as Client) : (publicClient as Client)
 }
 
 /**

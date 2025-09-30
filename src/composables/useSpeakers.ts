@@ -41,19 +41,32 @@ export type SpeakerRich = {
 }
 
 // ===================== Composable =====================
-export function useSpeakers() {
-    const client = getDataClient()
+type DataClient = ReturnType<typeof getDataClient>
+type UseSpeakersMode = 'auto' | 'public' | 'private'
+
+type UseSpeakersOptions = { mode?: UseSpeakersMode }
+
+export function useSpeakers(options: UseSpeakersOptions = {}) {
+    const mode: UseSpeakersMode = options.mode ?? 'auto'
+
+    function resolveClient(): DataClient {
+        return mode === 'auto' ? getDataClient() : getDataClient(mode)
+    }
 
     // Inputs inferidos do client (100% alinhados ao backend)
-    type CreateSpeakerInput = Parameters<typeof client.models.Speaker.create>[0]
-    type UpdateSpeakerInput = Parameters<typeof client.models.Speaker.update>[0]
-    type GetSpeakerInput = Parameters<typeof client.models.Speaker.get>[0]
-    type ListSpeakerInput = Parameters<typeof client.models.Speaker.list>[0]
+    type ClientModels = DataClient['models']
+    type SpeakerModel = ClientModels['Speaker']
+    type SocialModel = ClientModels['SocialMedia']
 
-    type CreateMediaInput = Parameters<typeof client.models.SocialMedia.create>[0]
-    type UpdateMediaInput = Parameters<typeof client.models.SocialMedia.update>[0]
-    type DeleteMediaInput = Parameters<typeof client.models.SocialMedia.delete>[0]
-    type ListMediaInput = Parameters<typeof client.models.SocialMedia.list>[0]
+    type CreateSpeakerInput = Parameters<SpeakerModel['create']>[0]
+    type UpdateSpeakerInput = Parameters<SpeakerModel['update']>[0]
+    type GetSpeakerInput = Parameters<SpeakerModel['get']>[0]
+    type ListSpeakerInput = Parameters<SpeakerModel['list']>[0]
+
+    type CreateMediaInput = Parameters<SocialModel['create']>[0]
+    type UpdateMediaInput = Parameters<SocialModel['update']>[0]
+    type DeleteMediaInput = Parameters<SocialModel['delete']>[0]
+    type ListMediaInput = Parameters<SocialModel['list']>[0]
 
     // Estado
     const items: Ref<SpeakerRow[]> = ref([])
@@ -74,6 +87,7 @@ export function useSpeakers() {
                 nextToken: opts?.nextToken ?? undefined,
             }
 
+            const client = resolveClient()
             const { data, nextToken: token, errors } = await client.models.Speaker.list({ ...(input as any), selectionSet: speakerSelection })
             if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
 
@@ -86,6 +100,7 @@ export function useSpeakers() {
     }
 
     async function getSpeaker(id: SpeakerId) {
+        const client = resolveClient()
         const input: GetSpeakerInput = { id }
         const resGet = await client.models.Speaker.get(input as any, { selectionSet: speakerSelection })
         const { data, errors } = resGet as any
@@ -94,6 +109,7 @@ export function useSpeakers() {
     }
 
     async function createSpeaker(input: CreateSpeakerInput) {
+        const client = resolveClient()
         const { data, errors } = await client.models.Speaker.create(input, { authMode: 'userPool', selectionSet: speakerSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         const row = data as SpeakerRow
@@ -102,6 +118,7 @@ export function useSpeakers() {
     }
 
     async function updateSpeaker(patch: UpdateSpeakerInput) {
+        const client = resolveClient()
         const { data, errors } = await client.models.Speaker.update(patch, { authMode: 'userPool', selectionSet: speakerSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         const row = data as SpeakerRow
@@ -110,6 +127,7 @@ export function useSpeakers() {
     }
 
     async function deleteSpeaker(id: SpeakerId) {
+        const client = resolveClient()
         const { data, errors } = await client.models.Speaker.delete({ id }, { authMode: 'userPool', selectionSet: speakerSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         items.value = items.value.filter(s => s.id !== id)
@@ -122,6 +140,7 @@ export function useSpeakers() {
             filter: { speakerId: { eq: speakerId } },
             limit,
         }
+        const client = resolveClient()
         const { data, errors } = await client.models.SocialMedia.list({ ...(input as any), selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return (data ?? []) as SocialMediaRow[]
@@ -129,18 +148,21 @@ export function useSpeakers() {
 
     async function createSpeakerMedia(speakerId: SpeakerId, name: CreateMediaInput['name'], url: string) {
         const body: CreateMediaInput = { speakerId, name, url }
+        const client = resolveClient()
         const { data, errors } = await client.models.SocialMedia.create(body, { authMode: 'userPool', selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
         return data as SocialMediaRow
     }
 
     async function updateSpeakerMedia(patch: UpdateMediaInput) {
+        const client = resolveClient()
         const { data, errors } = await client.models.SocialMedia.update(patch, { authMode: 'userPool', selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         return data as SocialMediaRow
     }
 
     async function deleteSpeakerMedia(id: SocialMediaId) {
+        const client = resolveClient()
         const { data, errors } = await client.models.SocialMedia.delete({ id } as DeleteMediaInput, { authMode: 'userPool', selectionSet: mediaSelection })
         if (errors?.length) throw new Error(errors.map(e => (e as { message?: string }).message ?? String(e)).join('; '))
         return data as SocialMediaRow

@@ -63,6 +63,8 @@ const Event = a.model({
   faqs: a.hasMany('EventFaq', 'eventId'),
   sponsors: a.hasMany('EventSponsor', 'eventId'),
   gallery: a.hasMany('EventImage', 'eventId'),
+
+  broadcasts: a.hasMany('EventBroadcast', 'eventId'),
 }).authorization((allow) => [
   allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
   allow.authenticated().to(['read']),

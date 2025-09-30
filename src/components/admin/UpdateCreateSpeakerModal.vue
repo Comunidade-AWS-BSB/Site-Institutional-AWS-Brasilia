@@ -149,7 +149,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 type SpeakersHook = ReturnType<typeof useSpeakers>
-const speakers: SpeakersHook = useSpeakers()
+const speakers: SpeakersHook = useSpeakers({ mode: 'private' })
 
 type SpeakerRow = typeof speakers.items.value[number]
 type CreateInput = Parameters<SpeakersHook['createSpeaker']>[0]

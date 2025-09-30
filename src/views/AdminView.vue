@@ -230,8 +230,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import SkeletonRows from '@/components/admin/SkeletonRows.vue'
 import { EVENTS_PREFIX } from '@/constants/storage'
 
-const events = reactive(useEvents())
-const speakers = reactive(useSpeakers())
+const events = reactive(useEvents({ mode: 'private' }))
+const speakers = reactive(useSpeakers({ mode: 'private' }))
 
 // Deriva o tipo de linha a partir do estado dos hooks (sem export extra)
 type EventRow = typeof events.items[number]
