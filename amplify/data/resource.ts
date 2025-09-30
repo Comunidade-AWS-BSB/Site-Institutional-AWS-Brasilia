@@ -144,6 +144,8 @@ const EventBroadcast = a.model({
   cron: a.string(), // quando kind = CRON
 
   status: BroadcastStatus,
+
+  messages: a.hasMany('OutboundMessage', 'broadcastId')
 }).authorization(allow => [
   allow.group('ADMINS').to(['create', 'read', 'update', 'delete'])
 ])
