@@ -127,6 +127,36 @@ const EventImage = a.model({
   allow.publicApiKey().to(['read']),
 ])
 
+/** Modelos de mensageria */
+
+const BroadcastStatus = a.enum(['draft', 'scheduled', 'running', 'done', 'failed', 'cancelled'])
+
+const EventBroadcast = a.model({
+  eventId: a.id().required(),
+  event: a.belongsTo('Event', 'eventId'),
+
+  templateBody: a.string().required(),
+
+  scheduleKind: a.enum(['NOW', 'AT', 'CRON']),
+  scheduledAtIso: a.string(), // quando kind = AT
+  cron: a.string(), // quando kind = CRON
+
+  status: BroadcastStatus,
+})
+
+const OutboundMessage = a.model({
+  broadcastId: a.id().required(),
+  broadcast: a.belongsTo('EventBroadcast', 'broadcastId'),
+
+  phone: a.string(), // Espera-se o formato E164 (já presente no Cognito)
+  providerMessageId: a.string(),
+  providerStatus: a.enum(['PENDING', 'SENT', 'RECEIVED']),
+
+  attempts: a.integer(),
+  error: a.string(),
+  lastUpdateIso: a.string()
+})
+
 /** Esquema raiz */
 const schema = a.schema({
   Speaker,
@@ -135,7 +165,9 @@ const schema = a.schema({
   EventFaq,
   EventSponsor,
   EventImage,
-  SocialMedia
+  SocialMedia,
+  EventBroadcast,
+  OutboundMessage
 })
 
 export type Schema = ClientSchema<typeof schema>
@@ -149,6 +181,6 @@ export const data = defineData({
   schema,
   authorizationModes: {
     defaultAuthorizationMode: 'userPool',
-    apiKeyAuthorizationMode: { expiresInDays: 30 },
+    apiKeyAuthorizationMode: { expiresInDays: 365 },
   },
 })

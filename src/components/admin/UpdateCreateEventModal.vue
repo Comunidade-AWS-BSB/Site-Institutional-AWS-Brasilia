@@ -9,11 +9,12 @@
             <form class="space-y-4" @submit.prevent="onSubmit">
                 <Tabs v-model="tab" class="w-full">
                     <TabsList class="w-full justify-start overflow-x-auto">
-                        <TabsTrigger value="info">Informações do Evento</TabsTrigger>
-                        <TabsTrigger value="talk">Informações da Palestra</TabsTrigger>
-                        <TabsTrigger value="sponsors">Patrocinadores</TabsTrigger>
-                        <TabsTrigger value="faq">FAQ</TabsTrigger>
-                    </TabsList>
+                         <TabsTrigger value="info">Informações do Evento</TabsTrigger>
+                         <TabsTrigger value="talk">Informações da Palestra</TabsTrigger>
+                         <TabsTrigger value="sponsors">Patrocinadores</TabsTrigger>
+                         <TabsTrigger value="faq">FAQ</TabsTrigger>
+                         <TabsTrigger value="messaging">Mensageria</TabsTrigger>
+                     </TabsList>
 
                     <!-- ============ ABA: INFORMAÇÕES DO EVENTO ============ -->
                     <TabsContent value="info" class="mt-6 overflow-y-auto max-h-[450px]">
@@ -312,6 +313,91 @@
                             </ul>
                         </div>
                     </TabsContent>
+
+                    <!-- ============ ABA: MENSAGERIA ============ -->
+                    <TabsContent value="messaging" class="mt-6 space-y-6">
+                        <!-- Lista colapsável de usuários -->
+                        <Accordion type="single" collapsible class="w-full">
+                            <AccordionItem value="users">
+                                <AccordionTrigger>Usuários Cadastrados ({{ users.length }})</AccordionTrigger>
+                                <AccordionContent>
+                                    <div v-if="users.length" class="space-y-2 max-h-60 overflow-y-auto">
+                                        <div v-for="user in users" :key="user.username" class="border rounded-md p-2">
+                                            <p class="font-medium">{{ user.username }}</p>
+                                            <p class="text-sm text-muted-foreground">{{ user.phone }}</p>
+                                        </div>
+                                    </div>
+                                    <p v-else class="text-muted-foreground">Nenhum usuário encontrado.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+
+                        <!-- Formulário para criar broadcast -->
+                        <div class="border rounded-xl p-4 space-y-4">
+                            <h3 class="text-lg font-semibold">Criar Broadcast</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <Label for="templateBody">Mensagem (Template Body) *</Label>
+                                    <Textarea id="templateBody" v-model="broadcastForm.templateBody" rows="4" placeholder="Digite a mensagem a ser enviada" />
+                                </div>
+
+                                <div>
+                                    <Label for="kind">Tipo de Agendamento</Label>
+                                    <Select v-model="broadcastForm.kind">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecionar" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="NOW">Agora</SelectItem>
+                                            <SelectItem value="AT">Em horário específico</SelectItem>
+                                            <SelectItem value="CRON">Horários recorrentes</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div v-if="broadcastForm.kind === 'AT'">
+                                    <Label for="scheduledAtIso">Data e Hora</Label>
+                                    <Input id="scheduledAtIso" type="datetime-local" v-model="broadcastForm.scheduledAtIso" />
+                                </div>
+
+                                <div v-if="broadcastForm.kind === 'CRON'" class="space-y-2">
+                                    <Label>Horários Recorrentes</Label>
+                                    <div class="flex gap-2">
+                                        <Input type="time" v-model="timeInput" />
+                                        <Button type="button" @click="addTime" :disabled="!timeInput">+</Button>
+                                    </div>
+                                    <div v-if="broadcastForm.cronTimes.length" class="space-y-1">
+                                        <p class="text-sm">Horários adicionados:</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <span v-for="t in broadcastForm.cronTimes" :key="t" class="bg-muted px-2 py-1 rounded text-sm flex items-center gap-1">
+                                                {{ t }}
+                                                <Button size="sm" variant="ghost" @click="removeTime(t)">×</Button>
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-muted-foreground">Cron: {{ cronExpression }}</p>
+                                    </div>
+                                </div>
+
+                                <Button type="button" @click="addBroadcast" :disabled="!broadcastForm.templateBody">
+                                    Adicionar Broadcast à Lista
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Lista de broadcasts pendentes -->
+                        <div v-if="pendingBroadcasts.length" class="border rounded-xl p-3">
+                            <div class="text-sm font-medium mb-2">Broadcasts a serem criados:</div>
+                            <div class="space-y-2">
+                                <div v-for="b in pendingBroadcasts" :key="b._id" class="border rounded-md p-2">
+                                    <p class="font-medium">{{ b.templateBody }}</p>
+                                    <p class="text-sm text-muted-foreground">Tipo: {{ b.kind }}</p>
+                                    <p v-if="b.kind === 'AT'" class="text-sm text-muted-foreground">Agendado: {{ b.scheduledAtIso }}</p>
+                                    <p v-if="b.kind === 'CRON'" class="text-sm text-muted-foreground">Cron: {{ b.cron }}</p>
+                                    <Button size="sm" variant="ghost" type="button" @click="removeBroadcast(b._id)">Remover</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
                 </Tabs>
 
                 <DialogFooter>
@@ -339,7 +425,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { buildSponsorLogoPath } from '@/constants/storage'
+import { CognitoIdentityProviderClient, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider'
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity'
+import outputs from '../../../amplify_outputs.json'
 
 type EventsHook = ReturnType<typeof useEvents>
 type SpeakersHook = ReturnType<typeof useSpeakers>
@@ -365,7 +455,7 @@ const props = defineProps<{ open: boolean; editing: EventRow | null }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved', payload: EventRow): void }>()
 
 /* ---------------- UI/Tabs ---------------- */
-const tab = ref<'info' | 'talk' | 'sponsors' | 'faq'>('info')
+const tab = ref<'info' | 'talk' | 'sponsors' | 'faq' | 'messaging'>('info')
 
 /* ---------------- Evento (form base) ---------------- */
 const form = reactive<CreateInput>({
@@ -402,6 +492,13 @@ const pendingSponsors = ref<PendingSponsor[]>([])
 const existingFaqs = ref<ExistingFaq[]>([])
 const pendingFaqs = ref<PendingFaq[]>([])
 const faqForm = reactive<PendingFaq>({ _id: '', question: '', answer: '' })
+
+/* ---------------- Messaging ---------------- */
+const users = ref<{ username: string; phone: string }[]>([])
+type BroadcastForm = { _id: string; templateBody: string; kind: 'NOW' | 'AT' | 'CRON'; scheduledAtIso: string; cron: string; cronTimes: string[] }
+const broadcastForm = reactive<Omit<BroadcastForm, '_id'>>({ templateBody: '', kind: 'NOW', scheduledAtIso: '', cron: '', cronTimes: [] })
+const pendingBroadcasts = ref<BroadcastForm[]>([])
+const timeInput = ref('')
 
 /* ---------------- Helpers de preview ---------------- */
 const submitting = ref(false)
@@ -497,6 +594,70 @@ async function deleteExistingFaq(id: string) {
     existingFaqs.value = existingFaqs.value.filter(f => f.id !== id)
 }
 
+/* ---------------- Messaging helpers ---------------- */
+async function fetchUsers() {
+    try {
+        const cognitoClient = new CognitoIdentityProviderClient({
+            region: outputs.aws_region,
+            credentials: fromCognitoIdentityPool({
+                identityPoolId: outputs.aws_identity_pool_id,
+                clientConfig: { region: outputs.aws_region }
+            })
+        })
+        const command = new ListUsersCommand({ UserPoolId: outputs.user_pool_id })
+        const response = await cognitoClient.send(command)
+        users.value = (response.Users || [])
+            .filter(u => u.Attributes?.find(a => a.Name === 'phone_number_verified')?.Value === 'true')
+            .map(u => ({
+                username: u.Username!,
+                phone: u.Attributes!.find(a => a.Name === 'phone_number')!.Value!
+            }))
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error)
+        users.value = []
+    }
+}
+
+const cronExpression = computed(() => {
+    if (broadcastForm.cronTimes.length === 0) return ''
+    const hours = broadcastForm.cronTimes.map(t => t.split(':')[0]).join(',')
+    return `cron(0 ${hours} * * ? *)`
+})
+
+function addTime() {
+    if (timeInput.value && !broadcastForm.cronTimes.includes(timeInput.value)) {
+        broadcastForm.cronTimes.push(timeInput.value)
+        timeInput.value = ''
+    }
+}
+
+function removeTime(t: string) {
+    broadcastForm.cronTimes = broadcastForm.cronTimes.filter(ct => ct !== t)
+}
+
+function addBroadcast() {
+    if (!broadcastForm.templateBody.trim()) return
+    const cron = broadcastForm.kind === 'CRON' ? cronExpression.value : ''
+    pendingBroadcasts.value.push({
+        _id: crypto.randomUUID(),
+        templateBody: broadcastForm.templateBody.trim(),
+        kind: broadcastForm.kind,
+        scheduledAtIso: broadcastForm.scheduledAtIso,
+        cron,
+        cronTimes: [...broadcastForm.cronTimes]
+    })
+    // Reset form
+    broadcastForm.templateBody = ''
+    broadcastForm.kind = 'NOW'
+    broadcastForm.scheduledAtIso = ''
+    broadcastForm.cronTimes = []
+    timeInput.value = ''
+}
+
+function removeBroadcast(id: string) {
+    pendingBroadcasts.value = pendingBroadcasts.value.filter(b => b._id !== id)
+}
+
 /* ---------------- Sponsors helpers ---------------- */
 function onSponsorLogoChange(ev: Event) {
     const input = ev.target as HTMLInputElement
@@ -567,6 +728,14 @@ function resetAuxTabs() {
 
     // faqs pendentes
     pendingFaqs.value = []
+
+    // messaging
+    pendingBroadcasts.value = []
+    broadcastForm.templateBody = ''
+    broadcastForm.kind = 'NOW'
+    broadcastForm.scheduledAtIso = ''
+    broadcastForm.cronTimes = []
+    timeInput.value = ''
 }
 
 function initFormFromEditing(e: EventRow) {
@@ -622,6 +791,7 @@ onMounted(async () => {
     if (speakersHook.items.value.length === 0) {
         await speakersHook.listSpeakers({ limit: 100 })
     }
+    await fetchUsers()
 })
 
 /* ---------------- Unmount cleanup ---------------- */
@@ -676,6 +846,18 @@ async function onSubmit() {
         // faqs pendentes
         for (const f of pendingFaqs.value) {
             await client.models.EventFaq.create({ eventId: saved.id, question: f.question, answer: f.answer }, { authMode: 'userPool' })
+        }
+
+        // broadcasts pendentes
+        for (const b of pendingBroadcasts.value) {
+            await client.models.EventBroadcast.create({
+                eventId: saved.id,
+                templateBody: b.templateBody,
+                scheduleKind: b.kind,
+                scheduledAtIso: b.kind === 'AT' ? b.scheduledAtIso : undefined,
+                cron: b.kind === 'CRON' ? b.cron : undefined,
+                status: 'draft'
+            }, { authMode: 'userPool' })
         }
 
         emit('saved', saved)
