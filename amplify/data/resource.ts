@@ -1,5 +1,13 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 
+// Handlers e tipos das lambdas
+import { previewRecipientsFn } from '../functions/preview-recipients/resource'
+import { startBroadcastFn } from '../functions/start-broadcast/resource'
+import { scheduleBroadcastFn } from '../functions/schedule-broadcast/resource'
+
+const Recipient = a.customType({ username: a.string(), phoneE164: a.string() })
+const StartResult = a.customType({ ok: a.boolean(), created: a.integer() })
+
 /** Tipos */
 const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
 
@@ -167,6 +175,8 @@ const OutboundMessage = a.model({
 
 /** Esquema raiz */
 const schema = a.schema({
+
+  // Modelos
   Speaker,
   Event,
   Talk,
@@ -175,8 +185,31 @@ const schema = a.schema({
   EventImage,
   SocialMedia,
   EventBroadcast,
-  OutboundMessage
-})
+  OutboundMessage,
+
+  // Funções
+  previewRecipients: a.query()
+    .arguments({ group: a.string() }) // filtro opcional por grupo
+    .returns(Recipient.array())
+    .authorization(allow => [allow.group('ADMINS')])
+    .handler(a.handler.function(previewRecipientsFn)),
+
+  startBroadcast: a.mutation()
+    .arguments({ broadcastId: a.id().required() })
+    .returns(StartResult)
+    .authorization(allow => [allow.group('ADMINS')])
+    .handler(a.handler.function(startBroadcastFn)),
+
+  scheduleBroadcast: a.mutation()
+    .arguments({ broadcastId: a.id().required() })
+    .returns(a.boolean())
+    .authorization(allow => [allow.group('ADMINS')])
+    .handler(a.handler.function(scheduleBroadcastFn))
+}).authorization(allow => [
+  allow.resource(previewRecipientsFn).to(['query']),
+  allow.resource(startBroadcastFn).to(['query', 'mutate']),
+  allow.resource(scheduleBroadcastFn).to(['query'])
+])
 
 export type Schema = ClientSchema<typeof schema>
 

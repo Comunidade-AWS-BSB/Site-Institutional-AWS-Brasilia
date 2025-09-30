@@ -60,4 +60,8 @@ export const auth = defineAuth({
     // "SPEAKERS",
     'USERS',
   ],
+  access: (allow) => [
+    allow.resource(previewRecipientsFn).to(['listUsers', 'listUsersInGroup']),
+    allow.resource(startBroadcastFn).to(['listUsers']),
+  ],
 })
