@@ -1,4 +1,4 @@
-import { defineFunction } from "@aws-amplify/backend";
+import { defineFunction, secret } from "@aws-amplify/backend";
 
 export const startBroadcastFn = defineFunction({
   name: 'start-broadcast',
@@ -8,7 +8,7 @@ export const startBroadcastFn = defineFunction({
   environment: {
     EVOLUTION_BASE_URL: process.env.EVOLUTION_BASE_URL!,
     EVOLUTION_INSTANCE: process.env.EVOLUTION_INSTANCE!,
-    EVOLUTION_API_KEY: process.env.EVOLUTION_API_KEY!,
+    EVOLUTION_API_KEY: secret("EVOLUTION_API_KEY"),
     TZ_DEFAULT: 'America/Sao_Paulo'
   }
 })
