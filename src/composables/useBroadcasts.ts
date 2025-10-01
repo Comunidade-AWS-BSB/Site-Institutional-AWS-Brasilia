@@ -1,47 +1,33 @@
-// src/composables/useBroadcasts.ts
-import { http } from '@/lib/http'
+import { ref } from "vue"
+import { getDataClient } from "./useData"
 
-// Tipos iguais aos seus
-export type BroadcastForm = {
-  _id: string
-  templateBody: string
-  kind: 'NOW'|'AT'|'CRON'
-  scheduledAtIso: string
-  cron: string
-  cronTimes: string[]
+const client = getDataClient('private')
+
+const recipients = ref<{ username: string; phoneE164: string }[]>([])
+
+async function loadRecipients(group?: string) {
+  const { data, errors } = await client.queries.previewRecipients({ group })
+  if (errors?.length) throw new Error(errors.map((e: Record<string, unknown>) => e.message).join('; '))
+  recipients.value = data ?? []
+}
+
+async function startNow(broadcastId: string) {
+  const { data, errors } = await client.mutations.startBroadcast({ broadcastId })
+  if (errors?.length) throw new Error(errors.map((e: Record<string, unknown>) => e.message).join('; '))
+  return data
+}
+
+async function schedule(broadcastId: string) {
+  const { data, errors } = await client.mutations.scheduleBroadcast({ broadcastId })
+  if (errors?.length) throw new Error(errors.map((e: Record<string, unknown>) => e.message).join('; '))
+  return data
 }
 
 export function useBroadcasts() {
-  async function previewRecipients(group = 'MEMBERS') {
-    const { data } = await http.get('/admin/users', { params: { group } })
-    // retorna [{ username, phoneE164 }]
-    return data as { username: string; phoneE164: string }[]
+  return {
+    recipients,
+    loadRecipients,
+    startNow,
+    schedule
   }
-
-  async function createBroadcast(input: {
-    eventId: string
-    templateBody: string
-    scheduleKind: 'NOW'|'AT'|'CRON'
-    scheduledAtIso?: string
-    cron?: string
-    // opcional: targetGroups
-  }) {
-    const { data } = await http.post('/broadcasts', input)
-    return data as { broadcastId: string }
-  }
-
-  async function startNow(broadcastId: string) {
-    await http.post(`/broadcasts/${broadcastId}/start`)
-  }
-
-  async function schedule(broadcastId: string) {
-    await http.post(`/broadcasts/${broadcastId}/schedule`)
-  }
-
-  async function listOutbound(broadcastId: string) {
-    const { data } = await http.get(`/broadcasts/${broadcastId}/outbound`)
-    return data // array de OutboundMessage
-  }
-
-  return { previewRecipients, createBroadcast, startNow, schedule, listOutbound }
 }
