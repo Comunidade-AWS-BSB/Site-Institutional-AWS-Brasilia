@@ -1,4 +1,14 @@
-export const handler = async (event) => {
+import { defineFunction } from "@aws-amplify/backend";
 
-  return
-}
+export const startBroadcastFn = defineFunction({
+  name: 'start-broadcast',
+  entry: './handler.ts',
+  timeoutSeconds: 120,
+  memoryMB: 1024,
+  environment: {
+    EVOLUTION_BASE_URL: process.env.EVOLUTION_BASE_URL!,
+    EVOLUTION_INSTANCE: process.env.EVOLUTION_INSTANCE!,
+    EVOLUTION_API_KEY: process.env.EVOLUTION_API_KEY!,
+    TZ_DEFAULT: 'America/Sao_Paulo'
+  }
+})

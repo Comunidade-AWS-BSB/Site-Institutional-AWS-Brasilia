@@ -1,5 +1,6 @@
 import { defineAuth, secret } from '@aws-amplify/backend'
-
+import { previewRecipientsFn } from '../functions/preview-recipients/resource'
+import { startBroadcastFn } from '../functions/start-broadcast/resource'
 
 export const auth = defineAuth({
   loginWith: {
