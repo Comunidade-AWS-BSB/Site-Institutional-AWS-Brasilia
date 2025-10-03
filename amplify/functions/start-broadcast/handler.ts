@@ -34,7 +34,7 @@ export const handler: Handler = async (event) => {
 
     const baseUrl = env.EVOLUTION_BASE_URL
     const instance = env.EVOLUTION_INSTANCE
-    const apiKey = env.EVOLUTION_API_KEY
+    const apiKey = env.EVOLUTION_API_KEY.get()
 
     const  text = broadcast.templateBody
 

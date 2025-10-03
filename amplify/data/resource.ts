@@ -5,8 +5,7 @@ import { previewRecipientsFn } from '../functions/preview-recipients/resource'
 import { startBroadcastFn } from '../functions/start-broadcast/resource'
 import { scheduleBroadcastFn } from '../functions/schedule-broadcast/resource'
 
-const Recipient = a.customType({ username: a.string(), phoneE164: a.string() })
-const StartResult = a.customType({ ok: a.boolean(), created: a.integer() })
+
 
 /** Tipos */
 const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
@@ -175,6 +174,14 @@ const OutboundMessage = a.model({
 
 /** Esquema raiz */
 const schema = a.schema({
+  Recipient: a.customType({ 
+    username: a.string(), 
+    phoneE164: a.string() 
+  }),
+  StartResult: a.customType({ 
+    ok: a.boolean(), 
+    created: a.integer() 
+  }),
 
   // Modelos
   Speaker,
@@ -190,13 +197,13 @@ const schema = a.schema({
   // Funções
   previewRecipients: a.query()
     .arguments({ group: a.string() }) // filtro opcional por grupo
-    .returns(Recipient.array())
+    .returns(a.ref('Recipient').array())
     .authorization(allow => [allow.group('ADMINS')])
     .handler(a.handler.function(previewRecipientsFn)),
 
   startBroadcast: a.mutation()
     .arguments({ broadcastId: a.id().required() })
-    .returns(StartResult)
+    .returns(a.ref('StartResult'))
     .authorization(allow => [allow.group('ADMINS')])
     .handler(a.handler.function(startBroadcastFn)),
 
