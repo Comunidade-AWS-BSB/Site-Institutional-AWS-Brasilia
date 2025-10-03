@@ -29,12 +29,12 @@ export const handler: Handler = async (event) => {
     const recipients = (users.Users ?? [])
         .map(u => u.Attributes?.find(a => a.Name === 'phone_number')?.Value)
         .filter(Boolean) as string[]
-    
+
     await client.models.EventBroadcast.update({ id: broadcastId, status: 'running' })
 
     const baseUrl = env.EVOLUTION_BASE_URL
     const instance = env.EVOLUTION_INSTANCE
-    const apiKey = env.EVOLUTION_API_KEY.get()
+    const apiKey = env.EVOLUTION_API_KEY
 
     const  text = broadcast.templateBody
 
