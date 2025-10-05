@@ -13,6 +13,7 @@
                          <TabsTrigger value="talk">Informações da Palestra</TabsTrigger>
                          <TabsTrigger value="sponsors">Patrocinadores</TabsTrigger>
                          <TabsTrigger value="faq">FAQ</TabsTrigger>
+                         <TabsTrigger value="messaging">Mensageria</TabsTrigger>
                      </TabsList>
 
                     <!-- ============ ABA: INFORMAÇÕES DO EVENTO ============ -->
@@ -313,6 +314,91 @@
                         </div>
                     </TabsContent>
 
+                    <!-- ============ ABA: MENSAGERIA ============ -->
+                    <TabsContent value="messaging" class="mt-6 space-y-6">
+                        <!-- Lista colapsável de usuários -->
+                        <Accordion type="single" collapsible class="w-full">
+                            <AccordionItem value="users">
+                                <AccordionTrigger>Usuários Cadastrados ({{ broadcasts.users.length }})</AccordionTrigger>
+                                <AccordionContent>
+                                    <div v-if="broadcasts.users.length" class="space-y-2 max-h-60 overflow-y-auto">
+                                        <div v-for="user in broadcasts.users" :key="user.username" class="border rounded-md p-2">
+                                            <p class="font-medium">{{ user.username }}</p>
+                                            <p class="text-sm text-muted-foreground">{{ user.phone }}</p>
+                                        </div>
+                                    </div>
+                                    <p v-else class="text-muted-foreground">Nenhum usuário encontrado.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+
+                        <!-- Formulário para criar broadcast -->
+                        <div class="border rounded-xl p-4 space-y-4">
+                            <h3 class="text-lg font-semibold">Criar Broadcast</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <Label for="templateBody">Mensagem (Template Body) *</Label>
+                                    <Textarea id="templateBody" v-model="broadcasts.broadcastForm.templateBody" rows="4" placeholder="Digite a mensagem a ser enviada" />
+                                </div>
+
+                                <div>
+                                    <Label for="kind">Tipo de Agendamento</Label>
+                                    <Select v-model="broadcasts.broadcastForm.kind">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecionar" />
+                                        </SelectTrigger>
+                                        <SelectContent
+                                            class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
+                                            <SelectItem value="NOW">Agora</SelectItem>
+                                            <SelectItem value="AT">Em horário específico</SelectItem>
+                                            <SelectItem value="CRON">Horários recorrentes</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div v-if="broadcasts.broadcastForm.kind === 'AT'">
+                                    <Label for="scheduledAtIso">Data e Hora</Label>
+                                    <Input id="scheduledAtIso" type="datetime-local" v-model="broadcasts.broadcastForm.scheduledAtIso" />
+                                </div>
+
+                                <div v-if="broadcasts.broadcastForm.kind === 'CRON'" class="space-y-2">
+                                    <Label>Horários Recorrentes</Label>
+                                    <div class="flex gap-2">
+                                        <Input type="time" v-model="broadcasts.timeInput" />
+                                        <Button type="button" @click="broadcasts.addTime" :disabled="!broadcasts.timeInput">+</Button>
+                                    </div>
+                                    <div v-if="broadcasts.broadcastForm.cronTimes.length" class="space-y-1">
+                                        <p class="text-sm">Horários adicionados:</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <span v-for="t in broadcasts.broadcastForm.cronTimes" :key="t" class="bg-muted px-2 py-1 rounded text-sm flex items-center gap-1">
+                                                {{ t }}
+                                                <Button size="sm" variant="ghost" @click="broadcasts.removeTime(t)">×</Button>
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-muted-foreground">Cron: {{ broadcasts.cronExpression }}</p>
+                                    </div>
+                                </div>
+
+                                <Button type="button" @click="broadcasts.addBroadcast" :disabled="!broadcasts.broadcastForm.templateBody">
+                                    Adicionar Broadcast à Lista
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Lista de broadcasts pendentes -->
+                        <div v-if="broadcasts.pendingBroadcasts.length" class="border rounded-xl p-3">
+                            <div class="text-sm font-medium mb-2">Broadcasts a serem criados:</div>
+                            <div class="space-y-2">
+                                <div v-for="b in broadcasts.pendingBroadcasts" :key="b._id" class="border rounded-md p-2">
+                                    <p class="font-medium">{{ b.templateBody }}</p>
+                                    <p class="text-sm text-muted-foreground">Tipo: {{ b.kind }}</p>
+                                    <p v-if="b.kind === 'AT'" class="text-sm text-muted-foreground">Agendado: {{ b.scheduledAtIso }}</p>
+                                    <p v-if="b.kind === 'CRON'" class="text-sm text-muted-foreground">Cron: {{ b.cron }}</p>
+                                    <Button size="sm" variant="ghost" type="button" @click="broadcasts.removeBroadcast(b._id)">Remover</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
                 </Tabs>
 
                 <DialogFooter>
@@ -330,6 +416,7 @@
 import { computed, reactive, ref, watch, onBeforeUnmount, onMounted } from 'vue'
 import { useEvents, type TalkRow } from '@/composables/useEvents'
 import { useSpeakers } from '@/composables/useSpeakers'
+import { useBroadcasts } from '@/composables/useBroadcasts'
 import { getDataClient } from '@/composables/useData'
 import { uploadData } from 'aws-amplify/storage'
 import { Button } from '@/components/ui/button'
@@ -340,6 +427,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { buildSponsorLogoPath } from '@/constants/storage'
 
 type EventsHook = ReturnType<typeof useEvents>
@@ -347,6 +435,7 @@ type SpeakersHook = ReturnType<typeof useSpeakers>
 
 const events: EventsHook = useEvents({ mode: 'private' })
 const speakersHook: SpeakersHook = useSpeakers({ mode: 'private' })
+const broadcasts = useBroadcasts()
 const client = getDataClient('private')
 
 type EventRow = typeof events.items.value[number]
@@ -366,7 +455,7 @@ const props = defineProps<{ open: boolean; editing: EventRow | null }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved', payload: EventRow): void }>()
 
 /* ---------------- UI/Tabs ---------------- */
-const tab = ref<'info' | 'talk' | 'sponsors' | 'faq'>('info')
+const tab = ref<'info' | 'talk' | 'sponsors' | 'faq' | 'messaging'>('info')
 
 /* ---------------- Evento (form base) ---------------- */
 const form = reactive<CreateInput>({
@@ -623,6 +712,7 @@ onMounted(async () => {
     if (speakersHook.items.value.length === 0) {
         await speakersHook.listSpeakers({ limit: 100 })
     }
+    await broadcasts.fetchUsers()
 })
 
 /* ---------------- Unmount cleanup ---------------- */
@@ -679,6 +769,8 @@ async function onSubmit() {
             await client.models.EventFaq.create({ eventId: saved.id, question: f.question, answer: f.answer }, { authMode: 'userPool' })
         }
 
+        // broadcasts pendentes
+        await broadcasts.submitBroadcasts(saved.id, broadcasts.pendingBroadcasts.value)
 
         emit('saved', saved)
     } finally {
