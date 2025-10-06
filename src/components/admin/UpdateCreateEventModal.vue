@@ -72,7 +72,7 @@
 
                                 <div class="flex items-center gap-2 pt-1">
                                     <Switch id="isCurrent" :model-value="form.isCurrent"
-                                        @update:model-value="val => form.isCurrent = val" />
+                                        @update:model-value="(val: boolean) => form.isCurrent = val" />
                                     <Label for="isCurrent">Evento atual</Label>
                                 </div>
 
@@ -316,18 +316,18 @@
 
                     <!-- ============ ABA: MENSAGERIA ============ -->
                     <TabsContent value="messaging" class="mt-6 space-y-6">
-                        <!-- Lista colapsável de usuários -->
+                        <!-- Lista colapsável de destinatários -->
                         <Accordion type="single" collapsible class="w-full">
                             <AccordionItem value="users">
-                                <AccordionTrigger>Usuários Cadastrados ({{ broadcasts.users.length }})</AccordionTrigger>
+                                <AccordionTrigger>Destinatários ({{ broadcasts.recipients.length }})</AccordionTrigger>
                                 <AccordionContent>
-                                    <div v-if="broadcasts.users.length" class="space-y-2 max-h-60 overflow-y-auto">
-                                        <div v-for="user in broadcasts.users" :key="user.username" class="border rounded-md p-2">
-                                            <p class="font-medium">{{ user.username }}</p>
-                                            <p class="text-sm text-muted-foreground">{{ user.phone }}</p>
+                                    <div v-if="broadcasts.recipients.length" class="space-y-2 max-h-60 overflow-y-auto">
+                                        <div v-for="u in broadcasts.recipients" :key="u.username" class="border rounded-md p-2">
+                                            <p class="font-medium">{{ u.username }}</p>
+                                            <p class="text-sm text-muted-foreground">{{ u.phoneE164 }}</p>
                                         </div>
                                     </div>
-                                    <p v-else class="text-muted-foreground">Nenhum usuário encontrado.</p>
+                                    <p v-else class="text-muted-foreground">Nenhum destinatário encontrado.</p>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
@@ -379,9 +379,18 @@
                                     </div>
                                 </div>
 
-                                <Button type="button" @click="broadcasts.addBroadcast" :disabled="!broadcasts.broadcastForm.templateBody">
-                                    Adicionar Broadcast à Lista
-                                </Button>
+                               <Button type="button" @click="broadcasts.addBroadcastToPending" :disabled="!broadcasts.broadcastForm.templateBody">
+                                   Adicionar Broadcast à Lista
+                               </Button>
+
+                               <Button
+                                 v-if="currentEditingId"
+                                 type="button"
+                                 variant="secondary"
+                                 @click="saveEditedBroadcast"
+                               >
+                                 Salvar edição
+                               </Button>
                             </div>
                         </div>
 
@@ -395,6 +404,32 @@
                                     <p v-if="b.kind === 'AT'" class="text-sm text-muted-foreground">Agendado: {{ b.scheduledAtIso }}</p>
                                     <p v-if="b.kind === 'CRON'" class="text-sm text-muted-foreground">Cron: {{ b.cron }}</p>
                                     <Button size="sm" variant="ghost" type="button" @click="broadcasts.removeBroadcast(b._id)">Remover</Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Broadcasts atuais -->
+                        <div v-if="props.editing && broadcasts.items.length" class="border rounded-xl p-3 mt-6">
+                            <div class="text-sm font-medium mb-2">Broadcasts atuais:</div>
+                            <div class="space-y-2">
+                                <div v-for="b in broadcasts.items" :key="b.id" class="border rounded-md p-2">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="space-y-1">
+                                            <p class="font-medium whitespace-pre-wrap">{{ b.templateBody }}</p>
+                                            <p class="text-xs text-muted-foreground">
+                                                Tipo: {{ b.scheduleKind || '—' }}
+                                                <span v-if="b.scheduleKind === 'AT'"> • {{ b.scheduledAtIso }}</span>
+                                                <span v-if="b.scheduleKind === 'CRON'"> • {{ b.cron }}</span>
+                                                • Status: <span class="font-medium">{{ b.status || '—' }}</span>
+                                            </p>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <Button size="sm" variant="secondary" @click="() => onEditBroadcast(b)">Editar</Button>
+                                            <Button size="sm" variant="destructive" @click="() => onDeleteBroadcast(b.id)">Excluir</Button>
+                                            <Button size="sm" @click="() => onStartNow(b.id)" :disabled="b.status === 'running'">Enviar agora</Button>
+                                            <Button size="sm" variant="outline" @click="() => onSchedule(b.id)" :disabled="b.scheduleKind === 'NOW'">Agendar</Button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -532,6 +567,10 @@ async function hydrateRelations(eventId: string): Promise<void> {
 
     // FAQs existentes
     await reloadExistingFaqs(eventId)
+
+    // Broadcasts
+    await broadcasts.listByEvent(eventId)
+    await broadcasts.loadRecipients()
 }
 
 /* ---------------- Talk helpers ---------------- */
@@ -712,7 +751,7 @@ onMounted(async () => {
     if (speakersHook.items.value.length === 0) {
         await speakersHook.listSpeakers({ limit: 100 })
     }
-    await broadcasts.fetchUsers()
+    await broadcasts.loadRecipients()
 })
 
 /* ---------------- Unmount cleanup ---------------- */
@@ -723,6 +762,48 @@ onBeforeUnmount(() => {
     }
     if (sponsorForm.previewUrl) URL.revokeObjectURL(sponsorForm.previewUrl)
 })
+
+/* ---------------- Broadcast handlers ---------------- */
+async function onStartNow(id: string) {
+  await broadcasts.startNow(id)
+}
+
+async function onSchedule(id: string) {
+  await broadcasts.schedule(id)
+}
+
+async function onDeleteBroadcast(id: string) {
+  await broadcasts.remove(id)
+  if (props.editing) await broadcasts.listByEvent(props.editing.id)
+}
+
+function onEditBroadcast(b: { id: string; templateBody: string; scheduleKind?: any; scheduledAtIso?: string | null; cron?: string | null }) {
+  broadcasts.broadcastForm.templateBody = b.templateBody
+  broadcasts.broadcastForm.kind = (b.scheduleKind ?? 'NOW') as any
+  broadcasts.broadcastForm.scheduledAtIso = b.scheduledAtIso ?? ''
+  broadcasts.broadcastForm.cronTimes = []
+  broadcasts.timeInput = '' as any
+  currentEditingId.value = b.id
+}
+
+const currentEditingId = ref<string | null>(null)
+
+async function saveEditedBroadcast() {
+  if (!currentEditingId.value) return
+  const patch = {
+    templateBody: broadcasts.broadcastForm.templateBody,
+    scheduleKind: broadcasts.broadcastForm.kind,
+    scheduledAtIso: broadcasts.broadcastForm.kind === 'AT' ? broadcasts.broadcastForm.scheduledAtIso : undefined,
+    cron: broadcasts.broadcastForm.kind === 'CRON' ? broadcasts.cronExpression.value : undefined
+  }
+  await broadcasts.update(currentEditingId.value, patch)
+  if (props.editing) await broadcasts.listByEvent(props.editing.id)
+  currentEditingId.value = null
+  broadcasts.broadcastForm.templateBody = ''
+  broadcasts.broadcastForm.kind = 'NOW'
+  broadcasts.broadcastForm.scheduledAtIso = ''
+  broadcasts.broadcastForm.cronTimes = []
+}
 
 /* ---------------- Submit ---------------- */
 async function onSubmit() {
