@@ -16,10 +16,5 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
-  },
-  build: {
-    rollupOptions: {
-      external: (id) => id.includes('@aws-amplify/backend') || id.includes('aws-cdk-lib')
-    }
   }
 })

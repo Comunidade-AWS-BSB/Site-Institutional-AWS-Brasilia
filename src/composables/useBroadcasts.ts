@@ -1,6 +1,6 @@
 import { computed, reactive, ref } from 'vue'
 import { getDataClient } from '@/composables/useData'
-import { type Schema } from '../../amplify/data/resource'
+import type { Schema } from '../../amplify/data/resource'
 import type { SelectionSet } from 'aws-amplify/data'
 
 const client = getDataClient('private')
