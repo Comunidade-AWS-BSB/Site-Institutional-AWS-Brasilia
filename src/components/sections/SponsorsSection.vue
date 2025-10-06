@@ -82,16 +82,22 @@ async function loadSponsors() {
   // 1) Decide o eventId
   let id = props.eventId ?? null
   if (!id) {
+    console.log('SponsorsSection: Nenhum eventId via prop, buscando evento atual...')
     const res = await events.listEvents({ isCurrent: true, limit: 1 })
+    console.log('SponsorsSection: Eventos encontrados:', res.data)
     id = res.data[0]?.id ?? null
   }
   if (!id) {
+    console.log('SponsorsSection: Nenhum evento atual encontrado, não carregando sponsors.')
     loading.value = false
     return
   }
 
+  console.log('SponsorsSection: Carregando sponsors para evento ID:', id)
+
   // 2) Carrega patrocinadores e resolve URL das logos
   const list = await events.listSponsorsByEvent(id)
+  console.log('SponsorsSection: Sponsors encontrados:', list)
   sponsors.value = await Promise.all(
     list.map(async s => ({
       id: s.id,
@@ -100,6 +106,8 @@ async function loadSponsors() {
       logoUrl: s.logoKey ? await events.getAssetUrl(s.logoKey) : null,
     }))
   )
+
+  console.log('SponsorsSection: Sponsors processados:', sponsors.value)
 
   loading.value = false
 }

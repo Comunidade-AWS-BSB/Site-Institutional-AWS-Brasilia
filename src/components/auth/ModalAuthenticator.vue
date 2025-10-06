@@ -194,7 +194,7 @@ const formFields = {
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
 import { fetchUserAttributes } from 'aws-amplify/auth';
-import { debuglog } from 'util';
+
 const authStore = useAuthStore()
 const { isLoggedIn } = storeToRefs(authStore)
 

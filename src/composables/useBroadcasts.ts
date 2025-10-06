@@ -164,6 +164,10 @@ function addBroadcastToPending() {
   timeInput.value = ''
 }
 
+function removePendingBroadcast(id: string) {
+  pendingBroadcasts.value = pendingBroadcasts.value.filter(b => b._id !== id)
+}
+
 async function submitBroadcasts(eventId: string, broadcasts: BroadcastForm[]) {
   for (const b of broadcasts) {
     await createDraft(eventId, {
@@ -211,6 +215,7 @@ export function useBroadcasts() {
     addTime,
     removeTime,
     addBroadcastToPending,
+    removePendingBroadcast,
     submitBroadcasts,
     clearAll,
   }

@@ -6,7 +6,6 @@ import { startBroadcastFn } from '../functions/start-broadcast/resource'
 import { scheduleBroadcastFn } from '../functions/schedule-broadcast/resource'
 
 
-
 /** Tipos */
 const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
 

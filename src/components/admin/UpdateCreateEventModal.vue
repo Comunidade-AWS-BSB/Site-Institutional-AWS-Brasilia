@@ -403,7 +403,7 @@
                                     <p class="text-sm text-muted-foreground">Tipo: {{ b.kind }}</p>
                                     <p v-if="b.kind === 'AT'" class="text-sm text-muted-foreground">Agendado: {{ b.scheduledAtIso }}</p>
                                     <p v-if="b.kind === 'CRON'" class="text-sm text-muted-foreground">Cron: {{ b.cron }}</p>
-                                    <Button size="sm" variant="ghost" type="button" @click="broadcasts.removeBroadcast(b._id)">Remover</Button>
+                                    <Button size="sm" variant="ghost" type="button" @click="broadcasts.removePendingBroadcast(b._id)">Remover</Button>
                                 </div>
                             </div>
                         </div>
