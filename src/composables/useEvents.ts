@@ -167,15 +167,36 @@ export function useEvents(options: UseEventsOptions = {}) {
         return (data ?? []) as TalkRow[]
     }
 
-    async function listSponsorsByEvent(eventId: EventId): Promise<SponsorRow[]> {
+    async function listSponsors(params: { eventId?: EventId; limit?: number } = {}): Promise<SponsorRow[]> {
         const client = resolveClient()
-        const { data, errors } = await client.models.EventSponsor.list({
-            filter: { eventId: { eq: eventId } },
-            limit: 100,
-            selectionSet: sponsorSelection,
-        } as any)
-        if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
-        return (data ?? []) as SponsorRow[]
+        const items: SponsorRow[] = []
+        const desiredTotal = typeof params.limit === 'number' ? params.limit : Number.POSITIVE_INFINITY
+        let nextToken: string | undefined
+
+        do {
+            const remaining = desiredTotal - items.length
+            if (remaining <= 0) break
+
+            const { data, errors, nextToken: token } = await client.models.EventSponsor.list({
+                filter: params.eventId ? { eventId: { eq: params.eventId } } : undefined,
+                limit: Math.min(200, remaining),
+                nextToken,
+                selectionSet: sponsorSelection,
+            } as any)
+            if (errors?.length) throw new Error(errors.map((e: any) => e?.message ?? String(e)).join('; '))
+            if (data?.length) items.push(...(data as SponsorRow[]))
+            nextToken = token ?? undefined
+        } while (nextToken && items.length < desiredTotal)
+
+        return params.limit ? items.slice(0, params.limit) : items
+    }
+
+    async function listSponsorsByEvent(eventId: EventId, opts?: { limit?: number }): Promise<SponsorRow[]> {
+        return listSponsors({ eventId, limit: opts?.limit })
+    }
+
+    async function listAllSponsors(opts?: { limit?: number }): Promise<SponsorRow[]> {
+        return listSponsors({ limit: opts?.limit })
     }
 
     async function listFaqsByEvent(eventId: EventId): Promise<FaqRow[]> {
@@ -251,6 +272,7 @@ export function useEvents(options: UseEventsOptions = {}) {
         // relations
         listTalksByEvent,
         listSponsorsByEvent,
+        listAllSponsors,
         listSponsorsForEvent,   // alias usado pelo EventDetails
         listFaqsByEvent,
 

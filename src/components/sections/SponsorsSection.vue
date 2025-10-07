@@ -79,35 +79,21 @@ async function loadSponsors() {
   loading.value = true
   sponsors.value = []
 
-  // 1) Decide o eventId
-  let id = props.eventId ?? null
-  if (!id) {
-    console.log('SponsorsSection: Nenhum eventId via prop, buscando evento atual...')
-    const today = new Date().toISOString().slice(0, 10)
-
-    const attempts: Array<() => Promise<{ data: EventsHook['items']['value'] }>> = [
-      () => events.listEvents({ isCurrent: true, limit: 1 }),
-      () => events.listEvents({ from: today, limit: 1 }),
-      () => events.listEvents({ limit: 1 }),
-    ]
-
-    for (const attempt of attempts) {
-      const res = await attempt()
-      console.log('SponsorsSection: Eventos encontrados:', res.data)
-      id = res.data[0]?.id ?? null
-      if (id) break
-    }
+  let list
+  if (props.eventId) {
+    console.log('SponsorsSection: Carregando sponsors para evento via prop:', props.eventId)
+    list = await events.listSponsorsByEvent(props.eventId)
+  } else {
+    console.log('SponsorsSection: Nenhum eventId via prop, listando todos os sponsors cadastrados.')
+    list = await events.listAllSponsors()
   }
-  if (!id) {
-    console.log('SponsorsSection: Nenhum evento atual encontrado, não carregando sponsors.')
+
+  if (!list.length) {
+    console.log('SponsorsSection: Nenhum sponsor encontrado.')
     loading.value = false
     return
   }
 
-  console.log('SponsorsSection: Carregando sponsors para evento ID:', id)
-
-  // 2) Carrega patrocinadores e resolve URL das logos
-  const list = await events.listSponsorsByEvent(id)
   console.log('SponsorsSection: Sponsors encontrados:', list)
   sponsors.value = await Promise.all(
     list.map(async s => ({

@@ -15,10 +15,23 @@ export const handler: Schema["previewRecipients"]["functionHandler"] = async (ev
   const items = (users.Users ?? [])
     // Filtro comentado pois atualmente ainda não temos fluxo de verificação de telefone
     // .filter(u => u.Attributes?.find(a => a.Name === 'phone_number_verified')?.Value === 'true')
-    .map(u => ({
-      username: u.Username!,
-      phoneE164: u.Attributes!.find(a => a.Name === 'phone_number')!.Value!
-    }))
+    .map(user => {
+      const attributes = user.Attributes ?? []
+      const phone = attributes.find(a => a.Name === 'phone_number')?.Value?.trim()
+      if (!phone) return null
+
+      const preferred = attributes.find(a => a.Name === 'preferred_username')?.Value?.trim()
+      const email = attributes.find(a => a.Name === 'email')?.Value?.trim()
+
+      const username = preferred || email
+      if (!username) return null
+
+      return {
+        username,
+        phoneE164: phone
+      }
+    })
+    .filter((item): item is { username: string; phoneE164: string } => Boolean(item))
 
   return items
 }

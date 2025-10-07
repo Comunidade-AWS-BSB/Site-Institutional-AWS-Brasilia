@@ -118,7 +118,19 @@ async function loadRecipients(group?: string) {
     : Array.isArray((data as any)?.previewRecipients)
       ? (data as any).previewRecipients
       : []
-  recipients.value = raw.filter(Boolean) as { username: string; phoneE164: string }[]
+
+  const normalized = (raw as any[])
+    .map(item => {
+      const phone = typeof item?.phoneE164 === 'string' ? item.phoneE164 : ''
+      if (!phone) return null
+      const username = typeof item?.username === 'string' && item.username.trim()
+        ? item.username.trim()
+        : ''
+      return { username, phoneE164: phone }
+    })
+    .filter((item): item is { username: string; phoneE164: string } => Boolean(item))
+
+  recipients.value = normalized
 }
 
 async function startNow(broadcastId: string) {
@@ -196,10 +208,12 @@ function clearAll() {
 }
 
 export function useBroadcasts() {
+  const recipientList = computed(() => recipients.value)
+
   return {
     // state
     items,
-    recipients,
+    recipients: recipientList,
     broadcastForm,
     pendingBroadcasts,
     timeInput,

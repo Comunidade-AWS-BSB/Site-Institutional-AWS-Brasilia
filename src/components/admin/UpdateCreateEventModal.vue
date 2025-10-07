@@ -319,11 +319,15 @@
                         <!-- Lista colapsável de destinatários -->
                         <Accordion type="single" collapsible class="w-full">
                             <AccordionItem value="users">
-                                <AccordionTrigger>Destinatários ({{ broadcasts.recipients.length }})</AccordionTrigger>
+                                <AccordionTrigger>Destinatários ({{ recipientCount }})</AccordionTrigger>
                                 <AccordionContent>
-                                    <div v-if="broadcasts.recipients.length" class="space-y-2 max-h-60 overflow-y-auto">
-                                        <div v-for="u in broadcasts.recipients" :key="u.username" class="border rounded-md p-2">
-                                            <p class="font-medium">{{ u.username }}</p>
+                                    <div v-if="recipientList.length" class="space-y-2 max-h-60 overflow-y-auto">
+                                        <div
+                                            v-for="u in recipientList"
+                                            :key="`${u.phoneE164}-${u.username}`"
+                                            class="border rounded-md p-2"
+                                        >
+                                            <p class="font-medium">{{ u.username || '—' }}</p>
                                             <p class="text-sm text-muted-foreground">{{ u.phoneE164 }}</p>
                                         </div>
                                     </div>
@@ -448,7 +452,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch, onBeforeUnmount, onMounted } from 'vue'
+import { computed, reactive, ref, watch, onBeforeUnmount, onMounted, unref } from 'vue'
 import { useEvents, type TalkRow } from '@/composables/useEvents'
 import { useSpeakers } from '@/composables/useSpeakers'
 import { useBroadcasts } from '@/composables/useBroadcasts'
@@ -472,6 +476,9 @@ const events: EventsHook = useEvents({ mode: 'private' })
 const speakersHook: SpeakersHook = useSpeakers({ mode: 'private' })
 const broadcasts = useBroadcasts()
 const client = getDataClient('private')
+
+const recipientList = computed(() => (unref(broadcasts.recipients) ?? []) as { username: string; phoneE164: string }[])
+const recipientCount = computed(() => recipientList.value.length)
 
 type EventRow = typeof events.items.value[number]
 type SpeakerRow = typeof speakersHook.items.value[number]
