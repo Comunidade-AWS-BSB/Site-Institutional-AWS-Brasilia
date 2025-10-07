@@ -428,10 +428,10 @@
                                             </p>
                                         </div>
                                         <div class="flex gap-2">
-                                            <Button size="sm" variant="secondary" @click="() => onEditBroadcast(b)">Editar</Button>
-                                            <Button size="sm" variant="destructive" @click="() => onDeleteBroadcast(b.id)">Excluir</Button>
-                                            <Button size="sm" @click="() => onStartNow(b.id)" :disabled="b.status === 'running'">Enviar agora</Button>
-                                            <Button size="sm" variant="outline" @click="() => onSchedule(b.id)" :disabled="b.scheduleKind === 'NOW'">Agendar</Button>
+                                            <Button size="sm" variant="secondary" @click="onEditBroadcast(b)">Editar</Button>
+                                            <Button size="sm" variant="destructive" @click="onDeleteBroadcast(b.id)">Excluir</Button>
+                                            <Button size="sm" @click="onStartNow(b.id)" :disabled="b.status === 'running'">Enviar agora</Button>
+                                            <Button size="sm" variant="outline" @click="onSchedule(b.id)" :disabled="b.scheduleKind === 'NOW'">Agendar</Button>
                                         </div>
                                     </div>
                                 </div>
@@ -773,10 +773,12 @@ onBeforeUnmount(() => {
 /* ---------------- Broadcast handlers ---------------- */
 async function onStartNow(id: string) {
   await broadcasts.startNow(id)
+  if (props.editing) await broadcasts.listByEvent(props.editing.id)
 }
 
 async function onSchedule(id: string) {
   await broadcasts.schedule(id)
+  if (props.editing) await broadcasts.listByEvent(props.editing.id)
 }
 
 async function onDeleteBroadcast(id: string) {
