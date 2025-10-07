@@ -79,7 +79,7 @@ async function loadSponsors() {
   loading.value = true
   sponsors.value = []
 
-  let list
+  let list: Awaited<ReturnType<EventsHook['listAllSponsors']>>
   if (props.eventId) {
     console.log('SponsorsSection: Carregando sponsors para evento via prop:', props.eventId)
     list = await events.listSponsorsByEvent(props.eventId)
@@ -94,9 +94,18 @@ async function loadSponsors() {
     return
   }
 
-  console.log('SponsorsSection: Sponsors encontrados:', list)
+  const uniqueSponsors: typeof list = []
+  const seenNames = new Set<string>()
+  for (const sponsor of list) {
+    const key = sponsor.name?.trim().toLowerCase() ?? ''
+    if (key && seenNames.has(key)) continue
+    if (key) seenNames.add(key)
+    uniqueSponsors.push(sponsor)
+  }
+
+  console.log('SponsorsSection: Sponsors encontrados (deduplicados):', uniqueSponsors)
   sponsors.value = await Promise.all(
-    list.map(async s => ({
+    uniqueSponsors.map(async s => ({
       id: s.id,
       name: s.name,
       logoKey: s.logoKey ?? null,
