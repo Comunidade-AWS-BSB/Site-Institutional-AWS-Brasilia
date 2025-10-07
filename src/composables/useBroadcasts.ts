@@ -113,7 +113,12 @@ async function remove(broadcastId: string) {
 async function loadRecipients(group?: string) {
   const { data, errors } = await client.queries.previewRecipients({ group })
   if (errors?.length) throw new Error(errors.map((e) => (e as any).message).join('; '))
-  recipients.value = (data ?? []) as { username: string; phoneE164: string }[]
+  const raw = Array.isArray(data)
+    ? data
+    : Array.isArray((data as any)?.previewRecipients)
+      ? (data as any).previewRecipients
+      : []
+  recipients.value = raw.filter(Boolean) as { username: string; phoneE164: string }[]
 }
 
 async function startNow(broadcastId: string) {

@@ -83,9 +83,20 @@ async function loadSponsors() {
   let id = props.eventId ?? null
   if (!id) {
     console.log('SponsorsSection: Nenhum eventId via prop, buscando evento atual...')
-    const res = await events.listEvents({ isCurrent: true, limit: 1 })
-    console.log('SponsorsSection: Eventos encontrados:', res.data)
-    id = res.data[0]?.id ?? null
+    const today = new Date().toISOString().slice(0, 10)
+
+    const attempts: Array<() => Promise<{ data: EventsHook['items']['value'] }>> = [
+      () => events.listEvents({ isCurrent: true, limit: 1 }),
+      () => events.listEvents({ from: today, limit: 1 }),
+      () => events.listEvents({ limit: 1 }),
+    ]
+
+    for (const attempt of attempts) {
+      const res = await attempt()
+      console.log('SponsorsSection: Eventos encontrados:', res.data)
+      id = res.data[0]?.id ?? null
+      if (id) break
+    }
   }
   if (!id) {
     console.log('SponsorsSection: Nenhum evento atual encontrado, não carregando sponsors.')
