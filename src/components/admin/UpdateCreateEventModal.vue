@@ -474,7 +474,7 @@ type SpeakersHook = ReturnType<typeof useSpeakers>
 
 const events: EventsHook = useEvents({ mode: 'private' })
 const speakersHook: SpeakersHook = useSpeakers({ mode: 'private' })
-const broadcasts = useBroadcasts()
+const broadcasts = reactive(useBroadcasts())
 const client = getDataClient('private')
 
 const recipientList = computed(() => (unref(broadcasts.recipients) ?? []) as { username: string; phoneE164: string }[])
@@ -860,7 +860,7 @@ async function onSubmit() {
         }
 
         // broadcasts pendentes
-        await broadcasts.submitBroadcasts(saved.id, broadcasts.pendingBroadcasts.value)
+        await broadcasts.submitBroadcasts(saved.id, unref(broadcasts.pendingBroadcasts))
 
         emit('saved', saved)
     } finally {
