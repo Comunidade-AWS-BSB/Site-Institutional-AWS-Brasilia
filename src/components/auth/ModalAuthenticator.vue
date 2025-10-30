@@ -35,7 +35,7 @@
 
             <!-- Authenticator -->
             <Authenticator
-              :social-providers="['google']"
+              :social-providers="socialProviders"
               variation="modal"
               :hide-sign-up="false"
               initial-state="signIn"
@@ -185,6 +185,10 @@ const formFields = {
     }
   },
 } as const
+
+// Feature flag para esconder botão do Google no Authenticator (UI apenas)
+const hideGoogleButton = (import.meta.env?.VITE_AUTH_HIDE_GOOGLE_BUTTON ?? 'false') === 'true'
+const socialProviders = computed(() => (hideGoogleButton ? [] : (['google'] as const)))
 
 /**
  * Fechamento robusto do modal:

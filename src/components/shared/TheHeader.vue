@@ -59,8 +59,8 @@
             <span>{{ displayName || 'usuário' }}</span>
           </router-link>
 
-          <!-- Não-admin: apenas o nome em texto -->
-          <span v-else class="text-sm text-foreground/80">{{ displayName || 'usuário' }}</span>
+          <!-- Não-admin: linka para perfil -->
+          <router-link v-else to="/profile" class="text-sm text-foreground/80 hover:text-primary underline underline-offset-4 decoration-primary/30 hover:decoration-primary">{{ displayName || 'usuário' }}</router-link>
 
           <Button variant="secondary" size="sm" @click="signOut">Sair</Button>
         </div>

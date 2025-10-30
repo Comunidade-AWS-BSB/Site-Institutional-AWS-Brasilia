@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useUiStore } from '@/stores/ui.store'
 import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
 import UseTermsView from '@/views/UseTermsView.vue'
+import ProfileSettingsView from '@/views/ProfileSettingsView.vue'
 
 // Helper: extrai grupos do ID token de forma segura
 function getGroupsFromSession(session: Awaited<ReturnType<typeof fetchAuthSession>>): string[] {
@@ -26,6 +27,12 @@ const routes: RouteRecordRaw[] = [
     path: '/',                   // página inicial
     name: 'home',
     component: HomeView,
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileSettingsView,
+    meta: { requiresAuth: true },
   },
   {
     path: '/speakers/:id',    // detalhes de palestrante
@@ -88,6 +95,11 @@ router.beforeEach(async (to) => {
   // Garante que o snapshot exista
   if (!auth.snapshot.userId) {
     await auth.bootstrap()
+  }
+
+  // Rota que exige autenticação (genérica)
+  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+    return { path: '/', query: { login: 'required', next: to.fullPath } }
   }
 
   // Se a rota não exige admin, segue o baile
