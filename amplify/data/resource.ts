@@ -14,12 +14,36 @@ const MediaType = a.enum(['LINKEDIN', 'INSTAGRAM', 'GITHUB', 'MEDIUM', 'OTHER'])
 const SocialMedia = a.model({
   name: MediaType,
   url: a.url(),
+  // Mantém compatibilidade: speakerId continua sendo a FK principal usada hoje
   speakerId: a.id().required(),
-  speaker: a.belongsTo("Speaker", "speakerId"),
+  speaker: a.belongsTo('Speaker', 'speakerId'),
+  // Adiciona novo vínculo opcional para perfis de usuário (migração futura)
+  userId: a.id(),
+  user: a.belongsTo('UserProfile', 'userId'),
 }).authorization((allow) => [
   allow.group('ADMINS').to(['create', 'update', 'delete', 'read']),
   allow.authenticated().to(['read']),
   allow.publicApiKey().to(['read']),
+])
+
+/** Perfil do Usuário (final) */
+const UserProfile = a.model({
+  id: a.id().required(), // sub do Cognito
+  displayName: a.string(),
+  profession: a.string(),
+  bio: a.string(),
+  interests: a.string().array(),
+  photoKey: a.string(),
+  photoUrl: a.url(),
+  notifyEmail: a.boolean(),
+  notifySms: a.boolean(),
+  notifyWhatsApp: a.boolean(),
+
+  // Relações 1‑N: redes sociais do usuário (nova FK opcional)
+  medias: a.hasMany('SocialMedia', 'userId'),
+}).authorization((allow) => [
+  allow.owner().to(['create', 'read', 'update']),
+  allow.group('ADMINS').to(['read', 'update']),
 ])
 
 /** Modelo de Palestrante */
@@ -190,6 +214,7 @@ const schema = a.schema({
   EventSponsor,
   EventImage,
   SocialMedia,
+  UserProfile,
   EventBroadcast,
   OutboundMessage,
 

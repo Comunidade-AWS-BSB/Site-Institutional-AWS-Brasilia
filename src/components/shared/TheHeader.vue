@@ -47,22 +47,26 @@
           </span>
         </Button>
 
-        <!-- Quando logado: nome (linka pro Admin se for admin) + Sair -->
-        <div v-else class="flex items-center gap-2">
-          <span class="text-sm text-foreground/80">Olá,</span>
+        <!-- Quando logado: avatar + dropdown -->
+        <div v-else class="relative flex items-center gap-2">
+          <button
+            class="h-9 w-9 rounded-full border border-border overflow-hidden flex items-center justify-center bg-foreground/10"
+            @click="toggleMenu"
+            aria-label="Abrir menu de usuário"
+          >
+            <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="h-full w-full object-cover" />
+            <span v-else class="text-xs font-semibold text-foreground/80">{{ initials }}</span>
+          </button>
 
-          <!-- Admin: nome clicável com sublinhado e ícone -->
-          <router-link v-if="isAdmin" to="/admin" class="group inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary
-           underline underline-offset-4 decoration-primary/60 hover:decoration-primary transition-colors"
-            aria-label="Abrir painel administrativo">
-            <ShieldCheck class="w-4 h-4 opacity-70 group-hover:opacity-100 transition-opacity" />
-            <span>{{ displayName || 'usuário' }}</span>
-          </router-link>
-
-          <!-- Não-admin: linka para perfil -->
-          <router-link v-else to="/profile" class="text-sm text-foreground/80 hover:text-primary underline underline-offset-4 decoration-primary/30 hover:decoration-primary">{{ displayName || 'usuário' }}</router-link>
-
-          <Button variant="secondary" size="sm" @click="signOut">Sair</Button>
+          <!-- Dropdown -->
+          <div v-if="menuOpen" class="absolute right-0 top-10 min-w-[220px] rounded-md border bg-background shadow-lg py-2 z-[60]">
+            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('edit')">Informações gerais</button>
+            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('notifications')">Notificações</button>
+            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('interests')">Interesses</button>
+            <router-link v-if="isAdmin" to="/admin" class="block px-3 py-2 text-sm hover:bg-foreground/5">Painel Admin</router-link>
+            <div class="my-2 h-px bg-border"></div>
+            <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50" @click="signOutAndClose">Sair</button>
+          </div>
         </div>
       </div>
 
@@ -119,6 +123,7 @@ import { useUiStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import router from '@/router'
+import { useProfile } from '@/composables/useProfile'
 
 interface NavLink {
   text: string
@@ -142,6 +147,24 @@ const auth = useAuthStore()
 
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const displayName = computed(() => auth.displayName)
+
+// Profile/Avatar
+const { profile, load: loadProfile } = useProfile()
+const avatarUrl = computed(() => profile.value?.photoUrl || (auth.snapshot.attributes?.picture ?? ''))
+const initials = computed(() => {
+  const name = displayName.value || auth.snapshot.attributes?.email || 'U'
+  const parts = String(name).trim().split(/\s+/)
+  return parts.slice(0, 2).map(p => p[0]?.toUpperCase() || '').join('') || 'U'
+})
+
+// Simple dropdown state
+const menuOpen = ref(false)
+function toggleMenu() { menuOpen.value = !menuOpen.value }
+function closeMenu() { menuOpen.value = false }
+function goProfile(tab: 'edit'|'notifications'|'interests') {
+  closeMenu()
+  router.push({ path: '/profile', query: { tab } })
+}
 
 const isAdmin = ref(false)
 async function checkAdmin(): Promise<void> {
@@ -169,9 +192,8 @@ const isActiveRoute = (to: string) => {
 
 // Métodos de UI/Auth
 const openAuthModal = () => ui.openAuthModal()
-const signOut = async () => {
-  await auth.doSignOut()
-}
+const signOut = async () => { await auth.doSignOut() }
+async function signOutAndClose() { closeMenu(); await signOut() }
 
 // Manipula o evento de rolagem para alterar o estado do cabeçalho
 const handleScroll = () => {
@@ -201,15 +223,34 @@ const scrollToSection = (sectionId: string) => {
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
   await checkAdmin()
+  if (auth.isLoggedIn) {
+    try { await loadProfile() } catch {}
+  }
+  document.addEventListener('click', onDocumentClick)
 })
 
 // Remove o listener de rolagem ao desmontar o componente
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  document.removeEventListener('click', onDocumentClick)
 })
 
 // Reavaliar admin com login/logout
 watch(() => auth.snapshot.userId, async () => {
   await checkAdmin()
+  if (auth.isLoggedIn) {
+    try { await loadProfile() } catch {}
+  } else {
+    menuOpen.value = false
+  }
 })
+
+function onDocumentClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  // fecha se clicar fora do dropdown/btn
+  // Heuristic: header container is the top bar; safer to close when clicking anywhere not inside dropdown
+  // If needed, we could add refs to check containment; for agora, fecha quando o click não for no botão de avatar
+  if (!target.closest('header')) return
+  if (!target.closest('button') && !target.closest('.min-w\\[220px\\]')) menuOpen.value = false
+}
 </script>
