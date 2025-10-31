@@ -49,8 +49,10 @@ const { loading: authLoading } = storeToRefs(auth)
 const firstHomeLoad = ref(true)
 
 function onAuthenticated() {
-  // Atualiza snapshot de sessão e fecha modal (fechamento já ocorre no componente)
-  auth.refreshUser()
+  // Atualiza snapshot e força reload para garantir estado limpo pós-login
+  auth.refreshUser().finally(() => {
+    window.location.reload()
+  })
 }
 
 function onAuthError(err: unknown) {

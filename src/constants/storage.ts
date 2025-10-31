@@ -9,6 +9,7 @@ export const PROFILE_PICTURES_ROOT = `${ACCESS_PREFIX}profile-pictures/{entity_i
 // Coleções
 export const EVENTS_PREFIX = `${ASSETS_ROOT}events/` as const;
 export const SPEAKERS_PREFIX = `${ASSETS_ROOT}speakers/` as const;
+export const USERS_PREFIX = `${ASSETS_ROOT}users/` as const;
 
 // Galerias do site no S3
 export const SITE_GALLERY_PREFIX = `${EVENTS_PREFIX}site/gallery`;
@@ -23,6 +24,11 @@ export function buildEventBannerPath(eventId: string, filename: string) {
 export function buildSpeakerAvatarPath(speakerId: string, filename: string) {
     const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
     return `${SPEAKERS_PREFIX}${speakerId}/avatar-${Date.now()}.${ext}`;
+}
+
+export function buildUserAvatarPath(userId: string, filename: string) {
+    const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+    return `${USERS_PREFIX}${userId}/avatar-${Date.now()}.${ext}`;
 }
 
 export function buildSponsorLogoPath(eventId: string, fileName: string) {

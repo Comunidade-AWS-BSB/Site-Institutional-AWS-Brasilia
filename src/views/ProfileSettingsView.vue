@@ -17,7 +17,7 @@
 
             <div>
               <div class="font-medium">{{ summaryName }}</div>
-              <div class="text-xs text-muted-foreground">{{ email || 'seu-email@exemplo.com' }}</div>
+              <div class="text-xs text-muted-foreground">{{ email || 'your-email@example.com' }}</div>
             </div>
           </CardContent>
         </Card>
@@ -45,8 +45,8 @@
         <!-- Edit Profile -->
         <Card v-if="current === 'edit'">
           <CardHeader>
-            <CardTitle>profile.edit.title</CardTitle>
-            <CardDescription>Atualize informações gerais do seu perfil.</CardDescription>
+            <CardTitle>Edit Profile</CardTitle>
+            <CardDescription>Update your profile information.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-6">
             <!-- Photo selector (preview only por enquanto) -->
@@ -58,47 +58,47 @@
               <div class="space-x-2">
                 <input ref="photoInput" type="file" accept="image/*" class="hidden" @change="onPickPhoto" />
                 <Button variant="secondary" size="sm" @click="photoInput?.click()">
-                  <span>profile.edit.changePhotoButton</span>
+                  <span>Change photo</span>
                 </Button>
-                <span class="text-xs text-muted-foreground align-middle">profile.edit.photoFormatsInfo</span>
+                <span class="text-xs text-muted-foreground align-middle">PNG or JPG up to 2MB</span>
               </div>
             </div>
 
             <Separator />
 
             <div class="space-y-2">
-              <Label for="displayName">profile.edit.nameLabel</Label>
-              <Input id="displayName" v-model="form.displayName" placeholder="Seu nome de exibição" />
+              <Label for="displayName">Display name</Label>
+              <Input id="displayName" v-model="form.displayName" placeholder="Your display name" />
             </div>
 
             <div class="space-y-2">
-              <Label for="profession">Profissão</Label>
-              <Input id="profession" v-model="form.profession" placeholder="Ex.: Engenheiro de Software" />
+              <Label for="profession">Profession</Label>
+              <Input id="profession" v-model="form.profession" placeholder="e.g., Software Engineer" />
             </div>
 
   <div class="space-y-2">
-              <Label for="bio">profile.edit.bioLabel</Label>
-              <Textarea id="bio" v-model="form.bio" rows="4" placeholder="profile.edit.bioPlaceholder" />
+              <Label for="bio">Bio</Label>
+              <Textarea id="bio" v-model="form.bio" rows="4" placeholder="Tell us about yourself" />
             </div>
             
             <Separator />
 
             <!-- Social Medias (por usuário) -->
             <div class="space-y-4">
-              <h3 class="text-sm font-medium">Redes Sociais</h3>
+              <h3 class="text-sm font-medium">Social Profiles</h3>
               <div class="grid md:grid-cols-[200px_1fr] gap-3 items-end">
                 <div>
-                  <Label for="smType">Plataforma</Label>
+                  <Label for="smType">Platform</Label>
                   <Select v-model="smForm.type">
                     <SelectTrigger id="smType">
-                      <SelectValue placeholder="Selecionar" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
                       <SelectItem value="LINKEDIN">LinkedIn</SelectItem>
                       <SelectItem value="INSTAGRAM">Instagram</SelectItem>
                       <SelectItem value="GITHUB">GitHub</SelectItem>
                       <SelectItem value="MEDIUM">Medium</SelectItem>
-                      <SelectItem value="OTHER">Outro</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -107,54 +107,54 @@
                     <Label for="smUrl">URL</Label>
                     <Input id="smUrl" v-model="smForm.url" placeholder="https://..." />
                   </div>
-                  <Button type="button" @click="addPendingSocial" :disabled="!smForm.type || !smForm.url">Adicionar</Button>
+                  <Button type="button" @click="addPendingSocial" :disabled="!smForm.type || !smForm.url">Add</Button>
                 </div>
               </div>
 
               <div v-if="existingSocials.length" class="space-y-2">
-                <div class="text-xs text-muted-foreground">Cadastradas</div>
+                <div class="text-xs text-muted-foreground">Saved</div>
                 <ul class="space-y-2">
                   <li v-for="s in existingSocials" :key="s.id" class="flex items-center justify-between gap-3 border rounded-md px-3 py-2">
                     <div class="text-sm">
                       <span class="font-medium mr-2">{{ prettyMedia(s.name) }}</span>
                       <a :href="s.url" target="_blank" rel="noopener" class="underline text-foreground/80 hover:text-primary break-all">{{ s.url }}</a>
                     </div>
-                    <Button variant="secondary" size="sm" @click="deleteExistingSocial(s.id)">Remover</Button>
+                    <Button variant="secondary" size="sm" @click="deleteExistingSocial(s.id)">Remove</Button>
                   </li>
                 </ul>
               </div>
 
               <div v-if="pendingSocials.length" class="space-y-2">
-                <div class="text-xs text-muted-foreground">A adicionar</div>
+                <div class="text-xs text-muted-foreground">Pending</div>
                 <ul class="space-y-2">
                   <li v-for="s in pendingSocials" :key="s._id" class="flex items-center justify-between gap-3 border rounded-md px-3 py-2">
                     <div class="text-sm">
                       <span class="font-medium mr-2">{{ prettyMedia(s.type) }}</span>
                       <span class="break-all">{{ s.url }}</span>
                     </div>
-                    <Button variant="secondary" size="sm" @click="removePendingSocial(s._id)">Descartar</Button>
+                    <Button variant="secondary" size="sm" @click="removePendingSocial(s._id)">Discard</Button>
                   </li>
                 </ul>
               </div>
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
-            <Button variant="secondary" @click="resetForm">Descartar</Button>
-            <Button :disabled="saving" @click="onSaveGeneral">Salvar</Button>
-            <Button :disabled="saving || pendingSocials.length === 0" @click="onSavePendingSocials">Salvar Redes</Button>
+            <Button variant="secondary" @click="resetForm">Discard</Button>
+            <Button :disabled="saving" @click="onSaveGeneral">Save</Button>
+            <Button :disabled="saving || pendingSocials.length === 0" @click="onSavePendingSocials">Save Socials</Button>
           </CardFooter>
         </Card>
 
         <!-- Interests -->
         <Card v-else-if="current === 'interests'">
           <CardHeader>
-            <CardTitle>Meus Interesses</CardTitle>
-            <CardDescription>Adicione palavras-chave do seu interesse.</CardDescription>
+            <CardTitle>My Interests</CardTitle>
+            <CardDescription>Add keywords that describe your interests.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex gap-2">
-              <Input v-model="interestInput" placeholder="Digite e pressione Enter" @keydown.enter.prevent="addInterest()" />
-              <Button variant="secondary" @click="addInterest">Adicionar</Button>
+              <Input v-model="interestInput" placeholder="Type and press Enter" @keydown.enter.prevent="addInterest()" />
+              <Button variant="secondary" @click="addInterest">Add</Button>
             </div>
             <div class="flex flex-wrap gap-2 mt-2">
               <span v-for="i in form.interests" :key="i" class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-foreground/10">
@@ -164,43 +164,43 @@
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
-            <Button variant="secondary" @click="resetInterests">Descartar</Button>
-            <Button :disabled="saving" @click="onSaveInterests">Salvar</Button>
+            <Button variant="secondary" @click="resetInterests">Discard</Button>
+            <Button :disabled="saving" @click="onSaveInterests">Save</Button>
           </CardFooter>
         </Card>
 
         <!-- Notifications -->
         <Card v-else>
           <CardHeader>
-            <CardTitle>Notificações</CardTitle>
-            <CardDescription>Preferências de contato</CardDescription>
+            <CardTitle>Notifications</CardTitle>
+            <CardDescription>Contact preferences</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium">Notificações por E-mail</div>
-                <div class="text-xs text-muted-foreground">Receber atualizações e comunicados</div>
+                <div class="font-medium">Email notifications</div>
+                <div class="text-xs text-muted-foreground">Receive updates and announcements</div>
               </div>
               <Switch v-model:checked="notifications.email" />
             </div>
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium">Notificações por SMS</div>
-                <div class="text-xs text-muted-foreground">Usa seu número verificado do Cognito</div>
+                <div class="font-medium">SMS notifications</div>
+                <div class="text-xs text-muted-foreground">Uses your verified Cognito number</div>
               </div>
               <Switch v-model:checked="notifications.sms" />
             </div>
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium">Notificações por WhatsApp</div>
-                <div class="text-xs text-muted-foreground">Número (E.164) é o mesmo do Cognito</div>
+                <div class="font-medium">WhatsApp notifications</div>
+                <div class="text-xs text-muted-foreground">Number (E.164) is the same as Cognito</div>
               </div>
               <Switch v-model:checked="notifications.whatsapp" />
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
-            <Button variant="secondary" @click="resetNotifications">Descartar</Button>
-            <Button :disabled="saving" @click="onSaveNotifications">Salvar</Button>
+            <Button variant="secondary" @click="resetNotifications">Discard</Button>
+            <Button :disabled="saving" @click="onSaveNotifications">Save</Button>
           </CardFooter>
         </Card>
       </div>
@@ -223,10 +223,11 @@ import { useProfile, useProfileSocials } from '@/composables/useProfile'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 const auth = useAuthStore()
-const { profile: profileRef, load, saveGeneral, saveInterests, saveNotifications } = useProfile()
+const { profile: profileRef, load, saveGeneral, saveInterests, saveNotifications, uploadAvatar, getAvatarUrl } = useProfile()
 const userSocials = useProfileSocials()
 type MediaName = 'LINKEDIN' | 'INSTAGRAM' | 'GITHUB' | 'MEDIUM' | 'OTHER'
 const saving = ref(false)
+const photoFile = ref<File | null>(null)
 
 // Left nav state
 const sideItems = [
@@ -281,11 +282,12 @@ function prettyMedia(name: MediaName | ''): string {
 // Photo selector (preview only)
 const photoInput = ref<HTMLInputElement | null>(null)
 const photoPreview = ref<string | null>(null)
-function onPickPhoto(e: Event) {
+async function onPickPhoto(e: Event) {
   const file = (e.target as HTMLInputElement)?.files?.[0]
   if (!file) return
   const url = URL.createObjectURL(file)
   photoPreview.value = url
+  photoFile.value = file
 }
 
 // Interests
@@ -328,6 +330,14 @@ function resetNotifications() {
 async function onSaveGeneral() {
   saving.value = true
   try {
+    if (photoFile.value) {
+      try {
+        const path = await uploadAvatar(photoFile.value)
+        const url = await getAvatarUrl(path)
+        if (url) photoPreview.value = url
+        photoFile.value = null
+      } catch {}
+    }
     await saveGeneral({
       displayName: form.value.displayName,
       profession: form.value.profession,

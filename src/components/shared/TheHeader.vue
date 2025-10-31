@@ -59,13 +59,13 @@
           </button>
 
           <!-- Dropdown -->
-          <div v-if="menuOpen" class="absolute right-0 top-10 min-w-[220px] rounded-md border bg-background shadow-lg py-2 z-[60]">
-            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('edit')">Informações gerais</button>
-            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('notifications')">Notificações</button>
-            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('interests')">Interesses</button>
-            <router-link v-if="isAdmin" to="/admin" class="block px-3 py-2 text-sm hover:bg-foreground/5">Painel Admin</router-link>
+          <div v-if="menuOpen" class="absolute right-0 top-10 min-w-[220px] rounded-md border bg-background shadow-lg py-2 z-[60] animate-in fade-in-0 zoom-in-95 duration-150">
+            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('edit')">Profile</button>
+            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('notifications')">Notifications</button>
+            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('interests')">Interests</button>
+            <router-link v-if="isAdmin" to="/admin" class="block px-3 py-2 text-sm hover:bg-foreground/5">Admin Panel</router-link>
             <div class="my-2 h-px bg-border"></div>
-            <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50" @click="signOutAndClose">Sair</button>
+            <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50" @click="signOutAndClose">Sign out</button>
           </div>
         </div>
       </div>
@@ -149,8 +149,9 @@ const isLoggedIn = computed(() => auth.isLoggedIn)
 const displayName = computed(() => auth.displayName)
 
 // Profile/Avatar
-const { profile, load: loadProfile } = useProfile()
-const avatarUrl = computed(() => profile.value?.photoUrl || (auth.snapshot.attributes?.picture ?? ''))
+const { profile, load: loadProfile, getAvatarUrl } = useProfile()
+const avatarUrlRef = ref<string>('')
+const avatarUrl = computed(() => avatarUrlRef.value || (auth.snapshot.attributes?.picture ?? ''))
 const initials = computed(() => {
   const name = displayName.value || auth.snapshot.attributes?.email || 'U'
   const parts = String(name).trim().split(/\s+/)
@@ -224,7 +225,13 @@ onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
   await checkAdmin()
   if (auth.isLoggedIn) {
-    try { await loadProfile() } catch {}
+    try {
+      await loadProfile()
+      if (profile.value?.photoKey) {
+        const url = await getAvatarUrl(profile.value.photoKey)
+        if (url) avatarUrlRef.value = url
+      }
+    } catch {}
   }
   document.addEventListener('click', onDocumentClick)
 })
@@ -239,9 +246,18 @@ onUnmounted(() => {
 watch(() => auth.snapshot.userId, async () => {
   await checkAdmin()
   if (auth.isLoggedIn) {
-    try { await loadProfile() } catch {}
+    try {
+      await loadProfile()
+      if (profile.value?.photoKey) {
+        const url = await getAvatarUrl(profile.value.photoKey)
+        if (url) avatarUrlRef.value = url
+      } else {
+        avatarUrlRef.value = ''
+      }
+    } catch {}
   } else {
     menuOpen.value = false
+    avatarUrlRef.value = ''
   }
 })
 
