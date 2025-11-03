@@ -60,12 +60,32 @@
 
           <!-- Dropdown -->
           <div v-if="menuOpen" class="absolute right-0 top-10 min-w-[220px] rounded-md border bg-background shadow-lg py-2 z-[60] animate-in fade-in-0 zoom-in-95 duration-150">
-            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('edit')">Profile</button>
-            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('notifications')">Notifications</button>
-            <button class="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5" @click="goProfile('interests')">Interests</button>
-            <router-link v-if="isAdmin" to="/admin" class="block px-3 py-2 text-sm hover:bg-foreground/5">Admin Panel</router-link>
+            <button class="w-full px-3 py-2 text-sm hover:bg-foreground/5 flex items-center gap-2" @click="goProfile('edit')">
+              <UserRound class="w-4 h-4 text-foreground/70" />
+              <span>Meu perfil</span>
+            </button>
+            <button class="w-full px-3 py-2 text-sm hover:bg-foreground/5 flex items-center gap-2" @click="goProfile('notifications')">
+              <Bell class="w-4 h-4 text-foreground/70" />
+              <span>Notificações</span>
+            </button>
+            <button class="w-full px-3 py-2 text-sm hover:bg-foreground/5 flex items-center gap-2" @click="goProfile('interests')">
+              <Sparkles class="w-4 h-4 text-foreground/70" />
+              <span>Interesses</span>
+            </button>
+            <router-link
+              v-if="isAdmin"
+              to="/admin"
+              class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-foreground/5"
+              @click="closeMenu"
+            >
+              <ShieldCheck class="w-4 h-4 text-foreground/70" />
+              <span>Painel admin</span>
+            </router-link>
             <div class="my-2 h-px bg-border"></div>
-            <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50" @click="signOutAndClose">Sign out</button>
+            <button class="w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2" @click="signOutAndClose">
+              <LogOut class="w-4 h-4" />
+              <span>Sair</span>
+            </button>
           </div>
         </div>
       </div>
@@ -118,7 +138,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { Button } from '@/components/ui/button'
-import { LogIn, Menu, X, ShieldCheck } from 'lucide-vue-next'
+import { LogIn, Menu, X, ShieldCheck, UserRound, Bell, Sparkles, LogOut } from 'lucide-vue-next'
 import { useUiStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { fetchAuthSession } from 'aws-amplify/auth'
@@ -209,15 +229,6 @@ const toggleMobileMenu = () => {
 // Fecha o menu mobile
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
-}
-
-// Faz scroll suave até a seção especificada
-const scrollToSection = (sectionId: string) => {
-  const element = document.getElementById(sectionId)
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth' })
-  }
-  closeMobileMenu()
 }
 
 // Adiciona o listener de rolagem ao montar o componente

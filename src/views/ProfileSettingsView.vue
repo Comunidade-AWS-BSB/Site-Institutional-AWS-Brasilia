@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto px-4 py-10">
-    <h1 class="text-2xl font-bold mb-6">Profile Settings</h1>
+  <div class="container mx-auto max-w-6xl px-4 py-10 md:py-14 min-h-[calc(100dvh-180px)]">
+    <h1 class="text-2xl font-semibold mb-6">Configurações de perfil</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <!-- Left column -->
@@ -17,7 +17,7 @@
 
             <div>
               <div class="font-medium">{{ summaryName }}</div>
-              <div class="text-xs text-muted-foreground">{{ email || 'your-email@example.com' }}</div>
+              <div class="text-xs text-muted-foreground">{{ email || 'seu-email@exemplo.com' }}</div>
             </div>
           </CardContent>
         </Card>
@@ -45,8 +45,8 @@
         <!-- Edit Profile -->
         <Card v-if="current === 'edit'">
           <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>Update your profile information.</CardDescription>
+            <CardTitle>Editar perfil</CardTitle>
+            <CardDescription>Atualize suas informações e foto de perfil.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-6">
             <!-- Photo selector (preview only por enquanto) -->
@@ -58,47 +58,72 @@
               <div class="space-x-2">
                 <input ref="photoInput" type="file" accept="image/*" class="hidden" @change="onPickPhoto" />
                 <Button variant="secondary" size="sm" @click="photoInput?.click()">
-                  <span>Change photo</span>
+                  <span>Alterar foto</span>
                 </Button>
-                <span class="text-xs text-muted-foreground align-middle">PNG or JPG up to 2MB</span>
+                <span class="text-xs text-muted-foreground align-middle">PNG ou JPG até 2&nbsp;MB</span>
               </div>
             </div>
 
             <Separator />
 
             <div class="space-y-2">
-              <Label for="displayName">Display name</Label>
-              <Input id="displayName" v-model="form.displayName" placeholder="Your display name" />
+              <Label for="displayName">Nome de exibição</Label>
+              <Input id="displayName" v-model="form.displayName" placeholder="Como devemos chamar você?" />
             </div>
 
             <div class="space-y-2">
-              <Label for="profession">Profession</Label>
-              <Input id="profession" v-model="form.profession" placeholder="e.g., Software Engineer" />
+              <Label for="profession">Profissão</Label>
+              <Input id="profession" v-model="form.profession" placeholder="Ex.: Engenheiro(a) de Software" />
             </div>
 
   <div class="space-y-2">
               <Label for="bio">Bio</Label>
-              <Textarea id="bio" v-model="form.bio" rows="4" placeholder="Tell us about yourself" />
+              <Textarea id="bio" v-model="form.bio" rows="4" placeholder="Conte um pouco sobre você" />
             </div>
             
             <Separator />
 
             <!-- Social Medias (por usuário) -->
             <div class="space-y-4">
-              <h3 class="text-sm font-medium">Social Profiles</h3>
+              <h3 class="text-sm font-medium">Redes sociais</h3>
               <div class="grid md:grid-cols-[200px_1fr] gap-3 items-end">
                 <div>
-                  <Label for="smType">Platform</Label>
+                  <Label for="smType">Plataforma</Label>
                   <Select v-model="smForm.type">
                     <SelectTrigger id="smType">
-                      <SelectValue placeholder="Select" />
+                      <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
-                      <SelectItem value="LINKEDIN">LinkedIn</SelectItem>
-                      <SelectItem value="INSTAGRAM">Instagram</SelectItem>
-                      <SelectItem value="GITHUB">GitHub</SelectItem>
-                      <SelectItem value="MEDIUM">Medium</SelectItem>
-                      <SelectItem value="OTHER">Other</SelectItem>
+                      <SelectItem value="LINKEDIN">
+                        <div class="flex items-center gap-2">
+                          <Linkedin class="w-4 h-4" />
+                          <span>LinkedIn</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="INSTAGRAM">
+                        <div class="flex items-center gap-2">
+                          <Instagram class="w-4 h-4" />
+                          <span>Instagram</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="GITHUB">
+                        <div class="flex items-center gap-2">
+                          <Github class="w-4 h-4" />
+                          <span>GitHub</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="MEDIUM">
+                        <div class="flex items-center gap-2">
+                          <PenSquare class="w-4 h-4" />
+                          <span>Medium</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="OTHER">
+                        <div class="flex items-center gap-2">
+                          <Link2 class="w-4 h-4" />
+                          <span>Outro</span>
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -107,54 +132,71 @@
                     <Label for="smUrl">URL</Label>
                     <Input id="smUrl" v-model="smForm.url" placeholder="https://..." />
                   </div>
-                  <Button type="button" @click="addPendingSocial" :disabled="!smForm.type || !smForm.url">Add</Button>
+                  <Button type="button" @click="addPendingSocial" :disabled="!smForm.type || !smForm.url">Adicionar</Button>
                 </div>
               </div>
 
               <div v-if="existingSocials.length" class="space-y-2">
-                <div class="text-xs text-muted-foreground">Saved</div>
+                <div class="text-xs text-muted-foreground">Salvas</div>
                 <ul class="space-y-2">
-                  <li v-for="s in existingSocials" :key="s.id" class="flex items-center justify-between gap-3 border rounded-md px-3 py-2">
-                    <div class="text-sm">
-                      <span class="font-medium mr-2">{{ prettyMedia(s.name) }}</span>
-                      <a :href="s.url" target="_blank" rel="noopener" class="underline text-foreground/80 hover:text-primary break-all">{{ s.url }}</a>
+                  <li
+                    v-for="s in existingSocials"
+                    :key="s.id"
+                    class="flex items-center justify-between gap-3 border rounded-md px-3 py-2"
+                  >
+                    <div class="flex items-center gap-3 text-sm">
+                      <component :is="resolveSocialIcon(s.name)" class="w-4 h-4 text-primary" />
+                      <div>
+                        <div class="font-medium">{{ prettyMedia(s.name) }}</div>
+                        <a :href="s.url" target="_blank" rel="noopener" class="text-xs text-primary hover:underline break-all">
+                          {{ s.url }}
+                        </a>
+                      </div>
                     </div>
-                    <Button variant="secondary" size="sm" @click="deleteExistingSocial(s.id)">Remove</Button>
+                    <Button variant="ghost" size="sm" @click="deleteExistingSocial(s.id)">Remover</Button>
                   </li>
                 </ul>
               </div>
+              <p v-else class="text-xs text-muted-foreground">Você ainda não adicionou nenhuma rede social.</p>
 
               <div v-if="pendingSocials.length" class="space-y-2">
-                <div class="text-xs text-muted-foreground">Pending</div>
+                <div class="text-xs text-muted-foreground">Pendentes para salvar</div>
                 <ul class="space-y-2">
-                  <li v-for="s in pendingSocials" :key="s._id" class="flex items-center justify-between gap-3 border rounded-md px-3 py-2">
-                    <div class="text-sm">
-                      <span class="font-medium mr-2">{{ prettyMedia(s.type) }}</span>
-                      <span class="break-all">{{ s.url }}</span>
+                  <li
+                    v-for="s in pendingSocials"
+                    :key="s._id"
+                    class="flex items-center justify-between gap-3 border rounded-md px-3 py-2"
+                  >
+                    <div class="flex items-center gap-3 text-sm">
+                      <component :is="resolveSocialIcon(s.type)" class="w-4 h-4 text-primary" />
+                      <div>
+                        <div class="font-medium">{{ prettyMedia(s.type) }}</div>
+                        <span class="text-xs text-muted-foreground break-all">{{ s.url }}</span>
+                      </div>
                     </div>
-                    <Button variant="secondary" size="sm" @click="removePendingSocial(s._id)">Discard</Button>
+                    <Button variant="secondary" size="sm" @click="removePendingSocial(s._id)">Descartar</Button>
                   </li>
                 </ul>
               </div>
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
-            <Button variant="secondary" @click="resetForm">Discard</Button>
-            <Button :disabled="saving" @click="onSaveGeneral">Save</Button>
-            <Button :disabled="saving || pendingSocials.length === 0" @click="onSavePendingSocials">Save Socials</Button>
+            <Button variant="secondary" @click="resetForm">Descartar</Button>
+            <Button :disabled="saving" @click="onSaveGeneral">Salvar</Button>
+            <Button :disabled="saving || pendingSocials.length === 0" @click="onSavePendingSocials">Salvar redes</Button>
           </CardFooter>
         </Card>
 
         <!-- Interests -->
         <Card v-else-if="current === 'interests'">
           <CardHeader>
-            <CardTitle>My Interests</CardTitle>
-            <CardDescription>Add keywords that describe your interests.</CardDescription>
+            <CardTitle>Meus interesses</CardTitle>
+            <CardDescription>Adicione temas e palavras-chave que representem você.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex gap-2">
-              <Input v-model="interestInput" placeholder="Type and press Enter" @keydown.enter.prevent="addInterest()" />
-              <Button variant="secondary" @click="addInterest">Add</Button>
+              <Input v-model="interestInput" placeholder="Digite e pressione Enter" @keydown.enter.prevent="addInterest()" />
+              <Button variant="secondary" @click="addInterest">Adicionar</Button>
             </div>
             <div class="flex flex-wrap gap-2 mt-2">
               <span v-for="i in form.interests" :key="i" class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-foreground/10">
@@ -164,43 +206,43 @@
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
-            <Button variant="secondary" @click="resetInterests">Discard</Button>
-            <Button :disabled="saving" @click="onSaveInterests">Save</Button>
+            <Button variant="secondary" @click="resetInterests">Descartar</Button>
+            <Button :disabled="saving" @click="onSaveInterests">Salvar</Button>
           </CardFooter>
         </Card>
 
         <!-- Notifications -->
         <Card v-else>
           <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>Contact preferences</CardDescription>
+            <CardTitle>Notificações</CardTitle>
+            <CardDescription>Escolha como prefere ser avisado.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium">Email notifications</div>
-                <div class="text-xs text-muted-foreground">Receive updates and announcements</div>
+                <div class="font-medium">E-mails</div>
+                <div class="text-xs text-muted-foreground">Receba novidades e avisos importantes por e-mail.</div>
               </div>
               <Switch v-model:checked="notifications.email" />
             </div>
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium">SMS notifications</div>
-                <div class="text-xs text-muted-foreground">Uses your verified Cognito number</div>
+                <div class="font-medium">SMS</div>
+                <div class="text-xs text-muted-foreground">Utiliza o número verificado no Cognito.</div>
               </div>
               <Switch v-model:checked="notifications.sms" />
             </div>
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium">WhatsApp notifications</div>
-                <div class="text-xs text-muted-foreground">Number (E.164) is the same as Cognito</div>
+                <div class="font-medium">WhatsApp</div>
+                <div class="text-xs text-muted-foreground">Número no padrão E.164 igual ao do Cognito.</div>
               </div>
               <Switch v-model:checked="notifications.whatsapp" />
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
-            <Button variant="secondary" @click="resetNotifications">Discard</Button>
-            <Button :disabled="saving" @click="onSaveNotifications">Save</Button>
+            <Button variant="secondary" @click="resetNotifications">Descartar</Button>
+            <Button :disabled="saving" @click="onSaveNotifications">Salvar</Button>
           </CardFooter>
         </Card>
       </div>
@@ -209,7 +251,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount, type Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -221,6 +263,8 @@ import { Switch } from '@/components/ui/switch'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { useProfile, useProfileSocials } from '@/composables/useProfile'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { Linkedin, Instagram, Github, PenSquare, Link2, Globe } from 'lucide-vue-next'
+import { refreshAuthMode } from '@/composables/useData'
 
 const auth = useAuthStore()
 const { profile: profileRef, load, saveGeneral, saveInterests, saveNotifications, uploadAvatar, getAvatarUrl } = useProfile()
@@ -231,9 +275,9 @@ const photoFile = ref<File | null>(null)
 
 // Left nav state
 const sideItems = [
-  { key: 'edit', label: 'Edit Profile' },
-  { key: 'interests', label: 'My Interests' },
-  { key: 'notifications', label: 'Notifications' },
+  { key: 'edit', label: 'Editar perfil' },
+  { key: 'interests', label: 'Meus interesses' },
+  { key: 'notifications', label: 'Notificações' },
 ] as const
 type TabKey = typeof sideItems[number]['key']
 const route = useRoute()
@@ -268,6 +312,13 @@ const existingSocials = ref<ExistingSocial[]>([])
 const pendingSocials = ref<PendingSocial[]>([])
 const smForm = ref<PendingSocial>({ _id: '', type: '', url: '' })
 
+function createUid(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID()
+  }
+  return Math.random().toString(36).slice(2)
+}
+
 function prettyMedia(name: MediaName | ''): string {
   switch (name) {
     case 'LINKEDIN': return 'LinkedIn'
@@ -279,14 +330,68 @@ function prettyMedia(name: MediaName | ''): string {
   }
 }
 
+const socialIconMap: Record<MediaName, Component> = {
+  LINKEDIN: Linkedin,
+  INSTAGRAM: Instagram,
+  GITHUB: Github,
+  MEDIUM: PenSquare,
+  OTHER: Globe,
+}
+function resolveSocialIcon(name: MediaName | ''): Component {
+  return socialIconMap[name as MediaName] ?? Link2
+}
+
+async function fetchSocials() {
+  try {
+    const data = await userSocials.list()
+    existingSocials.value = data.map(d => ({ id: d.id, name: d.name as MediaName, url: d.url ?? '' }))
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.debug('[Profile] Falha ao carregar redes sociais', err)
+    }
+  }
+}
+
 // Photo selector (preview only)
 const photoInput = ref<HTMLInputElement | null>(null)
 const photoPreview = ref<string | null>(null)
+const localPreviewUrl = ref<string | null>(null)
+
+function clearLocalPreview() {
+  if (localPreviewUrl.value) {
+    URL.revokeObjectURL(localPreviewUrl.value)
+    localPreviewUrl.value = null
+  }
+}
+
+async function loadPhotoFromProfile() {
+  if (photoFile.value) return
+  const key = profileRef.value?.photoKey
+  if (!key) {
+    clearLocalPreview()
+    photoPreview.value = null
+    return
+  }
+  try {
+    const url = await getAvatarUrl(key)
+    if (!photoFile.value) {
+      clearLocalPreview()
+      photoPreview.value = url
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.debug('[Profile] Falha ao obter foto', err)
+    }
+  }
+}
+
 async function onPickPhoto(e: Event) {
   const file = (e.target as HTMLInputElement)?.files?.[0]
   if (!file) return
+  clearLocalPreview()
   const url = URL.createObjectURL(file)
   photoPreview.value = url
+  localPreviewUrl.value = url
   photoFile.value = file
 }
 
@@ -312,6 +417,9 @@ function resetForm() {
     bio: p?.bio || '',
     interests: [...(p?.interests || [])],
   }
+  photoFile.value = null
+  clearLocalPreview()
+  void loadPhotoFromProfile()
 }
 
 function resetInterests() {
@@ -334,15 +442,21 @@ async function onSaveGeneral() {
       try {
         const path = await uploadAvatar(photoFile.value)
         const url = await getAvatarUrl(path)
-        if (url) photoPreview.value = url
+        clearLocalPreview()
         photoFile.value = null
-      } catch {}
+        if (url) photoPreview.value = url
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.debug('[Profile] Falha ao enviar avatar', err)
+        }
+      }
     }
     await saveGeneral({
       displayName: form.value.displayName,
       profession: form.value.profession,
       bio: form.value.bio,
     })
+    await loadPhotoFromProfile()
   } finally {
     saving.value = false
   }
@@ -371,14 +485,12 @@ async function onSaveNotifications() {
 }
 
 onMounted(async () => {
+  await refreshAuthMode()
   await load()
   resetForm()
   resetNotifications()
-  // carregar redes sociais já cadastradas
-  try {
-    const data = await userSocials.list()
-    existingSocials.value = data.map(d => ({ id: d.id, name: d.name as MediaName, url: d.url ?? '' }))
-  } catch {}
+  await loadPhotoFromProfile()
+  await fetchSocials()
   const initial = (route.query.tab as TabKey) || 'edit'
   current.value = initial
 })
@@ -386,6 +498,12 @@ onMounted(async () => {
 watch(() => route.query.tab, (t) => {
   const key = (t as TabKey) || 'edit'
   if (key !== current.value) current.value = key
+})
+
+watch(() => profileRef.value?.photoKey, () => {
+  if (!photoFile.value) {
+    void loadPhotoFromProfile()
+  }
 })
 
 function onSelectTab(tab: TabKey) {
@@ -396,15 +514,21 @@ function onSelectTab(tab: TabKey) {
 
 function addPendingSocial() {
   if (!smForm.value.type || !smForm.value.url.trim()) return
-  pendingSocials.value.push({ _id: crypto.randomUUID(), type: smForm.value.type, url: smForm.value.url.trim() })
+  pendingSocials.value.push({ _id: createUid(), type: smForm.value.type, url: smForm.value.url.trim() })
   smForm.value = { _id: '', type: '', url: '' }
 }
 function removePendingSocial(id: string) {
   pendingSocials.value = pendingSocials.value.filter(s => s._id !== id)
 }
 async function deleteExistingSocial(id: string) {
-  await userSocials.remove(id)
-  existingSocials.value = existingSocials.value.filter(s => s.id !== id)
+  try {
+    await userSocials.remove(id)
+    existingSocials.value = existingSocials.value.filter(s => s.id !== id)
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.debug('[Profile] Falha ao remover rede social', err)
+    }
+  }
 }
 async function onSavePendingSocials() {
   if (!pendingSocials.value.length) return
@@ -414,12 +538,15 @@ async function onSavePendingSocials() {
       await userSocials.create(s.type as MediaName, s.url)
     }
     pendingSocials.value = []
-    const data = await userSocials.list()
-    existingSocials.value = data.map(d => ({ id: d.id, name: d.name as MediaName, url: d.url ?? '' }))
+    await fetchSocials()
   } finally {
     saving.value = false
   }
 }
+
+onBeforeUnmount(() => {
+  clearLocalPreview()
+})
 </script>
 
 <style scoped>
