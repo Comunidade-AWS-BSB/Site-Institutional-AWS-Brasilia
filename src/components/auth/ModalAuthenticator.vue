@@ -211,7 +211,7 @@ function onProfileSaved() {
 watch(
   isLoggedIn,
   async (logged) => {
-    if (!logged) return
+    if (!logged || !props.visible) return
     emit('authenticated')
     onRequestClose()
     try {

@@ -34,6 +34,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useUiStore } from '@/stores/ui.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useAuth } from '@/composables/useAuth'
+import { refreshAuthMode } from '@/composables/useData'
 import { storeToRefs } from 'pinia'
 
 import { Toaster } from '@/components/ui/sonner'
@@ -50,7 +51,7 @@ const firstHomeLoad = ref(true)
 
 function onAuthenticated() {
   // Atualiza snapshot e força reload para garantir estado limpo pós-login
-  auth.refreshUser().finally(() => {
+  Promise.allSettled([auth.refreshUser(), refreshAuthMode()]).finally(() => {
     window.location.reload()
   })
 }
@@ -66,7 +67,7 @@ onMounted(async () => {
   try {
     await handleRedirectResult()
     await auth.bootstrap()
-    
+    await refreshAuthMode()
 
   } catch (e) {
     if (import.meta.env.DEV) {

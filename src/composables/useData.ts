@@ -1,4 +1,5 @@
 // src/composables/useData.ts
+import '@/lib/amplify'
 import { generateClient } from 'aws-amplify/data'
 import type { Schema } from '../../amplify/data/resource'
 import { getCurrentUser } from 'aws-amplify/auth'
@@ -12,6 +13,7 @@ let privateClient: Client | null = null
 
 // estado interno do modo atual
 let authMode: AuthMode = 'public'
+let initialProbeScheduled = false
 
 // cria (lazy) os dois clientes; chamamos quando necessário
 function ensureClients() {
@@ -36,8 +38,20 @@ Hub.listen('auth', ({ payload }) => {
     if (ev === 'signedOut' || ev === 'tokenRefresh_failure') authMode = 'public'
 })
 
-// faça um probe inicial (não bloqueia)
-void probeAuthMode()
+// faz um probe inicial de forma assíncrona para evitar chamadas antes do configure
+function scheduleInitialProbe() {
+    if (initialProbeScheduled) return
+    initialProbeScheduled = true
+    Promise.resolve()
+        .then(() => probeAuthMode())
+        .catch((err) => {
+            if (import.meta.env.DEV) {
+                console.debug('[useData] initial auth probe failed', err)
+            }
+        })
+}
+
+scheduleInitialProbe()
 
 /**
  * Retorna um client já pronto para uso, de forma SÍNCRONA.
