@@ -37,7 +37,7 @@ export const handler: Handler = async (event) => {
   const softCap = page * pageSize * 3 // heurística simples
 
   while (collected.length < softCap) {
-    const { data, errors, nextToken: nt } = await client.models.UserProfile.list({
+    const resp = await client.models.UserProfile.list({
       limit: 100,
       nextToken,
       selectionSet: selection,
@@ -46,8 +46,11 @@ export const handler: Handler = async (event) => {
         // No MVP, considerar "active" opcional; se o campo não existir nos registros antigos, o filtro ignora
         // active: { eq: true },
       },
-      authMode: 'userPool' // leitura privilegiada dentro da função; projeção controla o retorno público
     })
+
+    const data = resp.data
+    const errors = resp.errors
+    const nt = resp.nextToken as string | null | undefined
 
     if (errors?.length) {
       // Em caso de erro, retorna vazio de forma segura
@@ -85,7 +88,6 @@ export const handler: Handler = async (event) => {
       filter: { userId: { eq: p.id } },
       selectionSet: ['name', 'url'] as const,
       limit: 20,
-      authMode: 'userPool'
     })
 
     const medias = (mediasRaw ?? [])
