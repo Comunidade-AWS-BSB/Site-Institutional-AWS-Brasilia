@@ -12,12 +12,12 @@ const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
 const MediaType = a.enum(['LINKEDIN', 'INSTAGRAM', 'GITHUB', 'MEDIUM', 'OTHER'])
 
 const SocialMedia = a.model({
-  name: MediaType,
+  name: MediaType.required(),
   url: a.url(),
-  // Mantém compatibilidade: speakerId continua sendo a FK principal usada hoje
-  speakerId: a.id().required(),
+  // Mantém compatibilidade: speakerId pode existir, mas passa a ser opcional para suportar perfis de usuário
+  speakerId: a.id(),
   speaker: a.belongsTo('Speaker', 'speakerId'),
-  // Adiciona novo vínculo opcional para perfis de usuário (migração futura)
+  // Vínculo para perfis de usuário
   userId: a.id(),
   user: a.belongsTo('UserProfile', 'userId'),
 }).authorization((allow) => [

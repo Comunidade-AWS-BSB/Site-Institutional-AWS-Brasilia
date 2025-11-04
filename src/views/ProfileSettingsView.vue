@@ -1,8 +1,8 @@
 <template>
-  <div class="container mx-auto max-w-6xl px-4 py-10 md:py-14 min-h-[calc(100dvh-180px)]">
+  <div class="container mx-auto max-w-6xl px-4 pt-28 pb-16 md:pt-32 md:pb-20 min-h-[calc(100dvh-180px)]">
     <h1 class="text-2xl font-semibold mb-6">Configurações de perfil</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-[280px_minmax(0,1fr)]">
       <!-- Left column -->
       <div class="space-y-4">
         <!-- Profile summary card -->
@@ -76,11 +76,11 @@
               <Input id="profession" v-model="form.profession" placeholder="Ex.: Engenheiro(a) de Software" />
             </div>
 
-  <div class="space-y-2">
+            <div class="space-y-2">
               <Label for="bio">Bio</Label>
               <Textarea id="bio" v-model="form.bio" rows="4" placeholder="Conte um pouco sobre você" />
             </div>
-            
+
             <Separator />
 
             <!-- Social Medias (por usuário) -->
@@ -223,21 +223,21 @@
                 <div class="font-medium">E-mails</div>
                 <div class="text-xs text-muted-foreground">Receba novidades e avisos importantes por e-mail.</div>
               </div>
-              <Switch v-model:checked="notifications.email" />
+              <Switch :checked="notifications.email" @update:checked="onToggleNotification('email', $event)" />
             </div>
             <div class="flex items-center justify-between">
               <div>
                 <div class="font-medium">SMS</div>
                 <div class="text-xs text-muted-foreground">Utiliza o número verificado no Cognito.</div>
               </div>
-              <Switch v-model:checked="notifications.sms" />
+              <Switch :checked="notifications.sms" @update:checked="onToggleNotification('sms', $event)" />
             </div>
             <div class="flex items-center justify-between">
               <div>
                 <div class="font-medium">WhatsApp</div>
                 <div class="text-xs text-muted-foreground">Número no padrão E.164 igual ao do Cognito.</div>
               </div>
-              <Switch v-model:checked="notifications.whatsapp" />
+              <Switch :checked="notifications.whatsapp" @update:checked="onToggleNotification('whatsapp', $event)" />
             </div>
           </CardContent>
           <CardFooter class="justify-end gap-2">
@@ -251,7 +251,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount, type Component } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount, reactive, type Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -303,7 +303,11 @@ const form = ref({
   interests: [] as string[],
 })
 
-const notifications = ref({ email: true, sms: false, whatsapp: false })
+const notifications = reactive<{ email: boolean; sms: boolean; whatsapp: boolean }>({
+  email: true,
+  sms: false,
+  whatsapp: false,
+})
 
 // Socials (user)
 type ExistingSocial = { id: string; name: MediaName; url: string }
@@ -428,11 +432,11 @@ function resetInterests() {
 
 function resetNotifications() {
   const p = profileRef.value
-  notifications.value = {
+  Object.assign(notifications, {
     email: !!p?.notifyEmail,
     sms: !!p?.notifySms,
     whatsapp: !!p?.notifyWhatsApp,
-  }
+  })
 }
 
 async function onSaveGeneral() {
@@ -475,9 +479,9 @@ async function onSaveNotifications() {
   saving.value = true
   try {
     await saveNotifications({
-      email: notifications.value.email,
-      sms: notifications.value.sms,
-      whatsapp: notifications.value.whatsapp,
+      email: notifications.email,
+      sms: notifications.sms,
+      whatsapp: notifications.whatsapp,
     })
   } finally {
     saving.value = false
@@ -513,8 +517,10 @@ function onSelectTab(tab: TabKey) {
 }
 
 function addPendingSocial() {
-  if (!smForm.value.type || !smForm.value.url.trim()) return
-  pendingSocials.value.push({ _id: createUid(), type: smForm.value.type, url: smForm.value.url.trim() })
+  const type = smForm.value.type
+  const url = smForm.value.url.trim()
+  if (!type || !url) return
+  pendingSocials.value.push({ _id: createUid(), type, url })
   smForm.value = { _id: '', type: '', url: '' }
 }
 function removePendingSocial(id: string) {
@@ -542,6 +548,10 @@ async function onSavePendingSocials() {
   } finally {
     saving.value = false
   }
+}
+
+function onToggleNotification(channel: 'email' | 'sms' | 'whatsapp', value: boolean) {
+  notifications[channel] = value
 }
 
 onBeforeUnmount(() => {
