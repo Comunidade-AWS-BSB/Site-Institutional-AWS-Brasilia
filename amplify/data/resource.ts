@@ -12,7 +12,7 @@ const EventType = a.enum(['MEETUP', 'WORKSHOP', 'TALK'])
 const MediaType = a.enum(['LINKEDIN', 'INSTAGRAM', 'GITHUB', 'MEDIUM', 'OTHER'])
 
 const SocialMedia = a.model({
-  name: MediaType.required(),
+  name: MediaType,
   url: a.url(),
   // Mantém compatibilidade: speakerId pode existir, mas passa a ser opcional para suportar perfis de usuário
   speakerId: a.id(),

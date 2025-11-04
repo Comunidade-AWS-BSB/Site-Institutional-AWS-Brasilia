@@ -510,6 +510,15 @@ watch(() => profileRef.value?.photoKey, () => {
   }
 })
 
+watch(
+  () => profileRef.value,
+  (p) => {
+    if (!p) return
+    resetNotifications()
+  },
+  { immediate: false },
+)
+
 function onSelectTab(tab: TabKey) {
   if (tab === current.value) return
   current.value = tab

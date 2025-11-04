@@ -11,3 +11,7 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare module '$amplify/env/*' {
+  export const env: Record<string, string | undefined>;
+}
