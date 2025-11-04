@@ -42,6 +42,7 @@ async function fetchProfiles() {
   loading.value = true
   error.value = null
   try {
+    console.info('[useHub] request listPublicProfiles', { ...state })
     const { data, errors } = await client.queries.listPublicProfiles({
       q: state.q || undefined,
       profession: state.profession || undefined,
@@ -52,6 +53,7 @@ async function fetchProfiles() {
     if (errors?.length) throw new Error(errors.map((e: any) => e.message).join('; '))
 
     const raw = Array.isArray(data) ? data : Array.isArray((data as any)?.listPublicProfiles) ? (data as any).listPublicProfiles : []
+    console.info('[useHub] response listPublicProfiles', { rawCount: Array.isArray(raw) ? raw.length : 0 })
     items.value = (raw as any[]).map((p) => ({
       id: String(p.id),
       displayName: String(p.displayName || ''),
@@ -61,9 +63,10 @@ async function fetchProfiles() {
       photoUrl: String(p.photoUrl || ''),
       medias: Array.isArray(p.medias) ? p.medias.filter((m: any) => m?.name && m?.url).map((m: any) => ({ name: m.name, url: normalizeUrl(String(m.url)) })) : [],
     }))
+    console.info('[useHub] normalized items', { count: items.value.length })
   } catch (e) {
     error.value = e
-    if (import.meta.env.DEV) console.warn('[useHub] fetchProfiles error', e)
+    console.error('[useHub] fetchProfiles error', e)
   } finally {
     loading.value = false
   }
@@ -93,4 +96,3 @@ export function useHub() {
     fetchProfiles, setQuery, setProfession, setInterest, setPage,
   }
 }
-
