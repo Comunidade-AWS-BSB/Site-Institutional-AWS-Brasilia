@@ -21,6 +21,9 @@ const profileSelection = [
   'notifyEmail',
   'notifySms',
   'notifyWhatsApp',
+  'isPublic',
+  'lastActiveAt',
+  'active',
 ] as const
 
 export type UserProfileRow = SelectionSet<UserProfile, typeof profileSelection>
@@ -48,6 +51,9 @@ async function ensureProfile(): Promise<UserProfileRow> {
     notifyEmail: true,
     notifySms: false,
     notifyWhatsApp: false,
+    isPublic: false,
+    active: true,
+    lastActiveAt: new Date().toISOString(),
   }, { authMode: 'userPool', selectionSet: profileSelection })
   if (errors?.length) throw new Error(errors.map((e: any) => e.message).join('; '))
   return created as UserProfileRow
@@ -65,7 +71,7 @@ async function load() {
   }
 }
 
-async function saveGeneral(input: { displayName: string; profession: string; bio: string }) {
+async function saveGeneral(input: { displayName: string; profession: string; bio: string; isPublic?: boolean }) {
   if (!profile.value) await load()
   const current = profile.value!
   const { data, errors } = await client.models.UserProfile.update({
@@ -73,6 +79,7 @@ async function saveGeneral(input: { displayName: string; profession: string; bio
     displayName: input.displayName,
     profession: input.profession,
     bio: input.bio,
+    isPublic: typeof input.isPublic === 'boolean' ? input.isPublic : current.isPublic,
   }, { authMode: 'userPool', selectionSet: profileSelection })
   if (errors?.length) throw new Error(errors.map((e: any) => e.message).join('; '))
   profile.value = data as UserProfileRow
@@ -128,6 +135,8 @@ export function useProfile() {
     getAvatarUrl,
   }
 }
+
+export { iconForMedia, normalizeUrl } from '@/composables/useProfileSocials'
 
 /** Social medias do usuário (CRUD por userId) */
 export function useProfileSocials() {

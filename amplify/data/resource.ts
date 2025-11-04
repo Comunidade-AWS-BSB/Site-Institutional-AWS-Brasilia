@@ -4,6 +4,7 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 import { previewRecipientsFn } from '../functions/preview-recipients/resource'
 import { startBroadcastFn } from '../functions/start-broadcast/resource'
 import { scheduleBroadcastFn } from '../functions/schedule-broadcast/resource'
+import { listPublicProfilesFn } from '../functions/list-public-profiles/resource'
 
 
 /** Tipos */
@@ -38,6 +39,11 @@ const UserProfile = a.model({
   notifyEmail: a.boolean(),
   notifySms: a.boolean(),
   notifyWhatsApp: a.boolean(),
+
+  // Visibilidade/atividade (Hub)
+  isPublic: a.boolean(),
+  lastActiveAt: a.string(),
+  active: a.boolean(),
 
   // Relações 1‑N: redes sociais do usuário (nova FK opcional)
   medias: a.hasMany('SocialMedia', 'userId'),
@@ -201,6 +207,19 @@ const schema = a.schema({
     username: a.string(), 
     phoneE164: a.string() 
   }),
+  PublicMedia: a.customType({
+    name: MediaType,
+    url: a.url(),
+  }),
+  PublicProfile: a.customType({
+    id: a.id(),
+    displayName: a.string(),
+    profession: a.string(),
+    bio: a.string(),
+    interests: a.string().array(),
+    photoUrl: a.url(),
+    medias: a.ref('PublicMedia').array(),
+  }),
   StartResult: a.customType({ 
     ok: a.boolean(), 
     created: a.integer() 
@@ -236,10 +255,24 @@ const schema = a.schema({
     .returns(a.boolean())
     .authorization(allow => [allow.group('ADMINS')])
     .handler(a.handler.function(scheduleBroadcastFn))
+
+  ,
+  listPublicProfiles: a.query()
+    .arguments({
+      q: a.string(),
+      profession: a.string(),
+      interest: a.string(),
+      page: a.integer(),
+      pageSize: a.integer(),
+    })
+    .returns(a.ref('PublicProfile').array())
+    .authorization(allow => [allow.publicApiKey(), allow.authenticated()])
+    .handler(a.handler.function(listPublicProfilesFn))
 }).authorization(allow => [
   allow.resource(previewRecipientsFn).to(['query']),
   allow.resource(startBroadcastFn).to(['query', 'mutate']),
-  allow.resource(scheduleBroadcastFn).to(['query'])
+  allow.resource(scheduleBroadcastFn).to(['query']),
+  allow.resource(listPublicProfilesFn).to(['query'])
 ])
 
 export type Schema = ClientSchema<typeof schema>

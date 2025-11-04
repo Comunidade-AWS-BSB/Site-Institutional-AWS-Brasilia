@@ -155,7 +155,8 @@ const navLinks: NavLink[] = [
   { text: 'Palestrantes', to: '#speakers' },
   { text: 'Galeria', to: '#gallery' },
   { text: 'Contato', to: '#contact' },
-  { text: 'Eventos', to: '/events' }
+  { text: 'Eventos', to: '/events' },
+  { text: 'Comunidade', to: '/hub' },
 ]
 
 const isScrolled = ref(false)

@@ -76,12 +76,23 @@
               <Input id="profession" v-model="form.profession" placeholder="Ex.: Engenheiro(a) de Software" />
             </div>
 
-            <div class="space-y-2">
-              <Label for="bio">Bio</Label>
-              <Textarea id="bio" v-model="form.bio" rows="4" placeholder="Conte um pouco sobre você" />
-            </div>
+          <div class="space-y-2">
+            <Label for="bio">Bio</Label>
+            <Textarea id="bio" v-model="form.bio" rows="4" placeholder="Conte um pouco sobre você" />
+          </div>
 
-            <Separator />
+          <Separator />
+
+          <!-- Visibilidade no Hub -->
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="font-medium">Exibir meu perfil no Hub</div>
+              <div class="text-xs text-muted-foreground">Seu nome, profissão, bio, interesses e redes sociais ficarão visíveis publicamente.</div>
+            </div>
+            <Switch v-model:checked="form.isPublic" />
+          </div>
+
+          <Separator />
 
             <!-- Social Medias (por usuário) -->
             <div class="space-y-4">
@@ -301,6 +312,7 @@ const form = ref({
   profession: '',
   bio: '',
   interests: [] as string[],
+  isPublic: false,
 })
 
 const notifications = ref({ email: true, sms: false, whatsapp: false })
@@ -416,6 +428,7 @@ function resetForm() {
     profession: p?.profession || '',
     bio: p?.bio || '',
     interests: [...(p?.interests || [])],
+    isPublic: !!p?.isPublic,
   }
   photoFile.value = null
   clearLocalPreview()
@@ -455,6 +468,7 @@ async function onSaveGeneral() {
       displayName: form.value.displayName,
       profession: form.value.profession,
       bio: form.value.bio,
+      isPublic: form.value.isPublic,
     })
     await loadPhotoFromProfile()
   } finally {

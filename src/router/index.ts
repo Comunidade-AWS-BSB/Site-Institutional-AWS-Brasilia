@@ -13,6 +13,7 @@ import { useUiStore } from '@/stores/ui.store'
 import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
 import UseTermsView from '@/views/UseTermsView.vue'
 import ProfileSettingsView from '@/views/ProfileSettingsView.vue'
+const UsersHubView = () => import('@/views/UsersHubView.vue')
 
 // Helper: extrai grupos do ID token de forma segura
 function getGroupsFromSession(session: Awaited<ReturnType<typeof fetchAuthSession>>): string[] {
@@ -27,6 +28,11 @@ const routes: RouteRecordRaw[] = [
     path: '/',                   // página inicial
     name: 'home',
     component: HomeView,
+  },
+  {
+    path: '/hub',
+    name: 'users-hub',
+    component: UsersHubView,
   },
   {
     path: '/profile',
