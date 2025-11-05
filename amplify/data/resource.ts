@@ -217,8 +217,8 @@ const schema = a.schema({
     profession: a.string(),
     bio: a.string(),
     interests: a.string().array(),
-    photoUrl: a.url().optional(),
-    photoKey: a.string().optional(),
+    photoUrl: a.url(),
+    photoKey: a.string(),
     medias: a.ref('PublicMedia').array(),
   }),
   StartResult: a.customType({ 

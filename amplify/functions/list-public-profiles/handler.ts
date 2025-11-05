@@ -127,8 +127,8 @@ export const handler: Handler = async (event) => {
       profession: p.profession ?? '',
       bio: p.bio ?? '',
       interests: Array.isArray(p.interests) ? p.interests : [],
-      photoUrl: resolvedPhotoUrl,
-      photoKey: normalizedPhotoKey,
+      photoUrl: resolvedPhotoUrl ?? null,
+      photoKey: normalizedPhotoKey ?? null,
       medias,
     }
   }))
