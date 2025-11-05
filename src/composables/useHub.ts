@@ -1,5 +1,6 @@
 import { ref, computed, reactive } from 'vue'
 import { getDataClient } from '@/composables/useData'
+import { getUrl } from 'aws-amplify/storage'
 
 const client = getDataClient('public')
 
@@ -10,7 +11,8 @@ export type PublicProfile = {
   profession: string
   bio: string
   interests: string[]
-  photoUrl: string
+  photoUrl: string | null
+  photoKey: string | null
   medias: PublicMedia[]
 }
 
@@ -54,15 +56,29 @@ async function fetchProfiles() {
 
     const raw = Array.isArray(data) ? data : Array.isArray((data as any)?.listPublicProfiles) ? (data as any).listPublicProfiles : []
     console.info('[useHub] response listPublicProfiles', { rawCount: Array.isArray(raw) ? raw.length : 0 })
-    items.value = (raw as any[]).map((p) => ({
+    const normalized = (raw as any[]).map((p) => ({
       id: String(p.id),
       displayName: String(p.displayName || ''),
       profession: String(p.profession || ''),
       bio: String(p.bio || ''),
       interests: Array.isArray(p.interests) ? p.interests.map(String) : [],
-      photoUrl: String(p.photoUrl || ''),
+      photoUrl: typeof p.photoUrl === 'string' && p.photoUrl.trim().length ? p.photoUrl.trim() : null,
+      photoKey: typeof p.photoKey === 'string' && p.photoKey.trim().length ? p.photoKey.trim() : null,
       medias: Array.isArray(p.medias) ? p.medias.filter((m: any) => m?.name && m?.url).map((m: any) => ({ name: m.name, url: normalizeUrl(String(m.url)) })) : [],
     }))
+    items.value = normalized
+
+    await Promise.all(normalized.map(async (profile) => {
+      if (!profile.photoUrl && profile.photoKey) {
+        try {
+          const { url } = await getUrl({ path: profile.photoKey, options: { expiresIn: 900 } })
+          profile.photoUrl = url.toString()
+        } catch (err) {
+          console.warn('[useHub] failed to resolve photo url', { id: profile.id, key: profile.photoKey, err })
+        }
+      }
+    }))
+
     console.info('[useHub] normalized items', { count: items.value.length })
   } catch (e) {
     error.value = e
@@ -73,8 +89,14 @@ async function fetchProfiles() {
 }
 
 function setQuery(q: string) { state.q = q; state.page = 1 }
-function setProfession(p: string) { state.profession = p; state.page = 1 }
-function setInterest(i: string) { state.interest = i; state.page = 1 }
+function setProfession(p?: string | null) {
+  state.profession = typeof p === 'string' ? p : ''
+  state.page = 1
+}
+function setInterest(i?: string | null) {
+  state.interest = typeof i === 'string' ? i : ''
+  state.page = 1
+}
 function setPage(p: number) { state.page = Math.max(1, p) }
 
 const professions = computed(() => Array.from(new Set(items.value.map(p => p.profession).filter(Boolean))).sort((a, b) => a.localeCompare(b)))

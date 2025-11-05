@@ -43,16 +43,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Linkedin, Instagram, Github, Newspaper, Globe } from 'lucide-vue-next'
-
-export type PublicProfile = {
-  id: string
-  displayName: string
-  profession: string
-  bio: string
-  interests: string[]
-  photoUrl: string
-  medias?: { name: string; url: string }[]
-}
+import type { PublicProfile } from '@/composables/useHub'
 
 defineProps<{
   visible: boolean

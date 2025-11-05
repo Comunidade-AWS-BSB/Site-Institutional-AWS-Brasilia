@@ -18,21 +18,21 @@
           />
         </div>
         <div class="flex gap-2 items-center">
-          <Select v-model="state.profession" @update:modelValue="applyFilters">
+          <Select :modelValue="state.profession || ALL_OPTION" @update:modelValue="onProfessionSelect">
             <SelectTrigger class="min-w-44">
               <SelectValue placeholder="Todas profissões" />
             </SelectTrigger>
             <SelectContent class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
-              <SelectItem value="">Todas profissões</SelectItem>
+              <SelectItem :value="ALL_OPTION">Todas profissões</SelectItem>
               <SelectItem v-for="p in professions" :key="p" :value="p">{{ p }}</SelectItem>
             </SelectContent>
           </Select>
-          <Select v-model="state.interest" @update:modelValue="applyFilters">
+          <Select :modelValue="state.interest || ALL_OPTION" @update:modelValue="onInterestSelect">
             <SelectTrigger class="min-w-44">
               <SelectValue placeholder="Todos interesses" />
             </SelectTrigger>
             <SelectContent class="bg-black text-popover-foreground border border-input shadow-lg rounded-md">
-              <SelectItem value="">Todos interesses</SelectItem>
+              <SelectItem :value="ALL_OPTION">Todos interesses</SelectItem>
               <SelectItem v-for="i in interests" :key="i" :value="i">{{ i }}</SelectItem>
             </SelectContent>
           </Select>
@@ -97,7 +97,9 @@ import type { PublicProfile } from '@/composables/useHub'
 import { Linkedin, Instagram, Github, Newspaper, Globe } from 'lucide-vue-next'
 import UserPreviewModal from '@/components/community/UserPreviewModal.vue'
 
-const { items, loading, state, professions, interests, fetchProfiles, setQuery } = useHub()
+const { items, loading, state, professions, interests, fetchProfiles, setQuery, setProfession, setInterest } = useHub()
+
+const ALL_OPTION = '__ALL__'
 
 const localQuery = ref('')
 let debounceTimer: number | undefined
@@ -108,10 +110,6 @@ function onQueryInput() {
     setQuery(localQuery.value)
     fetchProfiles()
   }, 300)
-}
-
-function applyFilters() {
-  fetchProfiles()
 }
 
 function initials(name: string): string {
@@ -140,6 +138,16 @@ function openProfile(p: PublicProfile) {
 function closeModal() {
   modalOpen.value = false
   selected.value = null
+}
+
+function onProfessionSelect(value: string) {
+  setProfession(value === ALL_OPTION ? '' : value)
+  fetchProfiles()
+}
+
+function onInterestSelect(value: string) {
+  setInterest(value === ALL_OPTION ? '' : value)
+  fetchProfiles()
 }
 
 onMounted(() => {

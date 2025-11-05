@@ -1,6 +1,7 @@
 import type { Schema } from "../../data/resource";
 import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
+import { getUrl } from 'aws-amplify/storage'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
 import { env } from '$amplify/env/list-public-profiles'
 
@@ -27,6 +28,7 @@ export const handler: Handler = async (event) => {
     'bio',
     'interests',
     'photoUrl',
+    'photoKey',
     'isPublic',
     'active',
   ] as const
@@ -108,13 +110,25 @@ export const handler: Handler = async (event) => {
       .map((m: any) => ({ name: m?.name, url: m?.url }))
       .filter((m) => typeof m.name === 'string' && typeof m.url === 'string')
 
+    const normalizedPhotoKey = typeof p.photoKey === 'string' && p.photoKey.trim().length ? p.photoKey.trim() : undefined
+    let resolvedPhotoUrl = typeof p.photoUrl === 'string' && p.photoUrl.trim().length ? p.photoUrl.trim() : undefined
+    if (!resolvedPhotoUrl && normalizedPhotoKey) {
+      try {
+        const { url } = await getUrl({ path: normalizedPhotoKey, options: { expiresIn: 900 } })
+        resolvedPhotoUrl = url.toString()
+      } catch (err) {
+        console.warn('[list-public-profiles] photo getUrl failed', { userId: p.id, key: normalizedPhotoKey, err })
+      }
+    }
+
     return {
       id: p.id,
       displayName: p.displayName ?? '',
       profession: p.profession ?? '',
       bio: p.bio ?? '',
       interests: Array.isArray(p.interests) ? p.interests : [],
-      photoUrl: p.photoUrl ?? '',
+      photoUrl: resolvedPhotoUrl,
+      photoKey: normalizedPhotoKey,
       medias,
     }
   }))
@@ -122,4 +136,3 @@ export const handler: Handler = async (event) => {
   console.info('[list-public-profiles] returning page', { page, pageSize, count: publicItems.length })
   return publicItems
 }
-
